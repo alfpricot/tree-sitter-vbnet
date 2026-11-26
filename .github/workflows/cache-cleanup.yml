@@ -8,7 +8,9 @@
 #                      workflow_dispatch
 #  Purpose             Deletes Actions caches belonging to closed pull
 #                      requests and deleted branches, so they stop counting
-#                      against the repository's cache quota.
+#                      against the repository's cache quota. The schedule
+#                      starts only after GitHub registers the workflow,
+#                      which needs a push that changes this file.
 # =============================================================================
 
 name: Cleanup stale caches
