@@ -33,7 +33,11 @@
 #                      marker, which can also suppress the tag-push trigger;
 #                      gala-release.yml dispatches this workflow with the tag
 #                      gala just pushed instead. A tag pushed by hand still
-#                      triggers it directly.
+#                      triggers it directly. GitHub only registers a
+#                      workflow once a push has triggered it or changed its
+#                      file, so in a new repository this file needs one
+#                      change on the default branch before that dispatch
+#                      can find it.
 #
 #                      gala writes every version file (Cargo.toml,
 #                      package.json, tree-sitter.json) and regenerates the
