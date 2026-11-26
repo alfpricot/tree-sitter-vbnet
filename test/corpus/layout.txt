@@ -1,0 +1,402 @@
+========================================================================
+Comment above Option Strict
+========================================================================
+
+' File header
+Option Strict On
+
+------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (option_statement))
+
+========================================================================
+Option statements
+========================================================================
+
+Option Strict Off
+Option Explicit
+Option Compare Text
+Option Infer On
+
+------------------------------------------------------------------------
+
+(source_file
+  (option_statement)
+  (option_statement)
+  (option_statement)
+  (option_statement))
+
+========================================================================
+Blank and comment lines between Select Case and Case
+========================================================================
+
+Module M
+    Sub Run(x As Integer)
+        Select Case x
+
+            ' first
+            Case 1
+                Run(2)
+        End Select
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      body: (block
+        (select_statement
+          value: (identifier)
+          (comment)
+          (case_block
+            (case_clause
+              value: (integer_literal))
+            body: (block
+              (expression_statement
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list
+                    (integer_literal)))))))))))
+
+========================================================================
+No line break at end of file
+========================================================================
+
+Class C
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)))
+
+========================================================================
+Blank lines at start and between members
+========================================================================
+
+
+
+Class C
+
+    Private a As Integer
+
+
+    Private b As Integer
+
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))))
+
+========================================================================
+REM comments
+========================================================================
+
+REM top
+Module M
+    Sub Run()
+        rem inside
+        If ready Then REM opens a block
+            Go()
+        End If REM after a statement
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (comment)
+      body: (block
+        (if_statement
+          condition: (identifier)
+          (comment)
+          consequence: (block
+            (expression_statement
+              (invocation_expression
+                function: (identifier)
+                arguments: (argument_list)))))
+        (comment)))))
+
+========================================================================
+A word starting with REM is not a comment
+========================================================================
+
+Module M
+    Sub Run()
+        removed = x.Remove(1)
+        RemoveHandler a.B, AddressOf C
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (integer_literal))))
+        (remove_handler_statement
+          event: (member_access_expression
+            object: (identifier)
+            member: (identifier))
+          handler: (unary_expression
+            operand: (identifier)))))))
+
+========================================================================
+Explicit line continuation
+========================================================================
+
+Module M
+    Sub Run()
+        total = a _
+            + b _ ' a comment after the underscore
+            + c
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (identifier)
+              right: (identifier))
+            right: (identifier)))))))
+
+========================================================================
+Implicit line continuation
+========================================================================
+
+Module M
+    Sub Run()
+        s = "a" &
+            "b"
+        Compute(a,
+                b
+        )
+        If a AndAlso
+           b Then
+        End If
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (string_literal)
+            right: (string_literal)))
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)
+              (identifier))))
+        (if_statement
+          condition: (binary_expression
+            left: (identifier)
+            right: (identifier)))))))
+
+========================================================================
+A line break before a member access ends the statement
+========================================================================
+
+Module M
+    Sub Run()
+        With form
+            x = a
+            .Show()
+        End With
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (with_statement
+          object: (identifier)
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (identifier))
+            (expression_statement
+              (invocation_expression
+                function: (member_access_expression
+                  member: (identifier))
+                arguments: (argument_list)))))))))
+
+========================================================================
+Colon separators
+========================================================================
+
+Module M
+    Sub Run()
+        a = 1 : b = 2
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+Leading colon
+========================================================================
+
+Public Interface IChannel
+    : Inherits IBase
+End Interface
+
+------------------------------------------------------------------------
+
+(source_file
+  (interface_block
+    modifiers: (modifiers
+      (modifier))
+    name: (identifier)
+    (inherits_statement
+      (identifier))))
+
+========================================================================
+Preprocessor lines
+========================================================================
+
+#Const Verbose = True
+Module M
+#Region "Helpers"
+    Sub Run()
+#If DEBUG Then
+        Log()
+#Else
+        Skip()
+#End If
+    End Sub
+#End Region
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (module_block
+    name: (identifier)
+    (preprocessor_directive)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list))))
+      (preprocessor_directive))
+    (preprocessor_directive)))
+
+========================================================================
+Hash date literal is not a directive
+========================================================================
+
+Module M
+    Sub Run()
+        d = Pick(
+#1/1/2020#)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (date_literal))))))))

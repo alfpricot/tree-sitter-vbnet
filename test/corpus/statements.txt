@@ -1,0 +1,641 @@
+========================================================================
+Local declarations
+========================================================================
+
+Module M
+    Sub Run()
+        Dim x As New Foo()
+        Dim y As New Foo(1) With {.Name = "a"}
+        Dim names As List(Of String)
+        Dim a(5) As String, b() As Integer = {1, 2}
+        Dim c = 1, d As Long
+        Const Limit As Integer = 3
+        Static calls As Integer
+        Dim n As Integer?
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (object_creation_expression
+              type: (identifier)
+              arguments: (argument_list))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (object_creation_expression
+              type: (identifier)
+              arguments: (argument_list
+                (integer_literal))
+              initializer: (object_initializer
+                (field_initializer
+                  value: (binary_expression
+                    left: (member_access_expression
+                      member: (identifier))
+                    right: (string_literal)))))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (generic_name
+              name: (identifier)
+              type_arguments: (type_argument_list
+                (primitive_type)))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            bounds: (argument_list
+              (integer_literal))
+            type: (primitive_type))
+          declarator: (variable_declarator
+            name: (identifier)
+            bounds: (argument_list)
+            type: (primitive_type)
+            value: (collection_initializer
+              (integer_literal)
+              (integer_literal))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (integer_literal))
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type)))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type)
+            value: (integer_literal)))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type)))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (nullable_type
+              type: (primitive_type))))))))
+
+========================================================================
+Assignments
+========================================================================
+
+Module M
+    Sub Run()
+        x = 1
+        x += 1
+        s &= "a"
+        x <<= 2
+        a(0) = b!Name
+        .Text = "in a With block"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (assignment_statement
+          left: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (integer_literal)))
+          right: (dictionary_access_expression
+            object: (identifier)
+            key: (identifier)))
+        (assignment_statement
+          left: (member_access_expression
+            member: (identifier))
+          right: (string_literal))))))
+
+========================================================================
+Calls
+========================================================================
+
+Module M
+    Sub Run()
+        Run
+        Console.WriteLine("x")
+        Call Run()
+        Await Task.Delay(1)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (expression_statement
+          (identifier))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (string_literal))))
+        (call_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (expression_statement
+          (await_expression
+            (invocation_expression
+              function: (member_access_expression
+                object: (identifier)
+                member: (identifier))
+              arguments: (argument_list
+                (integer_literal)))))))))
+
+========================================================================
+Multi-line If
+========================================================================
+
+Module M
+    Sub Run()
+        If a Then
+            x = 1
+        ElseIf b Then
+            x = 2
+        Else If c Then
+            x = 3
+        Else
+            x = 4
+        End If
+        If d
+        End If
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (if_statement
+          condition: (identifier)
+          consequence: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal)))
+          alternative: (elseif_clause
+            condition: (identifier)
+            consequence: (block
+              (assignment_statement
+                left: (identifier)
+                right: (integer_literal))))
+          alternative: (elseif_clause
+            condition: (identifier)
+            consequence: (block
+              (assignment_statement
+                left: (identifier)
+                right: (integer_literal))))
+          alternative: (else_clause
+            body: (block
+              (assignment_statement
+                left: (identifier)
+                right: (integer_literal)))))
+        (if_statement
+          condition: (identifier))))))
+
+========================================================================
+Single-line If
+========================================================================
+
+Module M
+    Sub Run()
+        If a Then Exit Sub
+        If b Then x = 1 : y = 2 Else x = 3
+        If c Then Return Else Throw New Exception()
+        If TypeOf o Is Foo Then Use(o)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (single_line_if_statement
+          condition: (identifier)
+          consequence: (single_line_block
+            (exit_statement)))
+        (single_line_if_statement
+          condition: (identifier)
+          consequence: (single_line_block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal)))
+          alternative: (single_line_block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))
+        (single_line_if_statement
+          condition: (identifier)
+          consequence: (single_line_block
+            (return_statement))
+          alternative: (single_line_block
+            (throw_statement
+              (object_creation_expression
+                type: (identifier)
+                arguments: (argument_list)))))
+        (single_line_if_statement
+          condition: (type_of_expression
+            value: (identifier)
+            type: (identifier))
+          consequence: (single_line_block
+            (expression_statement
+              (invocation_expression
+                function: (identifier)
+                arguments: (argument_list
+                  (identifier))))))))))
+
+========================================================================
+Select Case
+========================================================================
+
+Module M
+    Sub Run()
+        Select Case n
+            Case 1, 2
+                a()
+            Case 3 To 5
+            Case Is > 10, < -1
+            Case Else
+                b()
+        End Select
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (select_statement
+          value: (identifier)
+          (case_block
+            (case_clause
+              value: (integer_literal))
+            (case_clause
+              value: (integer_literal))
+            body: (block
+              (expression_statement
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list)))))
+          (case_block
+            (case_clause
+              low: (integer_literal)
+              high: (integer_literal)))
+          (case_block
+            (case_clause
+              value: (integer_literal))
+            (case_clause
+              value: (unary_expression
+                operand: (integer_literal))))
+          (case_else_block
+            body: (block
+              (expression_statement
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list))))))))))
+
+========================================================================
+Loops
+========================================================================
+
+Module M
+    Sub Run()
+        For i As Integer = 0 To 10 Step 2
+            Continue For
+        Next i
+        For Each item As String In items
+            Exit For
+        Next
+        While running
+        End While
+        Do While x < 10
+            x += 1
+        Loop
+        Do
+        Loop Until done
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (for_statement
+          variable: (identifier)
+          type: (primitive_type)
+          start: (integer_literal)
+          end: (integer_literal)
+          step: (integer_literal)
+          body: (block
+            (continue_statement))
+          (identifier))
+        (for_each_statement
+          variable: (identifier)
+          type: (primitive_type)
+          collection: (identifier)
+          body: (block
+            (exit_statement)))
+        (while_statement
+          condition: (identifier))
+        (do_statement
+          condition: (binary_expression
+            left: (identifier)
+            right: (integer_literal))
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))
+        (do_statement
+          condition: (identifier))))))
+
+========================================================================
+Try Catch Finally
+========================================================================
+
+Module M
+    Sub Run()
+        Try
+            Work()
+        Catch ex As IOException When ex.HResult = 5
+            Log(ex)
+        Catch
+            Throw
+        Finally
+            Cleanup()
+        End Try
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (try_statement
+          body: (block
+            (expression_statement
+              (invocation_expression
+                function: (identifier)
+                arguments: (argument_list))))
+          (catch_block
+            name: (identifier)
+            type: (identifier)
+            filter: (binary_expression
+              left: (member_access_expression
+                object: (identifier)
+                member: (identifier))
+              right: (integer_literal))
+            body: (block
+              (expression_statement
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list
+                    (identifier))))))
+          (catch_block
+            body: (block
+              (throw_statement)))
+          (finally_block
+            body: (block
+              (expression_statement
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list))))))))))
+
+========================================================================
+Using, With, and SyncLock
+========================================================================
+
+Module M
+    Sub Run()
+        Using conn As New SqlConnection(cs), cmd = conn.CreateCommand()
+            cmd.ExecuteNonQuery()
+        End Using
+        Using stream
+        End Using
+        With form
+            .Text = "x"
+            .Show()
+        End With
+        SyncLock gate
+            count += 1
+        End SyncLock
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (using_statement
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (object_creation_expression
+              type: (identifier)
+              arguments: (argument_list
+                (identifier))))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (invocation_expression
+              function: (member_access_expression
+                object: (identifier)
+                member: (identifier))
+              arguments: (argument_list)))
+          body: (block
+            (expression_statement
+              (invocation_expression
+                function: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                arguments: (argument_list)))))
+        (using_statement
+          declarator: (variable_declarator
+            name: (identifier)))
+        (with_statement
+          object: (identifier)
+          body: (block
+            (assignment_statement
+              left: (member_access_expression
+                member: (identifier))
+              right: (string_literal))
+            (expression_statement
+              (invocation_expression
+                function: (member_access_expression
+                  member: (identifier))
+                arguments: (argument_list)))))
+        (sync_lock_statement
+          lock: (identifier)
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))))))
+
+========================================================================
+Error handling and legacy statements
+========================================================================
+
+Module M
+    Sub Run()
+        On Error GoTo Handler
+        On Error Resume Next
+        On Error GoTo 0
+        Erase a, b
+        ReDim Preserve arr(10)
+        Stop
+        End
+Handler:
+        Resume Next
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (on_error_statement
+          label: (identifier))
+        (on_error_statement)
+        (on_error_statement
+          label: (integer_literal))
+        (erase_statement
+          (identifier)
+          (identifier))
+        (redim_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (integer_literal))))
+        (stop_statement)
+        (end_statement)
+        (label_statement
+          label: (identifier
+            (identifier)))
+        (resume_statement)))))
+
+========================================================================
+Events and iterators
+========================================================================
+
+Module M
+    Iterator Function Numbers() As IEnumerable(Of Integer)
+        Yield 1
+    End Function
+
+    Sub Wire()
+        AddHandler btn.Click, AddressOf OnClick
+        RemoveHandler btn.Click, AddressOf OnClick
+        RaiseEvent Changed(Me, EventArgs.Empty)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list)
+      return_type: (generic_name
+        name: (identifier)
+        type_arguments: (type_argument_list
+          (primitive_type)))
+      body: (block
+        (yield_statement
+          (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (add_handler_statement
+          event: (member_access_expression
+            object: (identifier)
+            member: (identifier))
+          handler: (unary_expression
+            operand: (identifier)))
+        (remove_handler_statement
+          event: (member_access_expression
+            object: (identifier)
+            member: (identifier))
+          handler: (unary_expression
+            operand: (identifier)))
+        (raise_event_statement
+          event: (identifier)
+          arguments: (argument_list
+            (me)
+            (member_access_expression
+              object: (identifier)
+              member: (identifier))))))))

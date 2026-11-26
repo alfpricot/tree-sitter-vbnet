@@ -1,0 +1,671 @@
+========================================================================
+Operator precedence
+========================================================================
+
+Module M
+    Sub Run()
+        x = -a ^ 2 + b * c Mod d & e
+        y = Not a = b AndAlso c OrElse d Xor e
+        z = a \ b << 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (unary_expression
+                operand: (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              right: (binary_expression
+                left: (binary_expression
+                  left: (identifier)
+                  right: (identifier))
+                right: (identifier)))
+            right: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (binary_expression
+                left: (unary_expression
+                  operand: (binary_expression
+                    left: (identifier)
+                    right: (identifier)))
+                right: (identifier))
+              right: (identifier))
+            right: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (identifier)
+              right: (identifier))
+            right: (integer_literal)))))))
+
+========================================================================
+Comparison and type tests
+========================================================================
+
+Module M
+    Sub Run()
+        a = x Is Nothing
+        b = x IsNot Nothing
+        c = TypeOf x Is Foo
+        d = s Like "a*"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (nothing)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (nothing)))
+        (assignment_statement
+          left: (identifier)
+          right: (type_of_expression
+            value: (identifier)
+            type: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (string_literal)))))))
+
+========================================================================
+Conversions
+========================================================================
+
+Module M
+    Sub Run()
+        a = CType(x, Integer)
+        b = DirectCast(o, Foo)
+        c = TryCast(o, Bar)
+        d = CInt(s) + CStr(n).Length
+        t = GetType(List(Of ))
+        n = NameOf(Run)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (cast_expression
+            value: (identifier)
+            type: (primitive_type)))
+        (assignment_statement
+          left: (identifier)
+          right: (cast_expression
+            value: (identifier)
+            type: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (cast_expression
+            value: (identifier)
+            type: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (conversion_expression
+              value: (identifier))
+            right: (member_access_expression
+              object: (conversion_expression
+                value: (identifier))
+              member: (identifier))))
+        (assignment_statement
+          left: (identifier)
+          right: (get_type_expression
+            type: (generic_name
+              name: (identifier)
+              type_arguments: (type_argument_list))))
+        (assignment_statement
+          left: (identifier)
+          right: (name_of_expression
+            value: (identifier)))))))
+
+========================================================================
+If operator
+========================================================================
+
+Module M
+    Sub Run()
+        a = If(ready, 1, 2)
+        b = If(name, "none")
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (ternary_expression
+            condition: (identifier)
+            consequence: (integer_literal)
+            alternative: (integer_literal)))
+        (assignment_statement
+          left: (identifier)
+          right: (coalesce_expression
+            value: (identifier)
+            fallback: (string_literal)))))))
+
+========================================================================
+Object creation and initializers
+========================================================================
+
+Module M
+    Sub Run()
+        a = New Point(1, 2)
+        b = New Person With {.Name = "a", .Age = 3}
+        c = New List(Of Integer) From {1, 2, 3}
+        d = New With {Key .Id = 1, .Name = "x"}
+        e = New Integer() {1, 2}
+        f = New String(30)() {}
+        g = {{1, 2}, {3, 4}}
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (identifier)
+            arguments: (argument_list
+              (integer_literal)
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (identifier)
+            initializer: (object_initializer
+              (field_initializer
+                value: (binary_expression
+                  left: (member_access_expression
+                    member: (identifier))
+                  right: (string_literal)))
+              (field_initializer
+                value: (binary_expression
+                  left: (member_access_expression
+                    member: (identifier))
+                  right: (integer_literal))))))
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (generic_name
+              name: (identifier)
+              type_arguments: (type_argument_list
+                (primitive_type)))
+            initializer: (collection_initializer
+              (integer_literal)
+              (integer_literal)
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (anonymous_object_creation_expression
+            initializer: (object_initializer
+              (field_initializer
+                value: (binary_expression
+                  left: (member_access_expression
+                    member: (identifier))
+                  right: (integer_literal)))
+              (field_initializer
+                value: (binary_expression
+                  left: (member_access_expression
+                    member: (identifier))
+                  right: (string_literal))))))
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (primitive_type)
+            arguments: (argument_list)
+            initializer: (collection_initializer
+              (integer_literal)
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (primitive_type)
+            arguments: (argument_list
+              (integer_literal))
+            arguments: (argument_list)
+            initializer: (collection_initializer)))
+        (assignment_statement
+          left: (identifier)
+          right: (collection_initializer
+            (collection_initializer
+              (integer_literal)
+              (integer_literal))
+            (collection_initializer
+              (integer_literal)
+              (integer_literal))))))))
+
+========================================================================
+Member access forms
+========================================================================
+
+Module M
+    Sub Run()
+        a = obj?.Name
+        b = list?(0)
+        c = row!Total
+        d = Global.System.Math.Max(1, 2)
+        e = String.Empty
+        f = Integer.Parse(s)
+        g = Foo(Of Integer)(1)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (member_access_expression
+            object: (identifier)
+            member: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (dictionary_access_expression
+            object: (identifier)
+            key: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (member_access_expression
+              object: (member_access_expression
+                object: (member_access_expression
+                  object: (global)
+                  member: (identifier))
+                member: (identifier))
+              member: (identifier))
+            arguments: (argument_list
+              (integer_literal)
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (member_access_expression
+            object: (primitive_type)
+            member: (identifier)))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (member_access_expression
+              object: (primitive_type)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (generic_name
+              name: (identifier)
+              type_arguments: (type_argument_list
+                (primitive_type)))
+            arguments: (argument_list
+              (integer_literal))))))))
+
+========================================================================
+Arguments
+========================================================================
+
+Module M
+    Sub Run()
+        Show(text:="a", title:="b")
+        Skip(, 1)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (named_argument
+                name: (identifier)
+                value: (string_literal))
+              (named_argument
+                name: (identifier)
+                value: (string_literal)))))
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (integer_literal))))))))
+
+========================================================================
+Single-line lambdas
+========================================================================
+
+Module M
+    Sub Run()
+        Dim f = Function(x) x * 2
+        Dim g = Async Function() Await Load()
+        AddHandler b.Click, Sub(s, e) Count += 1
+        items.ForEach(Sub(i) Console.WriteLine(i))
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (lambda_expression
+              parameters: (parameter_list
+                (parameter
+                  name: (identifier)))
+              body: (binary_expression
+                left: (identifier)
+                right: (integer_literal)))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (lambda_expression
+              parameters: (parameter_list)
+              body: (await_expression
+                (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list))))))
+        (add_handler_statement
+          event: (member_access_expression
+            object: (identifier)
+            member: (identifier))
+          handler: (lambda_expression
+            parameters: (parameter_list
+              (parameter
+                name: (identifier))
+              (parameter
+                name: (identifier)))
+            body: (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (lambda_expression
+                parameters: (parameter_list
+                  (parameter
+                    name: (identifier)))
+                body: (expression_statement
+                  (invocation_expression
+                    function: (member_access_expression
+                      object: (identifier)
+                      member: (identifier))
+                    arguments: (argument_list
+                      (identifier))))))))))))
+
+========================================================================
+Multi-line lambdas
+========================================================================
+
+Module M
+    Sub Run()
+        Dim f = Function(x As Integer) As Integer
+                    Return x + 1
+                End Function
+        Task.Run(Sub()
+                     Work()
+                 End Sub)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (lambda_expression
+              parameters: (parameter_list
+                (parameter
+                  name: (identifier)
+                  type: (primitive_type)))
+              return_type: (primitive_type)
+              body: (block
+                (return_statement
+                  (binary_expression
+                    left: (identifier)
+                    right: (integer_literal)))))))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (lambda_expression
+                parameters: (parameter_list)
+                body: (block
+                  (expression_statement
+                    (invocation_expression
+                      function: (identifier)
+                      arguments: (argument_list))))))))))))
+
+========================================================================
+Interpolated strings
+========================================================================
+
+Module M
+    Sub Run()
+        s = $"Name: {name,-10} Total: {total:N2} {{literal}} ""q"""
+        t = $"Button '{s}' clicked"
+        u = $"{n:'#'}"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (interpolation
+              value: (identifier)
+              alignment: (unary_expression
+                operand: (integer_literal)))
+            (interpolated_text)
+            (interpolation
+              value: (identifier)
+              format: (interpolation_format))
+            (interpolated_text)))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (interpolation
+              value: (identifier))
+            (interpolated_text)))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolation
+              value: (identifier)
+              format: (interpolation_format))))))))
+
+========================================================================
+Literals
+========================================================================
+
+Module M
+    Sub Run()
+        a = &HFF + &O17 + &B1010 + 1_000L + 5UI
+        b = 1.5 + .5 + 1E3 + 2.0F + 3D + 4R
+        c = "x"c
+        d = #12/31/2020 10:00 PM#
+        e = "He said ""hi"""
+        f = True Or False
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (binary_expression
+                left: (binary_expression
+                  left: (integer_literal)
+                  right: (integer_literal))
+                right: (integer_literal))
+              right: (integer_literal))
+            right: (integer_literal)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (binary_expression
+              left: (binary_expression
+                left: (binary_expression
+                  left: (binary_expression
+                    left: (floating_literal)
+                    right: (floating_literal))
+                  right: (floating_literal))
+                right: (floating_literal))
+              right: (floating_literal))
+            right: (floating_literal)))
+        (assignment_statement
+          left: (identifier)
+          right: (character_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (date_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (boolean_literal)
+            right: (boolean_literal)))))))
+
+========================================================================
+Tuples
+========================================================================
+
+Module M
+    Sub Run()
+        Dim t = (1, "a")
+        Dim n = (Count:=1, Name:="a")
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (tuple_expression
+              (integer_literal)
+              (string_literal))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (tuple_expression
+              (named_argument
+                name: (identifier)
+                value: (integer_literal))
+              (named_argument
+                name: (identifier)
+                value: (string_literal)))))))))

@@ -1,0 +1,197 @@
+========================================================================
+Single-line query
+========================================================================
+
+Module M
+    Sub Run()
+        Dim q = From c In customers Where c.Total > 10 Select c.Name
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (where_clause
+                (binary_expression
+                  left: (member_access_expression
+                    object: (identifier)
+                    member: (identifier))
+                  right: (integer_literal)))
+              (select_clause
+                (member_access_expression
+                  object: (identifier)
+                  member: (identifier))))))))))
+
+========================================================================
+Query clauses on separate lines
+========================================================================
+
+Module M
+    Sub Run()
+        Dim q = From c In customers
+                Where c.Total > 10
+                Order By c.Name Descending
+                Select c.Name, c.Total
+        Select Case q.Count
+        End Select
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (where_clause
+                (binary_expression
+                  left: (member_access_expression
+                    object: (identifier)
+                    member: (identifier))
+                  right: (integer_literal)))
+              (order_by_clause
+                (ordering
+                  (member_access_expression
+                    object: (identifier)
+                    member: (identifier))))
+              (select_clause
+                (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                (member_access_expression
+                  object: (identifier)
+                  member: (identifier))))))
+        (select_statement
+          value: (member_access_expression
+            object: (identifier)
+            member: (identifier)))))))
+
+========================================================================
+Join, Group, and Aggregate
+========================================================================
+
+Module M
+    Sub Run()
+        Dim q = From o In orders
+                Join c In customers On o.CustomerId Equals c.Id And
+                    o.Region Equals c.Region
+                Group o By c.Name Into Total = Sum(o.Amount), Count()
+        Dim n = Aggregate o In orders Into Sum(o.Amount)
+        Dim p = From x In xs Let y = x * 2 Distinct Skip 1 Take While y < 10
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (join_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))
+                (join_condition
+                  left: (member_access_expression
+                    object: (identifier)
+                    member: (identifier))
+                  right: (member_access_expression
+                    object: (identifier)
+                    member: (identifier)))
+                (join_condition
+                  left: (member_access_expression
+                    object: (identifier)
+                    member: (identifier))
+                  right: (member_access_expression
+                    object: (identifier)
+                    member: (identifier))))
+              (group_by_clause
+                items: (identifier)
+                keys: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                (into_clause
+                  (aggregation
+                    name: (identifier)
+                    value: (invocation_expression
+                      function: (identifier)
+                      arguments: (argument_list
+                        (member_access_expression
+                          object: (identifier)
+                          member: (identifier)))))
+                  (aggregation
+                    (invocation_expression
+                      function: (identifier)
+                      arguments: (argument_list))))))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (aggregate_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))
+                (into_clause
+                  (aggregation
+                    (invocation_expression
+                      function: (identifier)
+                      arguments: (argument_list
+                        (member_access_expression
+                          object: (identifier)
+                          member: (identifier))))))))))
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (let_clause
+                name: (identifier)
+                value: (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (distinct_clause)
+              (partition_clause
+                (integer_literal))
+              (partition_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal))))))))))

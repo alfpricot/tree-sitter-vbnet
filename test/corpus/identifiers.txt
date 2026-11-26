@@ -1,0 +1,182 @@
+========================================================================
+Identifiers that start with keywords
+========================================================================
+
+Module M
+    Private subtotal As Integer
+    Sub Run()
+        x = subPath
+        formX = 1
+        endDate = nextDate
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (identifier))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (identifier))))))
+
+========================================================================
+Keywords as member names
+========================================================================
+
+Module M
+    Sub Run()
+        q = items.Select(f).Where(g)
+        x.End = y.Next
+        MyBase.New()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (member_access_expression
+              object: (invocation_expression
+                function: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                arguments: (argument_list
+                  (identifier)))
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
+        (assignment_statement
+          left: (member_access_expression
+            object: (identifier)
+            member: (identifier))
+          right: (member_access_expression
+            object: (identifier)
+            member: (identifier)))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (my_base)
+              member: (identifier))
+            arguments: (argument_list)))))))
+
+========================================================================
+Escaped identifiers and type characters
+========================================================================
+
+Module M
+    Public Property [Date] As Date
+    Sub Run()
+        s$ = Left$(t, 1)
+        n% = 2
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (property_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (primitive_type))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)
+              (integer_literal))))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+Query keywords as variable names
+========================================================================
+
+Module M
+    Sub Copy(ByVal [from] As Object)
+        Use(From)
+        If Iterator.Count = 0 Then Return
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (single_line_if_statement
+          condition: (binary_expression
+            left: (member_access_expression
+              member: (identifier))
+            right: (integer_literal))
+          consequence: (single_line_block
+            (return_statement)))))))
+
+========================================================================
+Keywords in any letter case
+========================================================================
+
+MODULE M
+    sub Run()
+        DIM x as INTEGER = 1
+    END SUB
+end module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type)
+            value: (integer_literal)))))))

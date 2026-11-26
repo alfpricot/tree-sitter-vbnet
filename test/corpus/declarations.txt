@@ -1,0 +1,941 @@
+========================================================================
+Imports
+========================================================================
+
+Imports System
+Imports VB = Microsoft.VisualBasic
+Imports System.Collections.Generic, System.Linq
+
+------------------------------------------------------------------------
+
+(source_file
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (imports_statement
+    (imports_clause
+      alias: (identifier)
+      name: (qualified_name
+        qualifier: (identifier)
+        name: (identifier))))
+  (imports_statement
+    (imports_clause
+      name: (qualified_name
+        qualifier: (qualified_name
+          qualifier: (identifier)
+          name: (identifier))
+        name: (identifier)))
+    (imports_clause
+      name: (qualified_name
+        qualifier: (identifier)
+        name: (identifier)))))
+
+========================================================================
+Assembly attributes
+========================================================================
+
+<Assembly: AssemblyTitle("Sample")>
+<Assembly: ComVisible(False)>
+
+------------------------------------------------------------------------
+
+(source_file
+  (attribute_statement
+    (attribute
+      name: (identifier)
+      arguments: (argument_list
+        (string_literal))))
+  (attribute_statement
+    (attribute
+      name: (identifier)
+      arguments: (argument_list
+        (boolean_literal)))))
+
+========================================================================
+Namespace and nested types
+========================================================================
+
+Namespace Company.Product
+    Public Class Outer
+        Private Structure Inner
+            Dim value As Integer
+        End Structure
+
+        Private Enum Kind As Byte
+            None = 0
+            Some
+        End Enum
+    End Class
+End Namespace
+
+------------------------------------------------------------------------
+
+(source_file
+  (namespace_block
+    name: (qualified_name
+      qualifier: (identifier)
+      name: (identifier))
+    (class_block
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      (structure_block
+        modifiers: (modifiers
+          (modifier))
+        name: (identifier)
+        (field_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type))))
+      (enum_block
+        modifiers: (modifiers
+          (modifier))
+        name: (identifier)
+        type: (primitive_type)
+        (enum_member
+          name: (identifier)
+          value: (integer_literal))
+        (enum_member
+          name: (identifier))))))
+
+========================================================================
+Type nested in a module
+========================================================================
+
+Module M
+    Structure S
+        Public X As Integer
+    End Structure
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (structure_block
+      name: (identifier)
+      (field_declaration
+        modifiers: (modifiers
+          (modifier))
+        declarator: (variable_declarator
+          name: (identifier)
+          type: (primitive_type))))))
+
+========================================================================
+Inherits and Implements on their own lines
+========================================================================
+
+Public MustInherit Class A(Of T As {Class, New})
+    Inherits B
+    Implements IDisposable, IComparable(Of T)
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    modifiers: (modifiers
+      (modifier)
+      (modifier))
+    name: (identifier)
+    type_parameters: (type_parameter_list
+      (type_parameter
+        name: (identifier)
+        constraint: (special_constraint)
+        constraint: (special_constraint)))
+    (inherits_statement
+      (identifier))
+    (implements_statement
+      (identifier)
+      (generic_name
+        name: (identifier)
+        type_arguments: (type_argument_list
+          (identifier))))))
+
+========================================================================
+Attributes on the same line and on their own line
+========================================================================
+
+<Serializable>
+Public Class C
+    <Obsolete("old", True)> Public Sub X()
+    End Sub
+
+    <DebuggerStepThrough()> _
+    Private Sub Y()
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    attributes: (attribute_list
+      (attribute
+        name: (identifier)))
+    modifiers: (modifiers
+      (modifier))
+    name: (identifier)
+    (method_declaration
+      attributes: (attribute_list
+        (attribute
+          name: (identifier)
+          arguments: (argument_list
+            (string_literal)
+            (boolean_literal))))
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list))
+    (method_declaration
+      attributes: (attribute_list
+        (attribute
+          name: (identifier)
+          arguments: (argument_list)))
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+Fields
+========================================================================
+
+Class C
+    Private a, b As Integer
+    Public Const Max As Integer = 10
+    Private WithEvents timer As Timer
+    Private ReadOnly names() As String = {"a", "b"}
+    Private grid(9, 9) As Integer
+    Shared counter As Integer
+    Dim items As New List(Of String)
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)
+        value: (integer_literal)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (identifier)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        bounds: (argument_list)
+        type: (primitive_type)
+        value: (collection_initializer
+          (string_literal)
+          (string_literal))))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        bounds: (argument_list
+          (integer_literal)
+          (integer_literal))
+        type: (primitive_type)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (object_creation_expression
+          type: (generic_name
+            name: (identifier)
+            type_arguments: (type_argument_list
+              (primitive_type))))))))
+
+========================================================================
+Methods with Handles and Implements
+========================================================================
+
+Class C
+    Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load, btnGo.Click
+    End Sub
+
+    Public Function Compare(x As Item, y As Item) As Integer Implements IComparer(Of Item).Compare
+        Return 0
+    End Function
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (identifier)))
+      handles: (handles_clause
+        (event_reference
+          object: (my_base)
+          event: (identifier))
+        (event_reference
+          object: (identifier)
+          event: (identifier))))
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (identifier))
+        (parameter
+          name: (identifier)
+          type: (identifier)))
+      return_type: (primitive_type)
+      implements: (implements_clause
+        (qualified_name
+          qualifier: (generic_name
+            name: (identifier)
+            type_arguments: (type_argument_list
+              (identifier)))
+          name: (identifier)))
+      body: (block
+        (return_statement
+          (integer_literal))))))
+
+========================================================================
+Parameters
+========================================================================
+
+Class C
+    Sub Run(ByVal a As Integer, ByRef b As String, Optional ByVal c As Integer = 0, ParamArray rest() As Object)
+    End Sub
+
+    Sub Jagged(grid()() As Integer, Optional n? As Integer = Nothing)
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (primitive_type)
+          default: (integer_literal))
+        (parameter
+          name: (identifier)
+          (array_rank_specifier)
+          type: (primitive_type))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          (array_rank_specifier)
+          (array_rank_specifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (primitive_type)
+          default: (nothing))))))
+
+========================================================================
+Generic method
+========================================================================
+
+Module M
+    Function First(Of T)(items As IEnumerable(Of T)) As T
+        Return items(0)
+    End Function
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      type_parameters: (type_parameter_list
+        (type_parameter
+          name: (identifier)))
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (generic_name
+            name: (identifier)
+            type_arguments: (type_argument_list
+              (identifier)))))
+      return_type: (identifier)
+      body: (block
+        (return_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (integer_literal))))))))
+
+========================================================================
+Constructors
+========================================================================
+
+Class C
+    Shared Sub New()
+    End Sub
+
+    Public Sub New(x As Integer)
+        MyBase.New()
+        Me.New(x, 1)
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (constructor_declaration
+      modifiers: (modifiers
+        (modifier))
+      parameters: (parameter_list))
+    (constructor_declaration
+      modifiers: (modifiers
+        (modifier))
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (my_base)
+              member: (identifier))
+            arguments: (argument_list)))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (me)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier)
+              (integer_literal))))))))
+
+========================================================================
+MustOverride members
+========================================================================
+
+Public MustInherit Class Shape
+    Public MustOverride Function Area() As Double
+    Protected MustOverride Sub Draw()
+    Public MustOverride ReadOnly Property Name As String
+    Public Sub Show()
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    modifiers: (modifiers
+      (modifier)
+      (modifier))
+    name: (identifier)
+    (method_signature
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list)
+      return_type: (primitive_type))
+    (method_signature
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list))
+    (property_signature
+      modifiers: (modifiers
+        (modifier))
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (primitive_type))
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+Auto-implemented properties
+========================================================================
+
+Class C
+    Public Property Name As String
+    Public Property Items As New List(Of String)
+    Public ReadOnly Property Count As Integer = 3
+    Private Sub Run()
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (primitive_type))
+    (property_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      value: (object_creation_expression
+        type: (generic_name
+          name: (identifier)
+          type_arguments: (type_argument_list
+            (primitive_type)))))
+    (property_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      name: (identifier)
+      type: (primitive_type)
+      value: (integer_literal))
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+Properties with accessors
+========================================================================
+
+Class C
+    Public Property Name As String
+        Get
+            Return _name
+        End Get
+        Private Set(value As String)
+            _name = value
+        End Set
+    End Property
+
+    Default Public ReadOnly Property Item(index As Integer) As String
+        ' The getter
+        Get
+            Return items(index)
+        End Get
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (primitive_type)
+      (accessor_declaration
+        body: (block
+          (return_statement
+            (identifier))))
+      (accessor_declaration
+        modifiers: (modifiers
+          (modifier))
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (assignment_statement
+            left: (identifier)
+            right: (identifier)))))
+    (property_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier)
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      type: (primitive_type)
+      (comment)
+      (accessor_declaration
+        body: (block
+          (return_statement
+            (invocation_expression
+              function: (identifier)
+              arguments: (argument_list
+                (identifier)))))))))
+
+========================================================================
+Property accessor after an attribute line
+========================================================================
+
+Class C
+    Friend ReadOnly Property Request() As HttpRequest
+        <DebuggerHidden()> _
+        Get
+            Return Nothing
+        End Get
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list)
+      type: (identifier)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)
+            arguments: (argument_list)))
+        body: (block
+          (return_statement
+            (nothing)))))))
+
+========================================================================
+Events
+========================================================================
+
+Class C
+    Public Event Changed As EventHandler
+    Public Event Moved(x As Integer, y As Integer)
+
+    Public Custom Event Clicked As EventHandler
+        AddHandler(value As EventHandler)
+            handlers.Add(value)
+        End AddHandler
+        RemoveHandler(value As EventHandler)
+            handlers.Remove(value)
+        End RemoveHandler
+        RaiseEvent(sender As Object, e As EventArgs)
+            Notify(sender, e)
+        End RaiseEvent
+    End Event
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (event_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (identifier))
+    (event_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (primitive_type))))
+    (custom_event_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (identifier)
+      (event_accessor_declaration
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (identifier)))
+        body: (block
+          (expression_statement
+            (invocation_expression
+              function: (member_access_expression
+                object: (identifier)
+                member: (identifier))
+              arguments: (argument_list
+                (identifier))))))
+      (event_accessor_declaration
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (identifier)))
+        body: (block
+          (expression_statement
+            (invocation_expression
+              function: (member_access_expression
+                object: (identifier)
+                member: (identifier))
+              arguments: (argument_list
+                (identifier))))))
+      (event_accessor_declaration
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (primitive_type))
+          (parameter
+            name: (identifier)
+            type: (identifier)))
+        body: (block
+          (expression_statement
+            (invocation_expression
+              function: (identifier)
+              arguments: (argument_list
+                (identifier)
+                (identifier)))))))))
+
+========================================================================
+Operators
+========================================================================
+
+Structure Money
+    Public Shared Operator +(a As Money, b As Money) As Money
+        Return New Money(a.Value + b.Value)
+    End Operator
+
+    Public Shared Widening Operator CType(x As Integer) As Money
+        Return New Money(x)
+    End Operator
+End Structure
+
+------------------------------------------------------------------------
+
+(source_file
+  (structure_block
+    name: (identifier)
+    (operator_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier))
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (identifier))
+        (parameter
+          name: (identifier)
+          type: (identifier)))
+      return_type: (identifier)
+      body: (block
+        (return_statement
+          (object_creation_expression
+            type: (identifier)
+            arguments: (argument_list
+              (binary_expression
+                left: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                right: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))))))))
+    (operator_declaration
+      modifiers: (modifiers
+        (modifier)
+        (modifier)
+        (modifier))
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      return_type: (identifier)
+      body: (block
+        (return_statement
+          (object_creation_expression
+            type: (identifier)
+            arguments: (argument_list
+              (identifier))))))))
+
+========================================================================
+Interfaces
+========================================================================
+
+Public Interface IShape(Of In T)
+    Inherits IDisposable
+    ReadOnly Property Name As String
+    Function Area() As Double
+    Sub Draw(canvas As T)
+    Event Drawn As EventHandler
+End Interface
+
+------------------------------------------------------------------------
+
+(source_file
+  (interface_block
+    modifiers: (modifiers
+      (modifier))
+    name: (identifier)
+    type_parameters: (type_parameter_list
+      (type_parameter
+        name: (identifier)))
+    (inherits_statement
+      (identifier))
+    (property_signature
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      type: (primitive_type))
+    (method_signature
+      name: (identifier)
+      parameters: (parameter_list)
+      return_type: (primitive_type))
+    (method_signature
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (identifier))))
+    (event_declaration
+      name: (identifier)
+      type: (identifier))))
+
+========================================================================
+Delegates and Declare
+========================================================================
+
+Public Delegate Function Transform(Of T)(value As T) As T
+
+Module NativeMethods
+    Private Declare Auto Function GetTickCount Lib "kernel32" () As Integer
+    Declare Sub Sleep Lib "kernel32" Alias "Sleep" (ms As Integer)
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (delegate_declaration
+    modifiers: (modifiers
+      (modifier))
+    name: (identifier)
+    type_parameters: (type_parameter_list
+      (type_parameter
+        name: (identifier)))
+    parameters: (parameter_list
+      (parameter
+        name: (identifier)
+        type: (identifier)))
+    return_type: (identifier))
+  (module_block
+    name: (identifier)
+    (declare_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      library: (string_literal)
+      parameters: (parameter_list)
+      return_type: (primitive_type))
+    (declare_declaration
+      name: (identifier)
+      library: (string_literal)
+      alias: (string_literal)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))))))
+
+========================================================================
+Tuple types
+========================================================================
+
+Class C
+    Function Parse(s As String) As (Success As Boolean, Value As Integer)
+        Return (True, 1)
+    End Function
+
+    Private pairs As List(Of (String, Integer))
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type)))
+      return_type: (tuple_type
+        (tuple_element
+          name: (identifier)
+          type: (primitive_type))
+        (tuple_element
+          name: (identifier)
+          type: (primitive_type)))
+      body: (block
+        (return_statement
+          (tuple_expression
+            (boolean_literal)
+            (integer_literal)))))
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (generic_name
+          name: (identifier)
+          type_arguments: (type_argument_list
+            (tuple_type
+              (tuple_element
+                type: (primitive_type))
+              (tuple_element
+                type: (primitive_type)))))))))

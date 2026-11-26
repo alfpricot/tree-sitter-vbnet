@@ -1,0 +1,13 @@
+tree-sitter-vbnet is written from scratch. Its grammar, scanner, queries, and
+corpus tests do not derive from another grammar.
+
+The whole-file test fixtures in test/fixtures/ are unmodified copies of sample
+code from two MIT-licensed repositories, copyright (c) Microsoft Corporation:
+
+- dotnet/samples (https://github.com/dotnet/samples), code licensed under the
+  MIT License in that repository's LICENSE-CODE file.
+- dotnet/docs (https://github.com/dotnet/docs), code samples licensed under the
+  MIT License in that repository's LICENSE-CODE file.
+
+test/fixtures/README.md lists the source path of each fixture. The fixtures are
+test data only; they are not part of the published crate or npm package.

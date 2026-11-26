@@ -1,0 +1,38 @@
+{
+  "grammars": [
+    {
+      "name": "vbnet",
+      "camelcase": "VbNet",
+      "scope": "source.vbnet",
+      "path": ".",
+      "file-types": [
+        "vb"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "injection-regex": "^(vb|vbnet|visual_basic)$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for Visual Basic .NET",
+    "authors": [
+      {
+        "name": "M. Reifschneider"
+      }
+    ],
+    "links": {
+      "repository": "git+https://github.com/alfpricot/tree-sitter-vbnet.git"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "node": true,
+    "python": false,
+    "rust": true,
+    "swift": false
+  }
+}
