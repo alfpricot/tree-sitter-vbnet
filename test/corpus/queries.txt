@@ -340,3 +340,140 @@ End Module
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
+========================================================================
+Names like query operators after a query
+========================================================================
+
+Module M
+    Sub S()
+        Dim a = From x In xs
+        ' an assignment
+        order = 1
+        Dim b = From x In xs
+        REM a member call
+        group.Add(b)
+        Dim c = From x In xs
+        ' a compound assignment
+        take += 1
+        Dim d = From x In xs
+        ' a shift assignment
+        skip <<= 1
+        Dim e = From x In xs
+
+        distinct()
+        Dim f = From x In xs
+        ' clauses that start like those statements
+        Where (x > 0)
+        Where -x < 0
+        Select .Name
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (comment)
+              (where_clause
+                (parenthesized_expression
+                  (binary_expression
+                    left: (identifier)
+                    right: (integer_literal))))
+              (where_clause
+                (binary_expression
+                  left: (unary_expression
+                    operand: (identifier))
+                  right: (integer_literal)))
+              (select_clause
+                (member_access_expression
+                  member: (identifier))))))))))

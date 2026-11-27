@@ -175,8 +175,9 @@ static bool skip_to_next_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
     if (is_line_break(c)) {
       advance_line_break(lexer, false);
     } else if (c == '_') {
-      // A ` _` continuation joins the next line to this one. Anything else
-      // after the `_` makes it part of a name.
+      // A ` _` continuation joins the next line to this one. The lookahead
+      // stops at a `_` with anything else after it, such as the one that
+      // begins a name like `_take`.
       consume(lexer);
       skip_horizontal_space(lexer);
       if (!is_line_break(lexer->lookahead)) {
@@ -197,8 +198,39 @@ static bool skip_to_next_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
   return passed_extra;
 }
 
+// Whether what follows a word at the start of a line shows that the word is a
+// name in a statement: a member access written against it, an assignment, or
+// an empty argument list. No query clause goes on that way.
+static bool follows_as_statement(TSLexer *lexer) {
+  if (lexer->lookahead == '.') {
+    return true;
+  }
+  skip_horizontal_space(lexer);
+  int32_t c = lexer->lookahead;
+  if (c == '=') {
+    return true;
+  }
+  if (c == '(') {
+    consume(lexer);
+    skip_horizontal_space(lexer);
+    return lexer->lookahead == ')';
+  }
+  if (c == '<' || c == '>') {
+    // `<<=` and `>>=`.
+    consume(lexer);
+    if (lexer->lookahead != c) {
+      return false;
+    }
+  } else if (c != '+' && c != '-' && c != '*' && c != '/' && c != '\\' && c != '^' && c != '&') {
+    return false;
+  }
+  consume(lexer);
+  return lexer->lookahead == '=';
+}
+
 // Whether the next line of code continues a query: it starts with a query
-// operator keyword. `Select Case` starts a statement, not a `Select` clause.
+// operator keyword used as one. `Select Case` starts a statement, not a
+// `Select` clause.
 // Sets `passed_extra` when a comment or `#` line lies before that code.
 static bool next_line_continues_query(TSLexer *lexer, bool *passed_extra) {
   char word[WORD_MAX + 1];
@@ -216,7 +248,7 @@ static bool next_line_continues_query(TSLexer *lexer, bool *passed_extra) {
   };
   for (unsigned i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
     if (word_is(word, operators[i])) {
-      return true;
+      return !follows_as_statement(lexer);
     }
   }
   return false;
