@@ -1,3 +1,7 @@
+// Shared with other tree-sitter grammar repositories; the reference copy is in
+// https://github.com/alfpricot/tree-sitter-snowflake.
+// Carry a fix made here over to it, or say why not.
+
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';

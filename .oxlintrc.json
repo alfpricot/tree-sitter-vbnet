@@ -1,4 +1,7 @@
 {
+  // Shared with other tree-sitter grammar repositories; the reference copy is in
+  // https://github.com/alfpricot/tree-sitter-snowflake.
+  // Carry a fix made here over to it, or say why not.
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "oxc"],
   "categories": {
