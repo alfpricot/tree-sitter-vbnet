@@ -57,11 +57,48 @@ test('tags lists every type and member of a fixture', () => {
   }
 });
 
-test('every construct that indents also folds', () => {
-  const indented = read('queries/indents.scm').split('] @indent.begin')[0];
-  const folds = read('queries/folds.scm');
-  for (const [pattern] of indented.matchAll(/\(\w+ "\w+"\)/g)) {
-    assert(folds.includes(pattern), `folds.scm is missing ${pattern}`);
+// The `(node "Keyword")` and `(node)` entries of every bracketed list that
+// carries one of the captures, comments left out.
+function listed(file, capture) {
+  const query = read(file).replace(/;.*$/gm, '');
+  const lists = [...query.matchAll(/\[([^\]]*)\]\s*@([\w.]+)/g)].filter(([, , name]) =>
+    capture.test(name),
+  );
+  return lists.flatMap(([, body]) => body.match(/\(\w+(?: "\w+")?\)/g) ?? []).toSorted();
+}
+
+test('folds cover every construct that indents and every dividing clause', () => {
+  // `indent.branch` lists the clauses that divide a construct.
+  const indented = listed('queries/indents.scm', /^indent\.(?:begin|branch)$/);
+  assert(indented.length > 0, 'The indent query lists nothing');
+  assert.deepEqual(listed('queries/folds.scm', /^fold$/), indented);
+});
+
+// Each use of `x` below sits in a value position the locals query has to mark.
+test('locals marks a reference in each value position', () => {
+  const uses = [
+    'Throw x',
+    'Await x',
+    'y = If(x, x, x)',
+    'y = CType(x, Integer)',
+    'With x\n    End With',
+    'Select Case x\n    Case x\n    End Select',
+    'x',
+  ];
+  const scratch = mkdtempSync(join(tmpdir(), 'vbnet-locals-'));
+  try {
+    const file = join(scratch, 'locals.vb');
+    const body = uses.map((use) => `    ${use}`).join('\n');
+    writeFileSync(file, `Module M\n  Sub S(x As Object)\n${body}\n  End Sub\nEnd Module\n`);
+    const output = execFileSync(
+      resolveTreeSitterCli(repo),
+      ['query', '-p', repo, 'queries/locals.scm', file],
+      { cwd: repo, encoding: 'utf8' },
+    );
+    const marked = output.match(/local\.reference,.*text: `x`/g) ?? [];
+    assert.equal(marked.length, uses.join('\n').match(/\bx\b/g)?.length, output);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
   }
 });
 

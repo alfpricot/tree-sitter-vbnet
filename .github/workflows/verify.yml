@@ -260,7 +260,7 @@ jobs:
           git archive HEAD | tar -x -C "$copy"
           cd "$copy"
           python3 -m venv .venv
-          .venv/bin/pip install --disable-pip-version-check --quiet ".[core]" pytest
+          .venv/bin/pip install --disable-pip-version-check --quiet ".[core]" "pytest~=9.2.0"
           .venv/bin/python -m pytest bindings/python/tests
 
       - name: Set up Go

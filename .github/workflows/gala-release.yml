@@ -7,7 +7,8 @@
 #  Triggers            push (main), workflow_dispatch (releases from main only)
 #  Purpose             Runs gala to cut a release from the Conventional Commits
 #                      on main: bumps the version in Cargo.toml, package.json,
-#                      and tree-sitter.json, refreshes package-lock.json,
+#                      tree-sitter.json, and pyproject.toml, refreshes
+#                      package-lock.json,
 #                      regenerates the parser (which embeds the
 #                      tree-sitter.json version), writes the CHANGELOG.md
 #                      entry, commits it, creates the v* tag, pushes the commit
