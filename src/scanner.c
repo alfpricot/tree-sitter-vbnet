@@ -45,6 +45,7 @@ enum TokenType {
   XML_CDATA,
   XML_PROCESSING_INSTRUCTION,
   XML_DECLARATION,
+  XML_MISC_FOLLOWS,
   INACTIVE_PREPROCESSOR_BRANCH,
   ERROR_SENTINEL,
 };
@@ -628,6 +629,27 @@ static bool next_line_starts_accessor(TSLexer *lexer, Probe *probe) {
                              : words_start_accessor(lexer, word);
 }
 
+static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length);
+static bool consume_word(TSLexer *lexer, const char *expected);
+
+// Moves past blank lines to the first character of the next line that is not.
+static void skip_blank_lines(TSLexer *lexer) {
+  while (is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead)) {
+    consume(lexer);
+  }
+}
+
+// Whether the `<` at the lexer opens a whole comment or processing instruction.
+// One that is not closed does not continue a document literal.
+static bool starts_xml_misc(TSLexer *lexer) {
+  consume(lexer);
+  if (lexer->lookahead == '?') {
+    consume(lexer);
+    return consume_through(lexer, "?>", 2);
+  }
+  return consume_word(lexer, "!--") && consume_through(lexer, "-->", 3);
+}
+
 static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_symbols,
                             bool error_recovery) {
   advance_line_break(lexer, false);
@@ -636,6 +658,20 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
   Probe probe = {.test = accessor ? line_starts_accessor : line_continues_query,
                  .false_so_far = scanner->false_so_far};
   note_directive(lexer, scanner, &probe.false_so_far, &probe);
+  // Whether the line that follows is a comment or processing instruction that
+  // may belong to a document literal. A `'` comment or a `#` line before one
+  // ends the literal, so neither is passed. It is read for every break outside a
+  // property header, whether or not a literal can go on here, so that a token
+  // reused after an edit rests on the same text.
+  bool markup_line = false;
+  bool misc_follows = false;
+  if (!accessor && !scanner->directive_follows) {
+    skip_blank_lines(lexer);
+    if (lexer->lookahead == '<') {
+      markup_line = true;
+      misc_follows = starts_xml_misc(lexer);
+    }
+  }
   if (error_recovery) {
     lexer->result_symbol = NEWLINE;
     return true;
@@ -645,7 +681,13 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
       lexer->result_symbol = ACCESSOR_NEWLINE;
       return true;
     }
-  } else if (valid_symbols[QUERY_CLAUSE_FOLLOWS]) {
+  } else if (misc_follows && valid_symbols[XML_MISC_FOLLOWS]) {
+    // The literal goes on. As for a query clause below, the generated lexer
+    // could not read what follows, so the break is a continuation.
+    lexer->result_symbol = LINE_CONTINUATION;
+    return true;
+  } else if (!markup_line && valid_symbols[QUERY_CLAUSE_FOLLOWS]) {
+    // A line that starts with `<` opens no query clause.
     bool passed_extra = scanner->directive_follows;
     if (next_line_continues_query(lexer, &probe, &passed_extra)) {
       // The line break is whitespace: the query goes on. Left to the generated

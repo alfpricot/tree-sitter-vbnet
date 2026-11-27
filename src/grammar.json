@@ -11845,6 +11845,26 @@
               }
             ]
           }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_xml_misc_follows"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "xml_comment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "xml_processing_instruction"
+              }
+            ]
+          }
         }
       ]
     },
@@ -12710,6 +12730,10 @@
     {
       "type": "SYMBOL",
       "name": "xml_declaration"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_xml_misc_follows"
     },
     {
       "type": "SYMBOL",

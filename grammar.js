@@ -73,6 +73,10 @@ export default grammar({
     $.xml_processing_instruction,
     // The `<?xml ...?>` that opens an XML document literal.
     $.xml_declaration,
+    // Never produced: valid only where a comment or processing instruction can
+    // follow a document literal's root element, which tells the scanner that a
+    // line break before one continues the literal.
+    $._xml_misc_follows,
     // The lines of a branch that is not parsed: one under a literally false
     // condition, up to the next `#ElseIf`, `#Else`, or `#End If`, or those
     // after the parsed branch, up to `#End If`.
