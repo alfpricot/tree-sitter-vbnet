@@ -14,6 +14,7 @@ Each fixture is an unmodified copy of a public, MIT-licensed sample from Microso
 | `custom-events.vb` | dotnet/docs `docs/standard/events/snippets/how-to-handle-multiple-events-using-event-properties/vb/Sensor.vb` | `Custom Event` with `AddHandler`/`RemoveHandler`/`RaiseEvent` accessors, a shared `EventHandlerList` |
 | `operators.vb` | dotnet/docs `samples/snippets/visualbasic/VS_Snippets_VBCSharp/VbVbalrStatements/VB/class7.vb` | operator overloading, including a `CType` conversion operator |
 | `error-handling.vb` | dotnet/docs `samples/snippets/visualbasic/VS_Snippets_VBCSharp/VbVbalrErrorHandling/VB/Class1.vb` | `On Error GoTo`, `Resume Next`, labels, `Err` object use, `Try`/`Catch`, `Exit Sub` |
+| `xml-literals.vb` | dotnet/docs `samples/snippets/visualbasic/VS_Snippets_VBCSharp/VbXMLSamples/VB/XMLSamples7.vb` | XML literals spread over several lines with attributes, the child and attribute axis properties (`.<phone>`, `.@type`), axis properties in a LINQ query |
 
 ## Commands
 

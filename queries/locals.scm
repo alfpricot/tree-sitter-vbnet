@@ -90,6 +90,8 @@
 (collection_initializer (identifier) @local.reference)
 (field_initializer value: (identifier) @local.reference)
 (dictionary_access_expression object: (identifier) @local.reference)
+(xml_axis_expression object: (identifier) @local.reference)
+(xml_embedded_expression value: (identifier) @local.reference)
 (lambda_expression body: (identifier) @local.reference)
 (range_argument low: (identifier) @local.reference)
 (range_argument high: (identifier) @local.reference)

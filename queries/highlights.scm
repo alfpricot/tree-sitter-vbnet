@@ -123,3 +123,19 @@
 
 (attribute_list ["<" ">"] @punctuation.bracket)
 (attribute_statement ["<" ">"] @punctuation.bracket)
+
+; XML literals and axis properties
+
+(xml_element name: (xml_name) @tag)
+(xml_element end_name: (xml_name) @tag)
+(xml_attribute name: (xml_name) @tag.attribute)
+(xml_attribute_value) @string
+(xml_comment) @comment
+(xml_cdata) @string.special
+(xml_processing_instruction) @keyword.directive
+(xml_axis_expression axis: ".@" name: (xml_name) @tag.attribute)
+(xml_axis_expression axis: ["." "..."] name: (xml_name) @tag)
+(xml_element ["<" ">" "</" "/>"] @tag.delimiter)
+(xml_axis_expression ["<" ">"] @tag.delimiter)
+(xml_axis_expression [".@" "..."] @punctuation.delimiter)
+(xml_embedded_expression ["<%=" "%>"] @punctuation.special)

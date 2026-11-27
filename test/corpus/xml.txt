@@ -1,0 +1,381 @@
+========================================================================
+XML element with attributes
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = <item id="1" name='first'/>
+        Dim b = <ns:item data-key="k" <%= extra %>/>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_attribute
+                name: (xml_name)
+                value: (xml_attribute_value))
+              (xml_attribute
+                name: (xml_name)
+                value: (xml_attribute_value)))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_attribute
+                name: (xml_name)
+                value: (xml_attribute_value))
+              (xml_embedded_expression
+                value: (identifier)))))))))
+
+========================================================================
+XML element with content
+========================================================================
+
+Module M
+    Sub Run()
+        Dim doc = <root>
+                      <child>Hello, <%= name %>!</child>
+                      <count value=<%= total %>></count>
+                  </root>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_element
+                name: (xml_name)
+                (xml_text)
+                (xml_embedded_expression
+                  value: (identifier))
+                (xml_text)
+                end_name: (xml_name))
+              (xml_element
+                name: (xml_name)
+                (xml_attribute
+                  name: (xml_name)
+                  value: (xml_embedded_expression
+                    value: (identifier)))
+                end_name: (xml_name))
+              end_name: (xml_name))))))))
+
+========================================================================
+XML comments, CDATA, processing instructions, and an empty end tag
+========================================================================
+
+Module M
+    Sub Run()
+        Dim doc = <root>
+                      <!-- a comment -->
+                      <![CDATA[ <not> a tag ]]>
+                      <?format compact?>
+                      <child>text</>
+                  </root>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_comment)
+              (xml_cdata)
+              (xml_processing_instruction)
+              (xml_element
+                name: (xml_name)
+                (xml_text))
+              end_name: (xml_name))))))))
+
+========================================================================
+XML text that starts like a comment
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = <note>'quoted' text</note>
+        Dim b = <note>
+                    REM is text here
+                </note>
+        x = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_text)
+              end_name: (xml_name))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_text)
+              end_name: (xml_name))))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+XML literal in a query
+========================================================================
+
+Module M
+    Sub Run()
+        Dim list = <ul>
+                       <%= From p In people
+                           Where p.Age > 21
+                           Select <li><%= p.Name %></li> %>
+                   </ul>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name)
+              (xml_embedded_expression
+                value: (query_expression
+                  (from_clause
+                    (range_variable
+                      name: (identifier)
+                      collection: (identifier)))
+                  (where_clause
+                    (binary_expression
+                      left: (member_access_expression
+                        object: (identifier)
+                        member: (identifier))
+                      right: (integer_literal)))
+                  (select_clause
+                    (xml_element
+                      name: (xml_name)
+                      (xml_embedded_expression
+                        value: (member_access_expression
+                          object: (identifier)
+                          member: (identifier)))
+                      end_name: (xml_name)))))
+              end_name: (xml_name))))))))
+
+========================================================================
+XML axis properties
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = doc.<child>.Value
+        Dim b = doc...<item>(0)
+        Dim c = doc.@id
+        Dim d = doc.@<data-key>
+        With doc
+            Dim e = .<child>
+        End With
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (member_access_expression
+              object: (xml_axis_expression
+                object: (identifier)
+                name: (xml_name))
+              member: (identifier))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (invocation_expression
+              function: (xml_axis_expression
+                object: (identifier)
+                name: (xml_name))
+              arguments: (argument_list
+                (integer_literal)))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_axis_expression
+              object: (identifier)
+              name: (xml_name))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_axis_expression
+              object: (identifier)
+              name: (xml_name))))
+        (with_statement
+          object: (identifier)
+          body: (block
+            (local_declaration
+              modifiers: (modifiers
+                (modifier))
+              declarator: (variable_declarator
+                name: (identifier)
+                value: (xml_axis_expression
+                  name: (xml_name))))))))))
+
+========================================================================
+Comparisons beside XML literals
+========================================================================
+
+Module M
+    Sub Run()
+        If a < b Then x = <ok/>
+        y = a <b
+        Select Case n
+            Case < limit, Is <= 0, <>max
+        End Select
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (single_line_if_statement
+          condition: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (xml_element
+                name: (xml_name)))))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (identifier)))
+        (select_statement
+          value: (identifier)
+          (case_branch_clause
+            (case_clause
+              value: (identifier))
+            (case_clause
+              value: (integer_literal))
+            (case_clause
+              value: (identifier))))))))
+
+========================================================================
+XML element with a computed name and attribute
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = <<%= tag %> <%= key %>=<%= value %> <%= extra %>></>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_embedded_expression
+                value: (identifier))
+              (xml_attribute
+                name: (xml_embedded_expression
+                  value: (identifier))
+                value: (xml_embedded_expression
+                  value: (identifier)))
+              (xml_embedded_expression
+                value: (identifier)))))))))

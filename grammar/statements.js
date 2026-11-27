@@ -1,6 +1,14 @@
 // Statements inside method, accessor, and lambda bodies.
 import { comma_sep1, end_kw, kw, kws, sep1 } from './helpers.js';
 
+// `Case < x` leaves out `Is`. Where a `Case` value may follow, `<` could
+// also open an XML literal, so the operators that start with `<` are their
+// own tokens with precedence over that `<`: `Case <a/>` compares, as in VB.
+// They share one precedence so `<=` and `<>` still win over `<` by length.
+const LESS_THAN_CASE_OPERATORS = ['<', '<=', '<>'].map((operator) =>
+  alias(token(prec(1, operator)), operator),
+);
+
 // A statement body that may be empty.
 function body($) {
   return optional(field('body', $.block));
@@ -228,7 +236,7 @@ export default {
       seq(field('low', $._expression), kw('To'), field('high', $._expression)),
       seq(
         optional(kw('Is')),
-        field('operator', choice('=', '<>', '<', '>', '<=', '>=')),
+        field('operator', choice('=', '>', '>=', ...LESS_THAN_CASE_OPERATORS)),
         field('value', $._expression),
       ),
     ),
