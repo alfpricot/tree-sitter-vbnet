@@ -38,8 +38,8 @@ const hasDirective = ({ source }) => /^\s*#[A-Za-z]/m.test(source);
 for (const [label, lineBreak] of [
   ['CRLF', '\r\n'],
   ['CR', '\r'],
-  ['U+2028', ' '],
-  ['U+2029', ' '],
+  ['U+2028', '\u2028'],
+  ['U+2029', '\u2029'],
   ['U+0085', '\u0085'],
 ]) {
   test(`corpus inputs parse the same with ${label} line breaks`, () => {
