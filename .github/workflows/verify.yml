@@ -177,12 +177,12 @@ jobs:
         run: node tools/fixture-check.mjs
 
       - name: Compile the scanner with warnings as errors
-        run: gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -fsyntax-only -Isrc src/scanner.c
+        run: gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 -c -Isrc src/scanner.c -o /dev/null
 
       # The seed is random and printed in the log; set TREE_SITTER_SEED to
       # that value to replay a failure.
       - name: Fuzz incremental reparsing
-        run: npx --no-install tree-sitter fuzz --iterations 100 --edits 8
+        run: node tools/fuzz-check.mjs
 
       - name: Format check
         run: cargo fmt --all --check

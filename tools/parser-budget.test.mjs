@@ -42,3 +42,12 @@ test('reports each exceeded limit', () => {
   assert.match(problems[0], /keyword lexer accepts 1/);
   assert.match(problems[1], /STATE_COUNT is 111/);
 });
+
+test('rejects a missing or non-numeric budget value', () => {
+  const metrics = { stateCount: 1, keywordAccepts: 2 };
+  for (const key of Object.keys(budget)) {
+    for (const value of [undefined, '10']) {
+      assert.throws(() => budgetProblems(metrics, { ...budget, [key]: value }), new RegExp(key));
+    }
+  }
+});

@@ -23,6 +23,10 @@ export function parserMetrics(source) {
 }
 
 export function budgetProblems(metrics, budget) {
+  // A misspelled or quoted value would make its comparison always false.
+  for (const key of ['minKeywordAccepts', 'stateCount', 'maxStateGrowthPercent']) {
+    assert(Number.isFinite(budget[key]), `budget key ${key} must be a number`);
+  }
   const problems = [];
   if (metrics.keywordAccepts < budget.minKeywordAccepts) {
     problems.push(

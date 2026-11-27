@@ -42,7 +42,7 @@ npm test
 - Open pull requests against **`dev`**; releases are cut when `dev` is promoted to `main`.
 - Use a Conventional Commit title (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, ...); CI rejects other titles.
 - Regenerate and commit the parser and node-kind snapshot (`node tools/node-kinds.mjs > test/node-kinds.txt`) with any grammar change; CI rejects drift in either.
-- Add a corpus case or extend a fixture for every newly supported construct. After a scanner change also run `npx --no-install tree-sitter fuzz --iterations 100 --edits 8` and `gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -fsyntax-only -Isrc src/scanner.c`; CI runs both.
+- Add a corpus case or extend a fixture for every newly supported construct. After a scanner change also run `node tools/fuzz-check.mjs` and `gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 -c -Isrc src/scanner.c -o /dev/null`; CI runs both. Use the script rather than `tree-sitter fuzz` directly, which exits 0 even when cases fail.
 - Fixtures are real-world files under a license that allows redistribution; record each one's source in [test/fixtures/README.md](test/fixtures/README.md) and [NOTICE](NOTICE).
 - `tools/parser-budget.mjs` fails when keyword extraction shrinks or the parse table grows past the limit in `test/parser-budget.json`. If a larger table is the intended cost of a change, raise `stateCount` there in the same pull request and say why.
 - Keep node-kind renames for a breaking release: consumers match these names at runtime.
