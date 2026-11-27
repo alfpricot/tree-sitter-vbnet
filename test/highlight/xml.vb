@@ -11,6 +11,6 @@ Module M
 '                       ^ tag.delimiter
 '                        ^ tag
 '                              ^ punctuation.delimiter
-'                                ^ tag
+'                                ^ tag.attribute
     End Sub
 End Module

@@ -413,3 +413,81 @@ End Class
             (interpolated_text)))
         (ERROR
           (identifier))))))
+
+========================================================================
+An unclosed XML literal leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        Dim v = <root>
+    End Sub
+
+    Sub After()
+        If a < b Then y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (modifier)
+        (identifier)
+        (xml_name)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (single_line_if_statement
+          condition: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))))))
+
+========================================================================
+An attribute after an unfinished method loses only its own line
+========================================================================
+
+Class C
+    Sub A()
+        x = 1
+
+    <Obsolete> Sub B()
+    End Sub
+
+    Sub D()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal)))
+      (ERROR
+        (xml_name)
+        (xml_text)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))

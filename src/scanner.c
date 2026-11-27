@@ -429,6 +429,28 @@ static bool scan_interpolation_format(TSLexer *lexer) {
   return true;
 }
 
+static bool word_in(const char *word, const char *const *words, unsigned count) {
+  for (unsigned i = 0; i < count; i++) {
+    if (word_is(word, words[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// The keywords after `End` on a line that closes a statement block, and on
+// one that closes a member or a type.
+static const char *const block_closers[] = {
+    "if", "select", "while", "with", "try", "using", "synclock",
+};
+#define BLOCK_CLOSER_COUNT (sizeof(block_closers) / sizeof(block_closers[0]))
+static const char *const member_closers[] = {
+    "sub",       "function", "class",      "module",        "structure",  "interface",
+    "enum",      "namespace", "property",  "get",           "set",        "event",
+    "operator",  "addhandler", "removehandler", "raiseevent",
+};
+#define MEMBER_CLOSER_COUNT (sizeof(member_closers) / sizeof(member_closers[0]))
+
 static void skip_whitespace(TSLexer *lexer) {
   while (is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead)) {
     skip(lexer);
@@ -556,12 +578,43 @@ static bool scan_xml_markup(TSLexer *lexer, const bool *valid_symbols) {
   return true;
 }
 
+static bool scan_block_end(TSLexer *lexer);
+
+// Whether the line ahead, its leading spaces already read, is a closing line
+// (`End Sub`, `End If`, ...). When it is not, what was read is text and the
+// token is extended over it.
+static bool text_line_closes(TSLexer *lexer) {
+  char word[WORD_MAX + 1];
+  if (!is_identifier_char(lexer->lookahead)) {
+    return false;
+  }
+  if (read_word(lexer, word) && word_is(word, "end")) {
+    skip_horizontal_space(lexer);
+    if (is_identifier_char(lexer->lookahead) && read_word(lexer, word) &&
+        (word_in(word, block_closers, BLOCK_CLOSER_COUNT) ||
+         word_in(word, member_closers, MEMBER_CLOSER_COUNT))) {
+      return true;
+    }
+  }
+  lexer->mark_end(lexer);
+  return false;
+}
+
 // The content of an element between its tags: text up to the next `<`, or a
 // comment, CDATA section, or processing instruction. Whitespace around text,
 // and whitespace alone between tags, belongs to no token. Text that runs to
 // the end of the file belongs to an unterminated literal and is declined.
+//
+// Text also stops before a closing line, whose `End` is offered as it is
+// outside a literal: in a literal left open, or one a stray `<` opened, only
+// the lines before that closing line are lost, and error recovery resumes at
+// it.
 static bool scan_xml_content(TSLexer *lexer, const bool *valid_symbols) {
-  skip_whitespace(lexer);
+  bool line_start = false;
+  while (is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead)) {
+    line_start = line_start || is_line_break(lexer->lookahead);
+    skip(lexer);
+  }
   if (lexer->eof(lexer)) {
     return false;
   }
@@ -571,13 +624,25 @@ static bool scan_xml_content(TSLexer *lexer, const bool *valid_symbols) {
   if (!valid_symbols[XML_TEXT]) {
     return false;
   }
+  if (line_start && (lexer->lookahead | 0x20) == 'e') {
+    if (scan_block_end(lexer)) {
+      return true;
+    }
+    // What it read, at least the `e`, is text.
+    lexer->mark_end(lexer);
+  }
   while (lexer->lookahead != '<') {
     if (lexer->eof(lexer)) {
       return false;
     }
-    bool space = is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead);
+    int32_t c = lexer->lookahead;
     consume(lexer);
-    if (!space) {
+    if (is_line_break(c)) {
+      skip_horizontal_space(lexer);
+      if (text_line_closes(lexer)) {
+        break;
+      }
+    } else if (!is_horizontal_space(c)) {
       lexer->mark_end(lexer);
     }
   }
@@ -617,15 +682,6 @@ static bool scan_rem_comment(TSLexer *lexer) {
   return true;
 }
 
-static bool word_in(const char *word, const char *const *words, unsigned count) {
-  for (unsigned i = 0; i < count; i++) {
-    if (word_is(word, words[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
 // The `End` of a closing line, when a block keyword follows it. Which token it
 // is depends on that keyword alone, whether or not the parser accepts it here.
 static bool scan_block_end(TSLexer *lexer) {
@@ -638,19 +694,11 @@ static bool scan_block_end(TSLexer *lexer) {
   if (!read_word(lexer, word)) {
     return false;
   }
-  static const char *const block_closers[] = {
-      "if", "select", "while", "with", "try", "using", "synclock",
-  };
-  static const char *const member_closers[] = {
-      "sub",       "function", "class",      "module",        "structure",  "interface",
-      "enum",      "namespace", "property",  "get",           "set",        "event",
-      "operator",  "addhandler", "removehandler", "raiseevent",
-  };
-  if (word_in(word, block_closers, sizeof(block_closers) / sizeof(block_closers[0]))) {
+  if (word_in(word, block_closers, BLOCK_CLOSER_COUNT)) {
     lexer->result_symbol = BLOCK_END;
     return true;
   }
-  if (word_in(word, member_closers, sizeof(member_closers) / sizeof(member_closers[0]))) {
+  if (word_in(word, member_closers, MEMBER_CLOSER_COUNT)) {
     lexer->result_symbol = MEMBER_END;
     return true;
   }

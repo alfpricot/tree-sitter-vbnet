@@ -306,6 +306,9 @@ Module M
     Sub Run()
         If a < b Then x = <ok/>
         y = a <b
+        Select Case n
+            Case < limit, Is <= 0, <>max
+        End Select
     End Sub
 End Module
 
@@ -331,7 +334,16 @@ End Module
           left: (identifier)
           right: (binary_expression
             left: (identifier)
-            right: (identifier)))))))
+            right: (identifier)))
+        (select_statement
+          value: (identifier)
+          (case_branch_clause
+            (case_clause
+              value: (identifier))
+            (case_clause
+              value: (integer_literal))
+            (case_clause
+              value: (identifier))))))))
 
 ========================================================================
 XML element with a computed name and attribute
