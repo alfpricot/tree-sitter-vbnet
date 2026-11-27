@@ -9,7 +9,7 @@ The design choice that shapes everything else is how line breaks work. VB ends a
 - Not a compiler or type checker: it produces a syntax tree and attaches no meaning to names, imports, or `Option` settings.
 - Not a preprocessor: `#If`/`#Else` lines are extras and both branches are parsed, so code that repeats a declaration's opening line in each branch produces an error.
 - Not error-tolerant by design: a file it cannot parse yields `ERROR` nodes rather than a best-effort tree.
-- Not complete yet: XML literals, XML axis properties, `Imports <xmlns:...>`, and `Next` closing several loops are not parsed.
+- Not complete yet: XML literals, XML axis properties, `Imports <xmlns:...>`, and a `Next` closing three or more loops are not parsed.
 
 ## Major components
 

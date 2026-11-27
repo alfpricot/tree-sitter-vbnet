@@ -82,7 +82,7 @@ defer tree.Close()
 - **Queries**: `From`, `Where`, `Select`, `Order By`, `Group ... By ... Into`, `Join ... On ... Equals`, `Group Join`, `Let`, `Distinct`, `Skip`/`Take` (with `While`), and `Aggregate`, on one line or split across lines.
 - **Comments and preprocessor lines**: `'`, typographic quotes, and `REM` comments wherever they occur, and every `#` directive (`#If`, `#Region`, `#Const`, ...) as a `preprocessor_directive` node, including outside a method.
 
-Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`), `Imports <xmlns:...>`, and one `Next` closing several loops (`Next j, i`). The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
+Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`), `Imports <xmlns:...>`, and one `Next` closing three or more loops (`Next k, j, i`). `Next j, i` closing two nested loops parses. The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
 
 ### Example
 
