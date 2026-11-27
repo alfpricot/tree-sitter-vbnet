@@ -7,7 +7,7 @@ The design choice that shapes everything else is how line breaks work. VB ends a
 ## What tree-sitter-vbnet is not
 
 - Not a compiler or type checker: it produces a syntax tree and attaches no meaning to names, imports, or `Option` settings.
-- Not a preprocessor: `#If`/`#Else` lines are extras and no condition is evaluated. The first branch of an `#If` is parsed, and the lines of each later `#ElseIf` or `#Else` branch up to the `#End If` are one `inactive_preprocessor_branch` extra, so code that repeats a declaration's opening line in each branch parses, and code in a later branch has no tree of its own.
+- Not a preprocessor: `#If`/`#Else` lines are extras and no condition is evaluated. The first branch of an `#If` is parsed, and the lines from its first `#ElseIf` or `#Else` up to its `#End If`, later `#ElseIf` and `#Else` lines included, are one `inactive_preprocessor_branch` extra, so code that repeats a declaration's opening line in each branch parses, and code in a later branch has no tree of its own.
 - Not error-tolerant by design: a file it cannot parse yields `ERROR` nodes rather than a best-effort tree.
 - Not complete yet: XML document literals, a comment, CDATA section, or processing instruction on its own as an expression, and `Imports <xmlns:...>` are not parsed.
 

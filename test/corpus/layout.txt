@@ -436,6 +436,83 @@ End Class
     (preprocessor_directive)))
 
 ========================================================================
+An #Else with no #End If is parsed
+========================================================================
+
+Module M
+    Sub S()
+#If A Then
+        x()
+#Else
+        y()
+    End Sub
+
+    Sub T()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+A typographic-quote comment after #End If ends the branch
+========================================================================
+
+Module M
+    Sub S()
+#If A Then
+        x()
+#Else
+        y()
+#End If’ done
+    End Sub
+
+    Sub T()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
 Hash date literal is not a directive
 ========================================================================
 
