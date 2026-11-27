@@ -21,6 +21,14 @@
 #                      check up into a single `Verify` status for branch
 #                      rulesets to require.
 #
+#                      On a pull request, a changes job decides what the
+#                      change needs (tools/ci-policy.mjs): a docs-only change,
+#                      or a title or body edit of a head that already passed,
+#                      skips the grammar and Node binding jobs, and the Windows
+#                      binding leg runs only for changes it can see
+#                      differently. The aggregate job accepts exactly those
+#                      skips.
+#
 #                      workflow_dispatch lets a maintainer run the checks by
 #                      hand on any branch.
 # =============================================================================
@@ -43,6 +51,48 @@ concurrency:
   cancel-in-progress: ${{ github.event.action != 'edited' }}
 
 jobs:
+  changes:
+    name: Changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      build: ${{ steps.paths.outputs.build }}
+      windows: ${{ steps.paths.outputs.windows }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The changed paths are a diff between the base and head commits.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+
+      # A title or body edit builds nothing new, but skipping is only safe when
+      # the last completed Verify check for this head succeeded.
+      - name: Read the last Verify result for this head
+        id: prior
+        if: github.event_name == 'pull_request' && github.event.action == 'edited' && !github.event.changes.base
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          conclusion=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?check_name=Verify&filter=all&per_page=100" \
+            --jq '[.check_runs[] | select(.status == "completed")] | sort_by(.completed_at) | last | .conclusion // "none"')
+          echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+
+      - name: Decide which jobs the change needs
+        id: paths
+        env:
+          PRIOR_VERIFIED: ${{ steps.prior.outputs.conclusion == 'success' }}
+        run: node tools/ci-policy.mjs changes
+
   pr-title:
     name: PR title
     if: github.event_name == 'pull_request'
@@ -120,6 +170,8 @@ jobs:
 
   verify:
     name: Grammar, fixtures, Rust build/test
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -216,10 +268,12 @@ jobs:
 
   node-binding:
     name: Node binding build/test
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: ${{ fromJSON(needs.changes.outputs.windows == 'true' && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -299,16 +353,20 @@ jobs:
     # A dispatched run must report as `Verify` too: it is how a
     # GITHUB_TOKEN-pushed release or sync branch satisfies the required check.
     name: ${{ github.event_name == 'push' && 'Verify (push)' || 'Verify' }}
-    needs: [verify, node-binding, secret-scanning, pr-title, workflow-meta]
+    needs: [changes, verify, node-binding, secret-scanning, pr-title, workflow-meta]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require every job to succeed (pr-title may skip outside PRs)
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+
+      - name: Require every job to succeed or be a planned skip
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
-        run: |
-          echo "$JOB_RESULTS" | jq -e '
-            to_entries
-            | all(.value.result == "success" or (.key == "pr-title" and .value.result == "skipped"))
-          '
+        run: node tools/ci-policy.mjs verify
