@@ -383,3 +383,33 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
+========================================================================
+An unterminated interpolated string runs to a later quote
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)))
+        (ERROR
+          (identifier))))))

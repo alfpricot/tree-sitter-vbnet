@@ -338,7 +338,9 @@ static bool scan_interpolated_text(TSLexer *lexer) {
   for (;;) {
     int32_t c = lexer->lookahead;
     // Text that runs to the end of the file belongs to an unterminated string.
-    // Declining it keeps the error at the opening quote.
+    // Declining it keeps the error at the opening quote. A string may span
+    // lines, so one left open with a quote or brace somewhere after it still
+    // runs to that character.
     if (lexer->eof(lexer)) {
       return false;
     }
