@@ -4,9 +4,10 @@
 ; none. `For` loops are captured whole, because an outer loop closed by an
 ; inner loop's `Next j, i` has no `Next` of its own.
 ;
-; Known limit: that shared line has to close every loop it names, and a branch
-; capture takes back only one level per line, so it lands at the level of the
-; innermost `For`.
+; Permanent limit: that shared line has to close every loop it names, but it
+; lands at the level of the innermost `For`. Only a node that starts on a line
+; can take a level back from that line alone, and nvim-treesitter takes back one
+; level for all the nodes that start on the same line.
 
 [
   (accessor_declaration "End")

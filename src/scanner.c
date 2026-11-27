@@ -146,7 +146,7 @@ static bool word_is(const char *word, const char *expected) {
 
 // Looks past a token that ended with a line break for a directive at the start
 // of the new line. Used only for lookahead, so everything it reads is
-// discarded; it leaves a directive line consumed, as `skip_to_next_code` would.
+// discarded; it leaves a directive line consumed, as `skip_to_next_word` would.
 static void note_directive(TSLexer *lexer, Scanner *scanner) {
   skip_horizontal_space(lexer);
   if (lexer->lookahead != '#') {
@@ -158,47 +158,85 @@ static void note_directive(TSLexer *lexer, Scanner *scanner) {
   advance_to_line_end(lexer, false);
 }
 
-// Moves past blank lines, comment lines, and preprocessor lines to the first
-// character of the next line that holds code. Used only for lookahead past
-// the end of a token, so everything it reads is discarded. Returns whether it
-// passed a line starting with `#`.
-static bool skip_to_next_code(TSLexer *lexer) {
-  bool passed_directive = false;
+// Moves past blank lines, comment lines (`REM` ones too), and preprocessor
+// lines, then reads the first word of the next line that holds code into
+// `word`, which is left empty when that line starts with something else. Used
+// only for lookahead past the end of a token, so everything it reads is
+// discarded. Returns whether it passed a comment line or a line starting with
+// `#`.
+static bool skip_to_next_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
+  bool passed_extra = false;
   for (;;) {
     skip_horizontal_space(lexer);
     int32_t c = lexer->lookahead;
     if (lexer->eof(lexer)) {
-      return passed_directive;
+      break;
     }
     if (is_line_break(c)) {
       advance_line_break(lexer, false);
     } else if (c == '_') {
-      // A ` _` continuation joins the next line to this one.
+      // A ` _` continuation joins the next line to this one. The lookahead
+      // stops at a `_` with anything else after it, such as the one that
+      // begins a name like `_take`.
       consume(lexer);
       skip_horizontal_space(lexer);
       if (!is_line_break(lexer->lookahead)) {
-        return passed_directive;
+        break;
       }
       advance_line_break(lexer, false);
     } else if (is_comment_start(c) || c == '#') {
-      passed_directive = passed_directive || c == '#';
+      passed_extra = true;
+      advance_to_line_end(lexer, false);
+    } else if (read_word(lexer, word) && word_is(word, "rem")) {
+      passed_extra = true;
       advance_to_line_end(lexer, false);
     } else {
-      return passed_directive;
+      return passed_extra;
     }
   }
+  word[0] = '\0';
+  return passed_extra;
+}
+
+// Whether what follows a word at the start of a line shows that the word is a
+// name in a statement: a member access written against it, an assignment, or
+// an empty argument list. No query clause goes on that way.
+static bool follows_as_statement(TSLexer *lexer) {
+  // `.`, `!`, and the `?` of `?.` or `?(`.
+  if (lexer->lookahead == '.' || lexer->lookahead == '!' || lexer->lookahead == '?') {
+    return true;
+  }
+  skip_horizontal_space(lexer);
+  int32_t c = lexer->lookahead;
+  if (c == '=') {
+    return true;
+  }
+  if (c == '(') {
+    consume(lexer);
+    skip_horizontal_space(lexer);
+    return lexer->lookahead == ')';
+  }
+  if (c == '<' || c == '>') {
+    // `<<=` and `>>=`.
+    consume(lexer);
+    if (lexer->lookahead != c) {
+      return false;
+    }
+  } else if (c != '+' && c != '-' && c != '*' && c != '/' && c != '\\' && c != '^' && c != '&') {
+    return false;
+  }
+  consume(lexer);
+  return lexer->lookahead == '=';
 }
 
 // Whether the next line of code continues a query: it starts with a query
-// operator keyword. `Select Case` starts a statement, not a `Select` clause.
-// Sets `passed_directive` when a `#` line lies before that code.
-static bool next_line_continues_query(TSLexer *lexer, bool *passed_directive) {
-  if (skip_to_next_code(lexer)) {
-    *passed_directive = true;
-  }
+// operator keyword used as one. `Select Case` starts a statement, not a
+// `Select` clause.
+// Sets `passed_extra` when a comment or `#` line lies before that code.
+static bool next_line_continues_query(TSLexer *lexer, bool *passed_extra) {
   char word[WORD_MAX + 1];
-  if (!read_word(lexer, word)) {
-    return false;
+  if (skip_to_next_word(lexer, word)) {
+    *passed_extra = true;
   }
   if (word_is(word, "select")) {
     skip_horizontal_space(lexer);
@@ -211,7 +249,7 @@ static bool next_line_continues_query(TSLexer *lexer, bool *passed_directive) {
   };
   for (unsigned i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
     if (word_is(word, operators[i])) {
-      return true;
+      return !follows_as_statement(lexer);
     }
   }
   return false;
@@ -220,10 +258,13 @@ static bool next_line_continues_query(TSLexer *lexer, bool *passed_directive) {
 // Whether the next line of code starts a property accessor: optional
 // attribute blocks and access modifiers, then `Get` or `Set`.
 static bool next_line_starts_accessor(TSLexer *lexer) {
-  skip_to_next_code(lexer);
+  char word[WORD_MAX + 1];
+  skip_to_next_word(lexer, word);
   for (;;) {
-    skip_horizontal_space(lexer);
-    if (lexer->lookahead == '<') {
+    if (word[0] == '\0') {
+      if (lexer->lookahead != '<') {
+        return false;
+      }
       while (!lexer->eof(lexer) && lexer->lookahead != '>') {
         if (lexer->lookahead == '"') {
           consume(lexer);
@@ -239,12 +280,8 @@ static bool next_line_starts_accessor(TSLexer *lexer) {
         }
       }
       consume(lexer);
-      skip_to_next_code(lexer);
+      skip_to_next_word(lexer, word);
       continue;
-    }
-    char word[WORD_MAX + 1];
-    if (!read_word(lexer, word)) {
-      return false;
     }
     if (word_is(word, "get") || word_is(word, "set")) {
       return true;
@@ -253,6 +290,8 @@ static bool next_line_starts_accessor(TSLexer *lexer) {
           word_is(word, "friend"))) {
       return false;
     }
+    skip_horizontal_space(lexer);
+    read_word(lexer, word);
   }
 }
 
@@ -271,12 +310,12 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
       return true;
     }
   } else if (valid_symbols[QUERY_CLAUSE_FOLLOWS]) {
-    bool passed_directive = scanner->directive_follows;
-    if (next_line_continues_query(lexer, &passed_directive)) {
+    bool passed_extra = scanner->directive_follows;
+    if (next_line_continues_query(lexer, &passed_extra)) {
       // The line break is whitespace: the query goes on. Left to the generated
-      // lexer it would meet any `#` line itself, so with one ahead the break is
-      // taken as a continuation and the scanner gets to the directive.
-      if (passed_directive && valid_symbols[LINE_CONTINUATION]) {
+      // lexer it would meet any comment or `#` line itself, so with one ahead
+      // the break is taken as a continuation and the scanner gets to that line.
+      if (passed_extra && valid_symbols[LINE_CONTINUATION]) {
         lexer->result_symbol = LINE_CONTINUATION;
         return true;
       }
