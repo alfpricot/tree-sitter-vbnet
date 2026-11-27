@@ -129,8 +129,8 @@ test('a Next closing several loops keeps the bodies indented, at the innermost l
     'End Module',
   ];
   const written = lines.map((line) => (line.length - line.trimStart().length) / 4);
-  // The shared line has every loop to close and one branch capture to do it, so
-  // it lands at the level of the innermost `For`.
+  // The shared line has every loop to close, and branch captures take back one
+  // level per line, so it lands at the level of the innermost `For`.
   const expected = written.map((level, row) => (row === 6 ? level + 2 : level));
   assert.deepEqual(indentLevels(lines.join('\n')), expected);
 });
