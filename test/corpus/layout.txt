@@ -567,3 +567,51 @@ End Module
               value: (integer_literal))
             body: (block
               (return_statement))))))))
+
+========================================================================
+A line break between ( and Of
+========================================================================
+
+Module M
+    Dim x As List(
+        Of Integer)
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (generic_name
+          name: (identifier)
+          type_arguments: (type_argument_list
+            (primitive_type)))))))
+
+========================================================================
+A line continuation between ( and Of
+========================================================================
+
+Module M
+    Dim x As List( _
+        Of Integer)
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (generic_name
+          name: (identifier)
+          type_arguments: (type_argument_list
+            (primitive_type)))))))

@@ -54,6 +54,61 @@ test('the indent query opens and closes blocks but not single-line forms', () =>
   ]);
 });
 
+// The level an editor following `@indent.begin` and `@indent.branch` gives a
+// line: one for each construct opened on an earlier line that still holds it,
+// less one when the line itself closes or divides a construct.
+function indentLevels(source) {
+  const found = captures('indents.scm', source);
+  return source.split('\n').map((line, row) => {
+    const column = line.length - line.trimStart().length;
+    const opened = new Set(
+      found
+        .filter((c) => c.name === 'indent.begin')
+        .filter((c) => c.node.startPosition.row < row && c.node.endPosition.row >= row)
+        .filter((c) => c.node.endPosition.row > row || c.node.endPosition.column > column)
+        .map((c) => c.node.id),
+    );
+    const closes = found.some(
+      (c) =>
+        c.name === 'indent.branch' &&
+        c.node.startPosition.row === row &&
+        c.node.startPosition.column === column,
+    );
+    return opened.size - (closes ? 1 : 0);
+  });
+}
+
+test('the indent query reproduces the layout of nested blocks', () => {
+  const lines = [
+    'Class C',
+    '    Sub Run()',
+    '        Select Case x',
+    '            Case 1',
+    '                Try',
+    '                    a = 1',
+    '                Catch ex As Exception',
+    '                    a = 2',
+    '                Finally',
+    '                    a = 3',
+    '                End Try',
+    '            Case Else',
+    '                If a Then',
+    '                    b = 1',
+    '                ElseIf c Then',
+    '                    b = 2',
+    '                Else',
+    '                    b = 3',
+    '                End If',
+    '        End Select',
+    '    End Sub',
+    'End Class',
+  ];
+  assert.deepEqual(
+    indentLevels(lines.join('\n')),
+    lines.map((line) => (line.length - line.trimStart().length) / 4),
+  );
+});
+
 test('the injection query marks regular-expression patterns', () => {
   const source = [
     'Module M',

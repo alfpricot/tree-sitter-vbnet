@@ -30,6 +30,14 @@
   (for_statement "Next")
 ] @indent.begin
 
+; A `Case` line sits one level inside its `Select`, and its statements one
+; level inside that.
+
+[
+  (case_block)
+  (case_else_block)
+] @indent.begin
+
 ; Closing lines return to the level of the opening line. `End` is captured per
 ; construct so that a bare `End` statement is left alone.
 
@@ -61,8 +69,6 @@
 ; Lines that divide a construct sit at its level.
 
 [
-  (case_block)
-  (case_else_block)
   (catch_block)
   (else_clause)
   (elseif_clause)
