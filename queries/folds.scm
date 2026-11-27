@@ -30,6 +30,8 @@
   (case_else_clause)
   (catch_clause)
   (elseif_clause)
-  (else_clause)
   (finally_clause)
 ] @fold
+
+; A single-line `If` holds an `else_clause` too, which divides no block.
+(if_statement (else_clause) @fold)

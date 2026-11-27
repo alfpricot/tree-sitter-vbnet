@@ -75,7 +75,9 @@
 
 [
   (catch_clause)
-  (else_clause)
   (elseif_clause)
   (finally_clause)
 ] @indent.branch
+
+; A single-line `If` holds an `else_clause` too, which divides no block.
+(if_statement (else_clause) @indent.branch)

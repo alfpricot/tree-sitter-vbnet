@@ -34,10 +34,16 @@ test('the indent query opens and closes blocks but not single-line forms', () =>
     '            Else', // 7
     '            End If', // 8
     '        Next', // 9
-    '    End Sub', // 10
-    'End Class', // 11
+    '        If a Then b() _', // 10
+    '        Else c()', // 11
+    '    End Sub', // 12
+    'End Class', // 13
     '',
   ].join('\n');
+  assert.deepEqual(
+    at(captures('folds.scm', source), 'fold').filter((c) => c.endsWith(':else_clause')),
+    ['7:else_clause'],
+  );
   const found = captures('indents.scm', source);
   assert.deepEqual(at(found, 'indent.begin'), [
     '0:class_block',
@@ -49,8 +55,8 @@ test('the indent query opens and closes blocks but not single-line forms', () =>
     '7:else_clause',
     '8:End',
     '9:Next',
-    '10:End',
-    '11:End',
+    '12:End',
+    '13:End',
   ]);
 });
 
