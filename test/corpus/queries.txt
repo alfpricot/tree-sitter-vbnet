@@ -636,3 +636,89 @@ End Module
               member: (identifier))
             arguments: (argument_list
               (identifier))))))))
+
+========================================================================
+A query ends past a nested later branch under an open #Else
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+#If B Then
+#Else
+        Where x > 0
+#End If
+        Foo()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (preprocessor_directive)
+        (preprocessor_directive)
+        (inactive_preprocessor_branch)
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))))))
+
+========================================================================
+A query continues into an open nested later branch
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+#If B Then
+#Else
+        Where x > 0
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal))))))))))

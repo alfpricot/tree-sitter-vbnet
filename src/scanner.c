@@ -218,7 +218,8 @@ typedef bool (*LineTest)(TSLexer *lexer, char word[WORD_MAX + 1]);
 // missing `#End If` is known, so the line is tested on the way.
 typedef struct {
   LineTest test;
-  // Set once the first line of code in the branch has been tested.
+  // Set once the first line of code in the branch has been tested. `answer`
+  // means nothing without it.
   bool tested;
   // Set when the branch ran to the end of the file.
   bool unterminated;
@@ -249,10 +250,15 @@ static inline bool opens_inactive_branch(const char *word) {
 // mistyped closer, the code after the `#Else` stays parsed. `#If` blocks nested
 // in the branch are read through. With `mark`, the end of the token is marked
 // after each character that is not whitespace. A `probe` is given the first line
-// of code and told when there is no `#End If`.
+// of code that is parsed if the branch turns out to have no `#End If`, and is
+// told when that is so.
 static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
   unsigned depth = 0;
   bool content = false;
+  // The depth of the outermost nested `#If` that is in a later branch, or zero,
+  // and whether the probe had tested a line when that branch began.
+  unsigned later = 0;
+  bool tested_before = false;
   for (;;) {
     skip_horizontal_space(lexer);
     if (lexer->eof(lexer)) {
@@ -271,8 +277,17 @@ static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
             if (depth == 0) {
               return content;
             }
+            // That later branch is closed, so it is not parsed: what was tested
+            // in it does not count.
+            if (probe && depth == later) {
+              probe->tested = tested_before;
+              later = 0;
+            }
             depth--;
           }
+        } else if (probe && depth > 0 && later == 0 && opens_inactive_branch(word)) {
+          later = depth;
+          tested_before = probe->tested;
         }
       }
       content = true;
@@ -442,7 +457,8 @@ static bool next_line_continues_query(TSLexer *lexer, Probe *probe, bool *passed
   if (skip_to_next_word(lexer, word, probe)) {
     *passed_extra = true;
   }
-  return probe->unterminated ? probe->answer : line_continues_query(lexer, word);
+  return probe->unterminated ? probe->tested && probe->answer
+                             : line_continues_query(lexer, word);
 }
 
 // Passes an attribute block from its `<` through its `>`, over line breaks only
@@ -498,7 +514,8 @@ static bool next_line_starts_accessor(TSLexer *lexer, Probe *probe) {
     pass_attribute_block(lexer, true);
     skip_to_next_word(lexer, word, probe);
   }
-  return probe->unterminated ? probe->answer : words_start_accessor(lexer, word);
+  return probe->unterminated ? probe->tested && probe->answer
+                             : words_start_accessor(lexer, word);
 }
 
 static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_symbols,
@@ -592,7 +609,10 @@ static bool line_closes_member(TSLexer *lexer) {
   skip_horizontal_space(lexer);
   int32_t c = lexer->lookahead;
   if (!(lexer->eof(lexer) || is_line_break(c) || is_comment_start(c) || c == ':')) {
-    return false;
+    if (!read_word(lexer, word) || !word_is(word, "rem")) {
+      return false;
+    }
+    c = lexer->lookahead;
   }
   // The answer rests on the whole of a multi-byte character.
   if (c > 0x7F) {

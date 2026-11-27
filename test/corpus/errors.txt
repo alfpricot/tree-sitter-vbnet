@@ -536,3 +536,80 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
+========================================================================
+A closed branch does not answer for a later open #Else
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#If A Then
+#Else
+        Where x > 0
+#End If
+#If B Then
+#Else
+        ' comment
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))))))
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (comment))
+
+========================================================================
+An unterminated interpolated string stops before a closing line with REM
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub REM done
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (MISSING """)))))
+    (comment)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
