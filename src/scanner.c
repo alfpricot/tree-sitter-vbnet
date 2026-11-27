@@ -253,6 +253,17 @@ static inline bool opens_later_branch(const char *word) {
   return word_is(word, "else") || word_is(word, "elseif");
 }
 
+// Whether nothing but a comment is left of a line: the lexer is at its end or at
+// `'`, a typographic quote, or `REM`. Reads no further than that.
+static bool at_line_end_or_comment(TSLexer *lexer) {
+  int32_t c = lexer->lookahead;
+  if (lexer->eof(lexer) || is_line_break(c) || is_comment_start(c)) {
+    return true;
+  }
+  char word[WORD_MAX + 1];
+  return read_word(lexer, word) && word_is(word, "rem");
+}
+
 // Whether the rest of an `#If` or `#ElseIf` line is a condition that is
 // literally false: `False` or `0`, then an optional `Then` and comment. No
 // other condition is evaluated.
@@ -261,30 +272,28 @@ static bool read_false_condition(TSLexer *lexer) {
   skip_horizontal_space(lexer);
   if (lexer->lookahead == '0') {
     consume(lexer);
-    if (is_identifier_char(lexer->lookahead)) {
+    // A typographic quote counts as an identifier character, but starts a
+    // comment here.
+    if (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead)) {
       return false;
     }
-  } else if (!read_word(lexer, word) || !word_is(word, "false")) {
+  } else {
+    // Not `read_word`, which would run on into a typographic quote.
+    if (!read_directive_word(lexer, word) || !word_is(word, "false") ||
+        (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead))) {
+      return false;
+    }
+  }
+  skip_horizontal_space(lexer);
+  if ((lexer->lookahead | 0x20) != 't') {
+    return at_line_end_or_comment(lexer);
+  }
+  if (!read_directive_word(lexer, word) || !word_is(word, "then") ||
+      (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead))) {
     return false;
   }
   skip_horizontal_space(lexer);
-  if (is_identifier_char(lexer->lookahead)) {
-    if (!read_word(lexer, word)) {
-      return false;
-    }
-    if (word_is(word, "rem")) {
-      return true;
-    }
-    if (!word_is(word, "then")) {
-      return false;
-    }
-    skip_horizontal_space(lexer);
-  }
-  if (is_identifier_char(lexer->lookahead)) {
-    return read_word(lexer, word) && word_is(word, "rem");
-  }
-  return lexer->eof(lexer) || is_line_break(lexer->lookahead) ||
-         is_comment_start(lexer->lookahead);
+  return at_line_end_or_comment(lexer);
 }
 
 // Reads the rest of a `#` line whose keyword is `word` and returns the branch

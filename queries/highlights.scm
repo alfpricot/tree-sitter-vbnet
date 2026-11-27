@@ -4,7 +4,7 @@
 
 (preprocessor_directive) @keyword.directive
 
-; The later branches of an `#If`, which are not parsed
+; The branches of an `#If` that are not parsed
 
 (inactive_preprocessor_branch) @comment
 

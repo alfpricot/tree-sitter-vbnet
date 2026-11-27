@@ -1074,3 +1074,32 @@ End Class
           (return_statement
             (integer_literal))))
       (preprocessor_directive))))
+
+========================================================================
+A typographic-quote comment after a false condition
+========================================================================
+
+#If False‘ off
+bad (
+#ElseIf 0’off
+worse (
+#ElseIf False Then ‘ off
+worst (
+#Else
+Imports A
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive))
