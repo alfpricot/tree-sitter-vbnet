@@ -34,6 +34,13 @@ export function end_kw($, ...words) {
   return seq(alias($._block_end, 'End'), kws(...words));
 }
 
+// `(Of`, opening a type argument or type parameter list. The scanner emits
+// the `(` only when `Of` follows it, and `Of` is then an ordinary keyword that
+// queries can name.
+export function open_paren_of($) {
+  return [alias($._open_paren_of, '('), kw('Of')];
+}
+
 // Expression precedence, loosest first, following the VB language
 // specification's operator precedence table.
 export const PREC = {

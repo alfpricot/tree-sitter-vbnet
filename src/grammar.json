@@ -4423,8 +4423,23 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_open_paren_of"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_open_paren_of"
+          },
+          "named": false,
+          "value": "("
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "PATTERN",
+            "value": "Of",
+            "flags": "i"
+          },
+          "named": false,
+          "value": "Of"
         },
         {
           "type": "SEQ",
@@ -10940,8 +10955,23 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_open_paren_of"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_open_paren_of"
+          },
+          "named": false,
+          "value": "("
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "PATTERN",
+            "value": "Of",
+            "flags": "i"
+          },
+          "named": false,
+          "value": "Of"
         },
         {
           "type": "CHOICE",

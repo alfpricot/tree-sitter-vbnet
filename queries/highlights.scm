@@ -95,7 +95,7 @@
   "Inherits" "Interface" "Into" "IsFalse" "IsTrue" "Iterator"
   "Join" "Key" "Let" "Lib" "Loop" "Module"
   "MustInherit" "MustOverride" "Namespace" "Narrowing" "New" "Next"
-  "NotInheritable" "NotOverridable" "Off" "On" "Operator" "Option"
+  "NotInheritable" "NotOverridable" "Of" "Off" "On" "Operator" "Option"
   "Optional" "Order" "Out" "Overloads" "Overridable" "Overrides"
   "ParamArray" "Partial" "Preserve" "Private" "Property" "Protected"
   "Public" "RaiseEvent" "ReDim" "ReadOnly" "RemoveHandler" "Resume"
@@ -118,3 +118,8 @@
   "."
   ":"
 ] @punctuation.delimiter
+
+; The angle brackets of an attribute block are not comparisons
+
+(attribute_list ["<" ">"] @punctuation.bracket)
+(attribute_statement ["<" ">"] @punctuation.bracket)

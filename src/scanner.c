@@ -8,8 +8,8 @@
 // skipped as whitespace. That one rule covers implicit line continuation,
 // blank lines, and comment lines between statements.
 //
-// It also emits `#If`/`#Region`/... lines, the `(Of` that opens a type
-// argument list (so `Foo(Of T)` and `Foo(x)` part on one token of lookahead),
+// It also emits `#If`/`#Region`/... lines, the `(` of the `(Of` that opens a
+// type argument list (so `Foo(Of T)` and `Foo(x)` part on one token of lookahead),
 // the line break that opens a property's `Get`/`Set` accessors, and the
 // `End` of a block's closing line.
 //
@@ -246,9 +246,11 @@ static bool scan_line_break(TSLexer *lexer, const bool *valid_symbols, bool erro
   return true;
 }
 
-// `(`, optional spaces, then the word `Of`.
+// A `(` that optional spaces and the word `Of` follow. The token is the `(`
+// alone; the rest is read ahead to tell it from any other parenthesis.
 static bool scan_open_paren_of(TSLexer *lexer) {
   consume(lexer);
+  lexer->mark_end(lexer);
   for (;;) {
     skip_horizontal_space(lexer);
     if (lexer->lookahead == '_') {
@@ -276,7 +278,6 @@ static bool scan_open_paren_of(TSLexer *lexer) {
   if (is_identifier_char(lexer->lookahead)) {
     return false;
   }
-  lexer->mark_end(lexer);
   lexer->result_symbol = OPEN_PAREN_OF;
   return true;
 }

@@ -1,5 +1,5 @@
 // Files, namespaces, types, and type members.
-import { comma_sep1, end_kw, kw, kws } from './helpers.js';
+import { comma_sep1, end_kw, kw, kws, open_paren_of } from './helpers.js';
 
 // Member items separated by statement terminators.
 function members($, item) {
@@ -357,7 +357,7 @@ export default {
       optional(seq('=', field('default', $._expression))),
     ),
 
-  type_parameter_list: ($) => seq($._open_paren_of, comma_sep1($.type_parameter), ')'),
+  type_parameter_list: ($) => seq(...open_paren_of($), comma_sep1($.type_parameter), ')'),
 
   type_parameter: ($) =>
     seq(

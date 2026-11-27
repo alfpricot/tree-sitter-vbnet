@@ -44,7 +44,7 @@ export default grammar({
     // keyword follows, so a bare `End` statement inside a block is a different
     // token.
     $._block_end,
-    // `(Of`, opening a type argument or type parameter list.
+    // The `(` of `(Of`, opening a type argument or type parameter list.
     $._open_paren_of,
     // Literal text inside `$"..."`, scanned here so a `'` in it is text and
     // not the start of a comment.
