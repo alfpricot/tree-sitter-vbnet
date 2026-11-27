@@ -9,13 +9,9 @@ const binding =
       await import(`${root}/prebuilds/${process.platform}-${process.arch}/tree-sitter-vbnet.node`)
     : (await import('node-gyp-build')).default(root);
 
-try {
-  binding.nodeTypeInfo = JSON.parse(
-    readFileSync(new URL('../../src/node-types.json', import.meta.url), 'utf8'),
-  );
-} catch {
-  // The type metadata is optional; the binding works without it.
-}
+binding.nodeTypeInfo = JSON.parse(
+  readFileSync(new URL('../../src/node-types.json', import.meta.url), 'utf8'),
+);
 
 const queries = [['HIGHLIGHTS_QUERY', `${root}/queries/highlights.scm`]];
 
