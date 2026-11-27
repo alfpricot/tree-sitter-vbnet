@@ -514,6 +514,8 @@ Module M
     Sub Run()
         a = phone.@ns:type
         b = x.@id : c = 1
+        d = x.@ns:type.Trim()
+        e = x.@ns:count-1
     End Sub
 End Module
 
@@ -538,4 +540,20 @@ End Module
             name: (xml_name)))
         (assignment_statement
           left: (identifier)
-          right: (integer_literal))))))
+          right: (integer_literal))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (member_access_expression
+              object: (xml_axis_expression
+                object: (identifier)
+                name: (xml_name))
+              member: (identifier))
+            arguments: (argument_list)))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (xml_axis_expression
+              object: (identifier)
+              name: (xml_name))
+            right: (integer_literal)))))))

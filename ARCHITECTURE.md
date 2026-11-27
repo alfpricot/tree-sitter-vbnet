@@ -9,7 +9,7 @@ The design choice that shapes everything else is how line breaks work. VB ends a
 - Not a compiler or type checker: it produces a syntax tree and attaches no meaning to names, imports, or `Option` settings.
 - Not a preprocessor: `#If`/`#Else` lines are extras and no condition is evaluated. The first branch of an `#If` is parsed, and the lines from its first `#ElseIf` or `#Else` up to its `#End If`, later `#ElseIf` and `#Else` lines included, are one `inactive_preprocessor_branch` extra, so code that repeats a declaration's opening line in each branch parses, and code in a later branch has no tree of its own.
 - Not error-tolerant by design: a file it cannot parse yields `ERROR` nodes rather than a best-effort tree.
-- Not complete yet: a comment or processing instruction after an XML document literal's root element is not part of the document, and `<%= x%>`, with no space before `%>`, does not parse.
+- Not complete yet: a comment or processing instruction after an XML document literal's root element is not part of the document (on a later line in a method body it is a statement of its own, and elsewhere an error), and `<%= x%>`, with no space before `%>`, does not parse.
 
 ## Major components
 

@@ -64,7 +64,7 @@ export default grammar({
     // The parts of an XML literal, scanned here because they can start like an
     // identifier or contain `'`: a name in a tag, the text between tags, an
     // attribute value in either kind of quote, and `<!-- -->`, `<![CDATA[ ]]>`,
-    // and `<? ?>` in an element's content.
+    // and `<? ?>`, in an element's content or as expressions.
     $.xml_name,
     $.xml_text,
     $.xml_attribute_value,

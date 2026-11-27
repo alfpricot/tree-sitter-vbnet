@@ -4,10 +4,15 @@
 // instructions are scanned by the external scanner: they can start like an
 // identifier or contain `'`, which the generated lexer would read as the start
 // of a comment, and an XML name token in the generated lexer would overlap
-// `identifier` and keep keywords out of tree-sitter's keyword table.
+// `identifier` and keep keywords out of tree-sitter's keyword table. The one
+// exception is a prefixed name after `.@`, which is a token only there and
+// needs its `:`.
 import { PREC } from './helpers.js';
 
-const PREFIXED_NAME = /[\p{L}_][\p{L}\p{Nd}_.\-]*:[\p{L}_][\p{L}\p{Nd}_.\-]*/;
+// Each side of the `:` is a VB name, so a `.` or `-` ends it, as after a name
+// with no prefix.
+const NAME = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]*/.source;
+const PREFIXED_NAME = new RegExp(`${NAME}:${NAME}`);
 
 export default {
   // `<?xml ...?>`, any comments and processing instructions, and the root
