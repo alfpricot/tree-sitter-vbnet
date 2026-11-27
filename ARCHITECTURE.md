@@ -37,7 +37,7 @@ The Node addon (`binding.cc`, built by `binding.gyp`, with `index.js` and `index
 
 ### [test/](test) and [tools/](tools)
 
-`test/corpus` asserts exact tree shapes, `test/highlight` asserts highlight captures, and `test/fixtures` holds whole files that must parse with no `ERROR`, `MISSING`, or zero-width nodes. `test/node-kinds.txt` snapshots the public node kinds. The `tools/` scripts run the fixture check, produce or check that snapshot, check the package contents and release policy, and `tools/bench.mjs` measures parse throughput over several corpora (statements, continued lines, comment lines, preprocessor lines, generics, interpolated strings, queries, and error recovery) so a grammar or scanner change can be compared before and after.
+`test/corpus` asserts exact tree shapes, `test/highlight` asserts highlight captures, and `test/fixtures` holds whole files that must parse with no `ERROR`, `MISSING`, or zero-width nodes. `test/node-kinds.txt` snapshots the public node kinds and their field names. The `tools/` scripts run the fixture check, produce or check that snapshot, check the package contents and release policy, and `tools/bench.mjs` measures parse throughput over several corpora (statements, continued lines, comment lines, preprocessor lines, generics, interpolated strings, queries, and error recovery) so a grammar or scanner change can be compared before and after. `tools/parse-rate.mjs` reports the share of files under a directory that parse clean; the monthly `Parse rate` workflow runs it over public VB.NET code.
 
 ## External systems and data flow
 

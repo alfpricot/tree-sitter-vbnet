@@ -1,5 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+// A static import, so a bundler sees the file and embeds it, and a package
+// without it fails here rather than exporting no node type metadata.
+import nodeTypeInfo from '../../src/node-types.json' with { type: 'json' };
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -9,13 +12,7 @@ const binding =
       await import(`${root}/prebuilds/${process.platform}-${process.arch}/tree-sitter-vbnet.node`)
     : (await import('node-gyp-build')).default(root);
 
-try {
-  binding.nodeTypeInfo = JSON.parse(
-    readFileSync(new URL('../../src/node-types.json', import.meta.url), 'utf8'),
-  );
-} catch {
-  // The type metadata is optional; the binding works without it.
-}
+binding.nodeTypeInfo = nodeTypeInfo;
 
 const queries = [['HIGHLIGHTS_QUERY', `${root}/queries/highlights.scm`]];
 

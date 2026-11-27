@@ -21,9 +21,10 @@ test('exports the vbnet language name', async () => {
   assert.equal(language.name, 'vbnet');
 });
 
-test('exports the highlights query', async () => {
+test('exports a highlights query that compiles against the grammar', async () => {
   const { default: language } = await import('./index.js');
   assert.match(language.HIGHLIGHTS_QUERY, /@keyword/);
+  assert.doesNotThrow(() => new Parser.Query(language, language.HIGHLIGHTS_QUERY));
 });
 
 test('parses a module with implicit line continuation without error', async () => {
