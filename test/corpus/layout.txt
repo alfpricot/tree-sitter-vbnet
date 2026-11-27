@@ -793,3 +793,35 @@ End Class
           (parameter
             name: (identifier)
             type: (primitive_type)))))))
+
+========================================================================
+Property accessors after an #Else with no #End If
+========================================================================
+
+Class C
+    Property P As Integer
+#Else
+        <A> Public Get
+            Return 1
+        End Get
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (primitive_type)
+      (preprocessor_directive)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)))
+        modifiers: (modifiers
+          (modifier))
+        body: (block
+          (return_statement
+            (integer_literal)))))))

@@ -813,3 +813,38 @@ End Module
                     arguments: (argument_list)))))
             (select_clause
               (identifier))))))))
+
+========================================================================
+A multi-line interpolated string holding lines that close no member
+========================================================================
+
+Module M
+    Sub S()
+        code = $"Sub A()
+    End If
+End Sub"
+        t = $"{name} ends
+End Subtotal
+  End Sub x"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolation
+              value: (identifier))
+            (interpolated_text)))))))

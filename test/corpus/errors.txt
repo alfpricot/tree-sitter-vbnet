@@ -339,8 +339,9 @@ End Class
       body: (block
         (assignment_statement
           left: (identifier)
-          (ERROR)
-          right: (identifier))))
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (MISSING """)))))
     (method_declaration
       name: (identifier)
       parameters: (parameter_list)
@@ -385,7 +386,7 @@ End Class
           right: (integer_literal))))))
 
 ========================================================================
-An unterminated interpolated string runs to a later quote
+An unterminated interpolated string stops before a later quote
 ========================================================================
 
 Class C
@@ -410,9 +411,53 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (interpolated_string_expression
-            (interpolated_text)))
-        (ERROR
-          (identifier))))))
+            (interpolated_text)
+            (MISSING """)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
+
+========================================================================
+An unterminated interpolated string stops after an interpolation
+========================================================================
+
+Class C
+    Sub X()
+        s = $"{name}
+    End Sub ' done
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolation
+              value: (identifier))
+            (MISSING """)))))
+    (comment)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
 
 ========================================================================
 An unclosed XML literal leaves the next method intact

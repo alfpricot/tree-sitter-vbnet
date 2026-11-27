@@ -74,6 +74,22 @@ test('folds cover every construct that indents and every dividing clause', () =>
   assert.deepEqual(listed('queries/folds.scm', /^fold$/), indented);
 });
 
+test('folds capture the inactive branch of an #If', () => {
+  const scratch = mkdtempSync(join(tmpdir(), 'vbnet-folds-'));
+  try {
+    const file = join(scratch, 'folds.vb');
+    writeFileSync(file, '#If A Then\n#Else\nImports B\nImports C\n#End If\n');
+    const output = execFileSync(
+      resolveTreeSitterCli(repo),
+      ['query', '-p', repo, 'queries/folds.scm', file],
+      { cwd: repo, encoding: 'utf8' },
+    );
+    assert.match(output, /capture: (\d+ - )?fold, start: \(2, 0\), end: \(3, 9\)/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
 // Each use of `x` below sits in a value position the locals query has to mark.
 test('locals marks a reference in each value position', () => {
   const uses = [

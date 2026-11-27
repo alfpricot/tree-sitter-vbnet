@@ -549,3 +549,90 @@ End Module
               (select_clause
                 (member_access_expression
                   member: (identifier))))))))))
+
+========================================================================
+A query continues past an #Else with no #End If
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+
+        ' comment
+        Where x > 0
+        Select x
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (comment)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (select_clause
+                (identifier)))))))))
+
+========================================================================
+A statement after an #Else with no #End If is not a query clause
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+        order = 1
+        group.Add(x)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))))))
