@@ -95,10 +95,7 @@ export default {
   goto_statement: ($) => seq(kw('GoTo'), field('label', $._label_name)),
 
   // `Name:` at the start of a line is a label, not a call ended by a colon.
-  label_statement: ($) =>
-    prec.dynamic(1, seq(field('label', alias($._label_identifier, $.identifier)), ':')),
-
-  _label_identifier: ($) => $.identifier,
+  label_statement: ($) => prec.dynamic(1, seq(field('label', $.identifier), ':')),
 
   _label_name: ($) => choice($.identifier, $.integer_literal),
 

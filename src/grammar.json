@@ -5472,13 +5472,8 @@
             "type": "FIELD",
             "name": "label",
             "content": {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "_label_identifier"
-              },
-              "named": true,
-              "value": "identifier"
+              "type": "SYMBOL",
+              "name": "identifier"
             }
           },
           {
@@ -5487,10 +5482,6 @@
           }
         ]
       }
-    },
-    "_label_identifier": {
-      "type": "SYMBOL",
-      "name": "identifier"
     },
     "_label_name": {
       "type": "CHOICE",
@@ -11735,7 +11726,7 @@
       "_primary_expression"
     ],
     [
-      "_label_identifier",
+      "label_statement",
       "_primary_expression"
     ]
   ],

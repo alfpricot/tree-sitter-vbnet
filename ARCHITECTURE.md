@@ -21,7 +21,18 @@ Keywords are case-insensitive regular expressions aliased to their usual spellin
 
 ### [src/scanner.c](src/scanner.c)
 
-The external scanner. It emits the statement-ending line break described above, and decides two cases where a line break the parser could accept as an end still continues the line: before a query clause keyword (`Where`, `Order`, `Select` but not `Select Case`, ...), and before a property's `Get`/`Set` accessors, which open a full property rather than end an auto-implemented one. It also scans the `(Of` that opens a type argument list, so `Foo(Of T)` and `Foo(x)` part on one token of lookahead; the `End` of a closing line (`End Sub`), so a bare `End` statement inside a block is a different token; `#` preprocessor lines at the start of a line; and comments, ` _` line continuations, and interpolated-string text and format. Comments, continuations, and `End` live in the scanner because each can start like an identifier, and in the generated lexer that overlap keeps tree-sitter from moving keywords into its keyword table, which slows every token down. The scanner keeps no state between tokens.
+The external scanner. It emits the statement-ending line break described above, and decides two cases where a line break the parser could accept as an end still continues the line: before a query clause keyword (`Where`, `Order`, `Select` but not `Select Case`, ...), and before a property's `Get`/`Set` accessors, which open a full property rather than end an auto-implemented one. It also scans the `(Of` that opens a type argument list, so `Foo(Of T)` and `Foo(x)` part on one token of lookahead; the `End` of a closing line (`End Sub`), so a bare `End` statement inside a block is a different token; `#` preprocessor lines at the start of a line; and comments, ` _` line continuations, and interpolated-string text and format. Comments, continuations, and `End` live in the scanner because each can start like an identifier, and in the generated lexer that overlap keeps tree-sitter from moving keywords into its keyword table, which slows every token down. The scanner carries one bit of state between tokens: a token that ends with a line break records that a `#` directive comes next, because the column the lexer reports resets at `\n` alone and cannot show that a line started after CR, U+2028, U+2029, or U+0085.
+
+### Node and field names
+
+Consumers match node kinds and field names at runtime, so a rename is a breaking change. New names follow these rules:
+
+- `_block` names a construct that has its own `End` line (`class_block`, `namespace_block`).
+- `_clause` names a part of a larger construct (`else_clause`, `elseif_clause`, `where_clause`).
+- `block` is a list of statements, and the field that holds one is `body`.
+- `modifiers` is the node that groups a declaration's modifiers and the field that holds it; each keyword in it is a `modifier` node.
+
+Some names predate these rules and stay until a major release renames them together: `catch_block`, `case_block`, `case_else_block`, and `finally_block` are parts of a construct; `single_line_block` has no `End` line; `if_statement` and `elseif_clause` hold their statements in a `consequence` field rather than `body`, and `if_statement` holds its `elseif_clause` and `else_clause` nodes in an `alternative` field, while `single_line_if_statement` uses both field names for statements; parameters, local declarations, and lambdas mark each modifier keyword with a singular `modifier` field; and `MustOverride` is a bare token in `method_signature` and `property_signature` rather than a `modifier` node, so each of those two can carry a `modifiers` field on both sides of it.
 
 ### [src/](src)
 
