@@ -579,8 +579,7 @@ End Module
         (stop_statement)
         (end_statement)
         (label_statement
-          label: (identifier
-            (identifier)))
+          label: (identifier))
         (resume_statement)))))
 
 ========================================================================

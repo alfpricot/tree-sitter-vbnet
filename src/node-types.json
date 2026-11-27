@@ -7706,21 +7706,6 @@
     }
   },
   {
-    "type": "identifier",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "if_statement",
     "named": true,
     "fields": {
@@ -17795,6 +17780,10 @@
   },
   {
     "type": "floating_literal",
+    "named": true
+  },
+  {
+    "type": "identifier",
     "named": true
   },
   {

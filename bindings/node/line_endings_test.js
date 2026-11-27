@@ -30,11 +30,6 @@ const cases = readdirSync(corpus)
   .filter((file) => file !== 'errors.txt')
   .flatMap(inputs);
 
-// A preprocessor line is only recognized at the start of a line, and the
-// column the scanner reads resets at `\n` alone, so inputs with directives are
-// compared for CRLF only.
-const hasDirective = ({ source }) => /^\s*#[A-Za-z]/m.test(source);
-
 for (const [label, lineBreak] of [
   ['CRLF', '\r\n'],
   ['CR', '\r'],
@@ -43,9 +38,11 @@ for (const [label, lineBreak] of [
   ['U+0085', '\u0085'],
 ]) {
   test(`corpus inputs parse the same with ${label} line breaks`, () => {
-    const compared = lineBreak.endsWith('\n') ? cases : cases.filter((c) => !hasDirective(c));
-    assert(compared.length > 0, 'No corpus cases found');
-    for (const { name, source } of compared) {
+    assert(
+      cases.some(({ source }) => /^\s*#[A-Za-z]/m.test(source)),
+      'No corpus case has a preprocessor line',
+    );
+    for (const { name, source } of cases) {
       assert.equal(tree(source.replaceAll('\n', lineBreak)), tree(source), name);
     }
   });

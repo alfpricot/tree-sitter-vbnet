@@ -62,7 +62,7 @@ export default grammar({
 
   conflicts: ($) => [
     [$.variable_declarator, $._primary_expression],
-    [$._label_identifier, $._primary_expression],
+    [$.label_statement, $._primary_expression],
   ],
 
   rules: {

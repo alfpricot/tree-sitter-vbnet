@@ -19,6 +19,7 @@
 // tree-sitter from moving keywords into its keyword table, which leaves every
 // keyword in the main lexer and slows every token down.
 
+#include "tree_sitter/alloc.h"
 #include "tree_sitter/parser.h"
 
 #include <stdbool.h>
@@ -40,18 +41,28 @@ enum TokenType {
 
 #define WORD_MAX 16
 
-void *tree_sitter_vbnet_external_scanner_create(void) { return NULL; }
-void tree_sitter_vbnet_external_scanner_destroy(void *payload) { (void)payload; }
+typedef struct {
+  // Set by a token that ends with a line break when a `#` directive comes
+  // next. `get_column` counts from the last `\n`, so it cannot tell that a
+  // line started after any other line break.
+  bool directive_follows;
+} Scanner;
+
+void *tree_sitter_vbnet_external_scanner_create(void) { return ts_calloc(1, sizeof(Scanner)); }
+void tree_sitter_vbnet_external_scanner_destroy(void *payload) { ts_free(payload); }
 unsigned tree_sitter_vbnet_external_scanner_serialize(void *payload, char *buffer) {
-  (void)payload;
-  (void)buffer;
-  return 0;
+  Scanner *scanner = payload;
+  if (!scanner->directive_follows) {
+    return 0;
+  }
+  buffer[0] = 1;
+  return 1;
 }
 void tree_sitter_vbnet_external_scanner_deserialize(void *payload, const char *buffer,
                                                      unsigned length) {
-  (void)payload;
   (void)buffer;
-  (void)length;
+  Scanner *scanner = payload;
+  scanner->directive_follows = length > 0;
 }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
@@ -129,6 +140,20 @@ static bool word_is(const char *word, const char *expected) {
     expected++;
   }
   return *word == '\0' && *expected == '\0';
+}
+
+// Looks past a token that ended with a line break for a directive at the start
+// of the new line. Used only for lookahead, so everything it reads is
+// discarded; it leaves a directive line consumed, as `skip_to_next_code` would.
+static void note_directive(TSLexer *lexer, Scanner *scanner) {
+  skip_horizontal_space(lexer);
+  if (lexer->lookahead != '#') {
+    return;
+  }
+  consume(lexer);
+  skip_horizontal_space(lexer);
+  scanner->directive_follows = is_ascii_letter(lexer->lookahead);
+  advance_to_line_end(lexer, false);
 }
 
 // Moves past blank lines, comment lines, and preprocessor lines to the first
@@ -223,9 +248,11 @@ static bool next_line_starts_accessor(TSLexer *lexer) {
   }
 }
 
-static bool scan_line_break(TSLexer *lexer, const bool *valid_symbols, bool error_recovery) {
+static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_symbols,
+                            bool error_recovery) {
   advance_line_break(lexer, false);
   lexer->mark_end(lexer);
+  note_directive(lexer, scanner);
   if (error_recovery) {
     lexer->result_symbol = NEWLINE;
     return true;
@@ -332,7 +359,7 @@ static bool scan_interpolation_format(TSLexer *lexer) {
 }
 
 // ` _`, optional spaces, an optional comment, and the line break.
-static bool scan_line_continuation(TSLexer *lexer) {
+static bool scan_line_continuation(TSLexer *lexer, Scanner *scanner) {
   consume(lexer);
   skip_horizontal_space(lexer);
   if (is_comment_start(lexer->lookahead)) {
@@ -343,6 +370,7 @@ static bool scan_line_continuation(TSLexer *lexer) {
   }
   advance_line_break(lexer, false);
   lexer->mark_end(lexer);
+  note_directive(lexer, scanner);
   lexer->result_symbol = LINE_CONTINUATION;
   return true;
 }
@@ -402,8 +430,11 @@ static bool scan_directive(TSLexer *lexer) {
 
 bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
                                              const bool *valid_symbols) {
-  (void)payload;
+  Scanner *scanner = payload;
   bool error_recovery = valid_symbols[ERROR_SENTINEL];
+  // Applies to this token only; the state is saved only when one is found.
+  bool directive_follows = scanner->directive_follows;
+  scanner->directive_follows = false;
 
   // Inside `$"..."` every character is text, so nothing is skipped first.
   if (valid_symbols[INTERPOLATED_TEXT] && !error_recovery) {
@@ -415,8 +446,9 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
 
   bool newline_valid = valid_symbols[NEWLINE] || valid_symbols[ACCESSOR_NEWLINE];
   // Whether only whitespace lies between the start of the line and the
-  // current position: known once a line break is skipped, and otherwise
-  // worked out from the column, which is only asked for at a `#` because
+  // current position: known once a line break is skipped or when the previous
+  // token noted a directive, and otherwise (at the start of the file) worked
+  // out from the column, which is only asked for at a `#` because
   // `get_column` rescans the line.
   bool skipped_line_break = false;
   uint32_t skipped_spaces = 0;
@@ -428,7 +460,7 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
       skipped_spaces++;
     } else if (is_line_break(c)) {
       if (newline_valid || error_recovery) {
-        return scan_line_break(lexer, valid_symbols, error_recovery);
+        return scan_line_break(lexer, scanner, valid_symbols, error_recovery);
       }
       advance_line_break(lexer, true);
       skipped_line_break = true;
@@ -450,7 +482,8 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   int32_t c = lexer->lookahead;
 
   if (c == '#' && valid_symbols[PREPROCESSOR_DIRECTIVE] &&
-      (skipped_line_break || lexer->get_column(lexer) == skipped_spaces)) {
+      (skipped_line_break || directive_follows ||
+       lexer->get_column(lexer) == skipped_spaces)) {
     return scan_directive(lexer);
   }
 
@@ -462,7 +495,7 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   if (c == '_' && valid_symbols[LINE_CONTINUATION]) {
-    return scan_line_continuation(lexer);
+    return scan_line_continuation(lexer, scanner);
   }
 
   if ((c | 0x20) == 'r' && valid_symbols[COMMENT]) {
