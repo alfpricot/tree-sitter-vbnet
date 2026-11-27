@@ -617,9 +617,13 @@ static bool line_starts_accessor(TSLexer *lexer, char word[WORD_MAX + 1]) {
 }
 
 // Whether the next line of code starts a property accessor: optional
-// attribute blocks and access modifiers, then `Get` or `Set`.
-static bool next_line_starts_accessor(TSLexer *lexer, Probe *probe) {
+// attribute blocks and access modifiers, then `Get` or `Set`. With
+// `in_attribute`, the lexer is already past the `<` of the first block.
+static bool next_line_starts_accessor(TSLexer *lexer, Probe *probe, bool in_attribute) {
   char word[WORD_MAX + 1];
+  if (in_attribute) {
+    pass_attribute_block(lexer, true);
+  }
   skip_to_next_word(lexer, word, probe);
   while (word[0] == '\0' && lexer->lookahead == '<') {
     pass_attribute_block(lexer, true);
@@ -660,12 +664,12 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
   note_directive(lexer, scanner, &probe.false_so_far, &probe);
   // Whether the line that follows is a comment or processing instruction that
   // may belong to a document literal. A `'` comment or a `#` line before one
-  // ends the literal, so neither is passed. It is read for every break outside a
-  // property header, whether or not a literal can go on here, so that a token
-  // reused after an edit rests on the same text.
+  // ends the literal, so neither is passed. It is read for every break, whether
+  // or not a literal can go on here, so that a token reused after an edit rests
+  // on the same text.
   bool markup_line = false;
   bool misc_follows = false;
-  if (!accessor && !scanner->directive_follows) {
+  if (!scanner->directive_follows) {
     skip_blank_lines(lexer);
     if (lexer->lookahead == '<') {
       markup_line = true;
@@ -676,16 +680,18 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
     lexer->result_symbol = NEWLINE;
     return true;
   }
-  if (accessor) {
-    if (next_line_starts_accessor(lexer, &probe)) {
-      lexer->result_symbol = ACCESSOR_NEWLINE;
-      return true;
-    }
-  } else if (misc_follows && valid_symbols[XML_MISC_FOLLOWS]) {
+  if (misc_follows && valid_symbols[XML_MISC_FOLLOWS]) {
     // The literal goes on. As for a query clause below, the generated lexer
     // could not read what follows, so the break is a continuation.
     lexer->result_symbol = LINE_CONTINUATION;
     return true;
+  }
+  if (accessor) {
+    // A `<` that opened no markup opens an attribute block.
+    if (next_line_starts_accessor(lexer, &probe, markup_line)) {
+      lexer->result_symbol = ACCESSOR_NEWLINE;
+      return true;
+    }
   } else if (!markup_line && valid_symbols[QUERY_CLAUSE_FOLLOWS]) {
     // A line that starts with `<` opens no query clause.
     bool passed_extra = scanner->directive_follows;

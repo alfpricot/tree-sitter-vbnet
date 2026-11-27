@@ -634,6 +634,49 @@ End Module
                 (xml_comment)))))))))
 
 ========================================================================
+Trailing markup in a property initializer
+========================================================================
+
+Class C
+    Property P As XDocument = <?xml version="1.0"?>
+                              <r/>
+                              <!-- property -->
+
+                              <?pi?>
+    <Obsolete>
+    Property Q As Integer
+        <A>
+        Get
+        End Get
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (identifier)
+      value: (xml_document
+        (xml_declaration)
+        root: (xml_element
+          name: (xml_name))
+        (xml_comment)
+        (xml_processing_instruction)))
+    (property_declaration
+      attributes: (attribute_list
+        (attribute
+          name: (identifier)))
+      name: (identifier)
+      type: (primitive_type)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)))))))
+
+========================================================================
 A document literal ends before any other line
 ========================================================================
 
