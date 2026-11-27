@@ -115,8 +115,7 @@ End Class
     (method_declaration
       name: (identifier)
       parameters: (parameter_list))
-    (ERROR
-      (identifier))
+    (ERROR)
     (method_declaration
       name: (identifier)
       parameters: (parameter_list)
@@ -124,6 +123,7 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
 
 ========================================================================
 An unclosed parameter list leaves the next method intact
@@ -144,8 +144,6 @@ End Class
   (class_block
     name: (identifier)
     (ERROR
-      (identifier)
-      (identifier)
       (identifier))
     (method_declaration
       name: (identifier)
@@ -154,6 +152,7 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
 
 ========================================================================
 A stray closing parenthesis leaves the next method intact
@@ -277,3 +276,110 @@ End Module
 ------------------------------------------------------------------------
 
 
+
+========================================================================
+A missing End If leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        If a Then
+            b = 1
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (identifier)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+An unterminated interpolated string leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          (ERROR)
+          right: (identifier))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+An unclosed call parenthesis leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        Foo(a, b
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (identifier)
+        (identifier)
+        (identifier)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
