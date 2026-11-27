@@ -453,3 +453,26 @@ End Module
           name: (identifier)
           type_arguments: (type_argument_list
             (primitive_type)))))))
+
+========================================================================
+A byte-order mark inside a name does not end it
+========================================================================
+
+Module M
+    Sub Run()
+        Rem﻿ark = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))

@@ -73,8 +73,10 @@ static inline bool is_ascii_letter(int32_t c) {
 
 // Every other code point above ASCII is taken as a letter, apart from the
 // Unicode spaces and line breaks, which end a word as their ASCII forms do.
+// U+FEFF is the exception: it is a format character, which the grammar's
+// `identifier` lets continue a name, so it must not end a word here either.
 static inline bool is_identifier_char(int32_t c) {
-  return is_ascii_letter(c) || (c >= '0' && c <= '9') || c == '_' ||
+  return is_ascii_letter(c) || (c >= '0' && c <= '9') || c == '_' || c == 0xFEFF ||
          (c > 0x7F && !is_horizontal_space(c) && !is_line_break(c));
 }
 
