@@ -78,6 +78,10 @@ const grammar = () => ['grammar.js'];
 test('the plan narrows pull requests only', () => {
   assert.deepEqual(plan('push', {}, false, prose), { build: true, windows: true });
   assert.deepEqual(plan('workflow_dispatch', {}, false, prose), { build: true, windows: true });
+  assert.deepEqual(plan('pull_request', pullRequest('edited', { base: {} }), true, prose), {
+    build: true,
+    windows: true,
+  });
   assert.deepEqual(plan('pull_request', pullRequest('opened'), false, prose), {
     build: false,
     windows: false,

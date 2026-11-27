@@ -1,6 +1,7 @@
 // Shared with other tree-sitter grammar repositories; the reference copy is in
 // https://github.com/alfpricot/tree-sitter-snowflake. The path lists below are
 // this repository's own.
+// Carry a fix made here over to it, or say why not.
 //
 // Decides which Verify jobs a change needs, and whether the jobs that did not
 // run were meant to be skipped.
@@ -60,9 +61,10 @@ export function canSkipEditedBuild(event, priorVerified) {
   return event.action === 'edited' && !event.changes?.base && priorVerified;
 }
 
-// Every event but a pull request runs the whole matrix.
+// Every event but a pull request, and any change of base branch, runs the whole
+// matrix.
 export function plan(eventName, event, priorVerified, paths = changedPaths) {
-  if (eventName !== 'pull_request') return { build: true, windows: true };
+  if (eventName !== 'pull_request' || event.changes?.base) return { build: true, windows: true };
   if (canSkipEditedBuild(event, priorVerified)) return { build: false, windows: false };
   const files = paths(event.pull_request.base.sha, event.pull_request.head.sha);
   return { build: !docsOnly(files), windows: needsWindowsBinding(files) };
