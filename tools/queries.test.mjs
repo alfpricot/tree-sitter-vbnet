@@ -57,14 +57,14 @@ test('tags lists every type and member of a fixture', () => {
   }
 });
 
-// The `(node "Keyword")` and `(node)` entries of every bracketed list that
+// The `(node "token")` and `(node)` entries of every bracketed list that
 // carries one of the captures, comments left out.
 function listed(file, capture) {
   const query = read(file).replace(/;.*$/gm, '');
   const lists = [...query.matchAll(/\[([^\]]*)\]\s*@([\w.]+)/g)].filter(([, , name]) =>
     capture.test(name),
   );
-  return lists.flatMap(([, body]) => body.match(/\(\w+(?: "\w+")?\)/g) ?? []).toSorted();
+  return lists.flatMap(([, body]) => body.match(/\(\w+(?: "[^"]+")?\)/g) ?? []).toSorted();
 }
 
 test('folds cover every construct that indents and every dividing clause', () => {

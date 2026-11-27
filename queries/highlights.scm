@@ -137,6 +137,9 @@
 (xml_comment) @comment
 (xml_cdata) @string.special
 (xml_processing_instruction) @keyword.directive
+(xml_declaration) @keyword.directive
+(imports_clause name: (xml_name) @tag.attribute)
+(imports_clause ["<" ">"] @tag.delimiter)
 (xml_axis_expression axis: ".@" name: (xml_name) @tag.attribute)
 (xml_axis_expression axis: ["." "..."] name: (xml_name) @tag)
 (xml_element ["<" ">" "</" "/>"] @tag.delimiter)

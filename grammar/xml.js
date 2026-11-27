@@ -7,7 +7,18 @@
 // `identifier` and keep keywords out of tree-sitter's keyword table.
 import { PREC } from './helpers.js';
 
+const PREFIXED_NAME = /[\p{L}_][\p{L}\p{Nd}_.\-]*:[\p{L}_][\p{L}\p{Nd}_.\-]*/;
+
 export default {
+  // `<?xml ...?>`, any comments and processing instructions, and the root
+  // element, which can be computed.
+  xml_document: ($) =>
+    seq(
+      $.xml_declaration,
+      repeat(choice($.xml_comment, $.xml_processing_instruction)),
+      field('root', choice($.xml_element, $.xml_embedded_expression)),
+    ),
+
   // `<name attr="value">content</name>` or `<name attr="value"/>`. The name
   // can be computed, `<<%= name %>>`, which then closes with `</>`.
   xml_element: ($) =>
@@ -56,6 +67,8 @@ export default {
             field('axis', '.@'),
             choice(
               field('name', alias($.identifier, $.xml_name)),
+              // `.@prefix:name`, written without spaces.
+              field('name', alias(token.immediate(PREFIXED_NAME), $.xml_name)),
               seq('<', field('name', $.xml_name), '>'),
             ),
           ),

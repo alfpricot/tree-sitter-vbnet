@@ -24,6 +24,7 @@
   (while_statement "End")
   (with_statement "End")
   (do_statement "Loop")
+  (xml_element "</")
   (for_each_statement)
   (for_statement)
   (case_branch_clause)

@@ -44,6 +44,7 @@ enum TokenType {
   XML_COMMENT,
   XML_CDATA,
   XML_PROCESSING_INSTRUCTION,
+  XML_DECLARATION,
   INACTIVE_PREPROCESSOR_BRANCH,
   ERROR_SENTINEL,
 };
@@ -787,13 +788,19 @@ static bool consume_word(TSLexer *lexer, const char *expected) {
   return true;
 }
 
-// `<!-- -->`, `<![CDATA[ ]]>`, or `<? ?>`, after the `<`.
+// `<!-- -->`, `<![CDATA[ ]]>`, or `<? ?>`, after the `<`. A `<?xml ...?>`
+// where a document literal can start is its declaration.
 static bool scan_xml_markup(TSLexer *lexer, const bool *valid_symbols) {
   consume(lexer);
   enum TokenType symbol;
   if (lexer->lookahead == '?') {
     consume(lexer);
     symbol = XML_PROCESSING_INSTRUCTION;
+    if (valid_symbols[XML_DECLARATION] && consume_word(lexer, "xml") &&
+        (lexer->lookahead == '?' || is_horizontal_space(lexer->lookahead) ||
+         is_line_break(lexer->lookahead))) {
+      symbol = XML_DECLARATION;
+    }
     if (!consume_through(lexer, "?>", 2)) {
       return false;
     }
@@ -1009,7 +1016,7 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   // Inside an XML literal the generated lexer would read `'` as a comment, so
   // the scanner answers for every XML position.
   if (!error_recovery) {
-    if (valid_symbols[XML_TEXT] || valid_symbols[XML_COMMENT]) {
+    if (valid_symbols[XML_TEXT]) {
       return scan_xml_content(lexer, valid_symbols);
     }
     if (valid_symbols[XML_ATTRIBUTE_VALUE]) {
@@ -1083,6 +1090,12 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   if ((c | 0x20) == 'e' &&
       (skipped_line_break || valid_symbols[BLOCK_END] || valid_symbols[MEMBER_END])) {
     return scan_block_end(lexer);
+  }
+
+  // A comment, CDATA section, processing instruction, or declaration where an
+  // expression can start. Any other `<` is left to the generated lexer.
+  if (c == '<' && valid_symbols[XML_COMMENT] && !error_recovery) {
+    return scan_xml_markup(lexer, valid_symbols);
   }
 
   if (lexer->lookahead == '(' && valid_symbols[OPEN_PAREN_OF]) {

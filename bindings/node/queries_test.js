@@ -115,6 +115,34 @@ test('the indent query reproduces the layout of nested blocks', () => {
   );
 });
 
+test('the indent query indents the content of a multi-line XML element', () => {
+  const lines = [
+    'Module M',
+    '    Sub Run()',
+    '        Dim d = <root>',
+    '                </root>',
+    '        Dim e = <root>',
+    '                </root>',
+    '        a = <b>c</b>',
+    '        f = <g/>',
+    '    End Sub',
+    'End Module',
+  ];
+  const found = captures('indents.scm', lines.join('\n'));
+  assert.deepEqual(at(found, 'indent.begin'), [
+    '0:module_block',
+    '1:method_declaration',
+    '2:xml_element',
+    '4:xml_element',
+    '6:xml_element',
+  ]);
+  assert.deepEqual(at(found, 'indent.branch'), ['3:</', '5:</', '6:</', '8:End', '9:End']);
+  assert.deepEqual(
+    at(captures('folds.scm', lines.join('\n')), 'fold').filter((c) => c.endsWith(':xml_element')),
+    ['2:xml_element', '4:xml_element', '6:xml_element'],
+  );
+});
+
 test('a Next closing several loops keeps the bodies indented, at the innermost loop level', () => {
   const lines = [
     'Module M',

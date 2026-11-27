@@ -185,6 +185,7 @@ implements_statement
 imports_clause
 imports_clause.alias
 imports_clause.name
+imports_clause.value
 imports_statement
 inactive_preprocessor_branch
 inherits_statement
@@ -402,6 +403,9 @@ xml_axis_expression.name
 xml_axis_expression.object
 xml_cdata
 xml_comment
+xml_declaration
+xml_document
+xml_document.root
 xml_element
 xml_element.end_name
 xml_element.name

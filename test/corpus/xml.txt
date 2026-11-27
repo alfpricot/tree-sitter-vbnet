@@ -379,3 +379,163 @@ End Module
                   value: (identifier)))
               (xml_embedded_expression
                 value: (identifier)))))))))
+
+========================================================================
+XML document literals
+========================================================================
+
+Module M
+    Sub Run()
+        Dim catalog = <?xml version="1.0"?>
+                      <!-- books -->
+                      <?xml-stylesheet type="text/xsl" href="a.xsl"?>
+                      <Catalog>
+                      </Catalog>
+        Dim copy =
+            <?xml version="1.0" encoding="UTF-8"?><%= contact %>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              (xml_comment)
+              (xml_processing_instruction)
+              root: (xml_element
+                name: (xml_name)
+                end_name: (xml_name)))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_embedded_expression
+                value: (identifier)))))))))
+
+========================================================================
+XML comments, CDATA sections, and processing instructions as expressions
+========================================================================
+
+Module M
+    Sub Run()
+        Dim c As XComment = <!-- note ' quoted -->
+        Dim d = <![CDATA[ a < b ]]>
+        Dim p = <?format compact?>
+        x = New XDocument(<!--a-->, <?b?>)
+        y = a <
+            b
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (identifier)
+            value: (xml_comment)))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_cdata)))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_processing_instruction)))
+        (assignment_statement
+          left: (identifier)
+          right: (object_creation_expression
+            type: (identifier)
+            arguments: (argument_list
+              (xml_comment)
+              (xml_processing_instruction))))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (identifier)))))))
+
+========================================================================
+XML namespace imports
+========================================================================
+
+Imports <xmlns="http://example.com/default">
+Imports <xmlns:ns = 'http://example.com/ns'>, System.Linq
+
+------------------------------------------------------------------------
+
+(source_file
+  (imports_statement
+    (imports_clause
+      name: (xml_name)
+      value: (xml_attribute_value)))
+  (imports_statement
+    (imports_clause
+      name: (xml_name)
+      value: (xml_attribute_value))
+    (imports_clause
+      name: (qualified_name
+        qualifier: (identifier)
+        name: (identifier)))))
+
+========================================================================
+Prefixed XML attribute axis names
+========================================================================
+
+Module M
+    Sub Run()
+        a = phone.@ns:type
+        b = x.@id : c = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (xml_axis_expression
+            object: (identifier)
+            name: (xml_name)))
+        (assignment_statement
+          left: (identifier)
+          right: (xml_axis_expression
+            object: (identifier)
+            name: (xml_name)))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))

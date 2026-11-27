@@ -71,6 +71,8 @@ export default grammar({
     $.xml_comment,
     $.xml_cdata,
     $.xml_processing_instruction,
+    // The `<?xml ...?>` that opens an XML document literal.
+    $.xml_declaration,
     // The lines of an `#Else` or `#ElseIf` branch up to its `#End If`, which
     // are not parsed: the first branch of an `#If` is.
     $.inactive_preprocessor_branch,
