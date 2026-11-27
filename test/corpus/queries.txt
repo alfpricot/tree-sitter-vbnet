@@ -353,6 +353,7 @@ Module M
         Dim b = From x In xs
         REM a member call
         group.Add(b)
+        group?.Add(b)
         Dim c = From x In xs
         ' a compound assignment
         take += 1
@@ -404,6 +405,13 @@ End Module
                   name: (identifier)
                   collection: (identifier))))))
         (comment)
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
         (expression_statement
           (invocation_expression
             function: (member_access_expression

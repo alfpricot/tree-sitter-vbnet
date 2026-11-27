@@ -202,7 +202,8 @@ static bool skip_to_next_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
 // name in a statement: a member access written against it, an assignment, or
 // an empty argument list. No query clause goes on that way.
 static bool follows_as_statement(TSLexer *lexer) {
-  if (lexer->lookahead == '.') {
+  // `.`, `!`, and the `?` of `?.` or `?(`.
+  if (lexer->lookahead == '.' || lexer->lookahead == '!' || lexer->lookahead == '?') {
     return true;
   }
   skip_horizontal_space(lexer);
