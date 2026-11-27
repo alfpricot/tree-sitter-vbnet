@@ -51,11 +51,11 @@
 #                      can find it.
 #
 #                      gala writes every version file (Cargo.toml,
-#                      package.json, tree-sitter.json) and regenerates the
-#                      parser in the release commit, so the publish jobs use
-#                      the tagged files as committed. Every publish step is
-#                      safe to repeat: it checks whether the version is
-#                      already live before publishing.
+#                      package.json, tree-sitter.json, pyproject.toml) and
+#                      regenerates the parser in the release commit, so the
+#                      publish jobs use the tagged files as committed. Every
+#                      publish step is safe to repeat: it checks whether the
+#                      version is already live before publishing.
 # =============================================================================
 
 name: Release

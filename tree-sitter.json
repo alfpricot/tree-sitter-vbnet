@@ -14,6 +14,12 @@
       "injections": [
         "queries/injections.scm"
       ],
+      "locals": [
+        "queries/locals.scm"
+      ],
+      "tags": [
+        "queries/tags.scm"
+      ],
       "injection-regex": "^(vb|vbnet|visual_basic)$"
     }
   ],
@@ -32,9 +38,9 @@
   },
   "bindings": {
     "c": true,
-    "go": false,
+    "go": true,
     "node": true,
-    "python": false,
+    "python": true,
     "rust": true,
     "swift": false
   }

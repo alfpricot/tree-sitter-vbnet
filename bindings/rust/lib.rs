@@ -39,6 +39,15 @@ pub const NODE_TYPES: &str = include_str!("../../src/node-types.json");
 /// The syntax highlighting query for this grammar.
 pub const HIGHLIGHTS_QUERY: &str = include_str!("../../queries/highlights.scm");
 
+/// The query for resolving local names.
+pub const LOCALS_QUERY: &str = include_str!("../../queries/locals.scm");
+
+/// The symbol tagging query for this grammar.
+pub const TAGS_QUERY: &str = include_str!("../../queries/tags.scm");
+
+/// The folding query for this grammar.
+pub const FOLDS_QUERY: &str = include_str!("../../queries/folds.scm");
+
 /// The exported C symbol name, `tree_sitter_vbnet`. Another VB grammar
 /// exports a different symbol (`tree_sitter_vb_dotnet`), so both can link
 /// into one binary; the name is pinned here and asserted below.
@@ -91,6 +100,13 @@ mod tests {
     #[test]
     fn test_queries_compile() {
         let language = LANGUAGE.into();
-        tree_sitter::Query::new(&language, HIGHLIGHTS_QUERY).expect("highlights query");
+        for (name, query) in [
+            ("highlights", HIGHLIGHTS_QUERY),
+            ("locals", LOCALS_QUERY),
+            ("tags", TAGS_QUERY),
+            ("folds", FOLDS_QUERY),
+        ] {
+            tree_sitter::Query::new(&language, query).expect(name);
+        }
     }
 }

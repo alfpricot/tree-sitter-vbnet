@@ -1,6 +1,6 @@
 # tree-sitter-vbnet architecture
 
-tree-sitter-vbnet turns a Visual Basic .NET source file into a concrete syntax tree. It covers files, namespaces, types and their members, statements, expressions, LINQ queries, comments, and preprocessor lines, and it ships a highlight query with Node and Rust bindings.
+tree-sitter-vbnet turns a Visual Basic .NET source file into a concrete syntax tree. It covers files, namespaces, types and their members, statements, expressions, LINQ queries, comments, and preprocessor lines, and it ships highlight, tag, local-name, and fold queries with Node, Rust, Python, and Go bindings.
 
 The design choice that shapes everything else is how line breaks work. VB ends a statement at a line break, but a line break is only whitespace wherever the statement cannot end yet: after a comma, an open parenthesis, a binary operator, an attribute, an assignment, and so on. Rather than listing every place a line can continue, the grammar treats line breaks as whitespace and lets the external scanner emit a statement-ending `_newline` token only where the parser's valid-symbol list says a statement can end. One rule then covers implicit line continuation, blank lines, comment lines, and a missing final line break. The generated parser is committed so consumers never need the tree-sitter CLI.
 
@@ -40,11 +40,11 @@ Some names predate these rules and stay until a major release renames them toget
 
 ### [queries/](queries)
 
-`highlights.scm` and `injections.scm`, registered in [tree-sitter.json](tree-sitter.json) together with the file type `vb`, and `indents.scm` for editors that use tree-sitter indentation. A tools test fails when a construct closed by an `End` line is missing from the indent query.
+`highlights.scm`, `injections.scm`, `locals.scm`, and `tags.scm`, registered in [tree-sitter.json](tree-sitter.json) together with the file type `vb`, and `indents.scm` and `folds.scm` for editors that use tree-sitter indentation and folding. Tools tests fail when a construct closed by an `End` line is missing from the indent query, or one that indents is missing from the fold query, and run `tree-sitter tags` over a fixture.
 
-### [bindings/node](bindings/node) and [bindings/rust](bindings/rust)
+### [bindings/](bindings)
 
-The Node addon (`binding.cc`, built by `binding.gyp`, with `index.js` and `index.d.ts`) and the Rust crate (`lib.rs` and a `build.rs` that compiles the parser and scanner). Both expose the language and the highlight query.
+The Node addon (`binding.cc`, built by `binding.gyp`, with `index.js` and `index.d.ts`), the Rust crate (`lib.rs` and a `build.rs` that compiles the parser and scanner), the Python extension (built by [setup.py](setup.py) from [pyproject.toml](pyproject.toml)), and the Go module ([go.mod](go.mod)). All expose the language; all but Go also expose the highlight, tag, local-name, and fold queries. Only the Node package and the crate are published to a registry.
 
 ### [test/](test) and [tools/](tools)
 
@@ -52,11 +52,11 @@ The Node addon (`binding.cc`, built by `binding.gyp`, with `index.js` and `index
 
 ## External systems and data flow
 
-There are no runtime services. Source text goes to the scanner and parser, which produce a tree that consumers walk or query with the highlight query.
+There are no runtime services. Source text goes to the scanner and parser, which produce a tree that consumers walk or query.
 
 ## Build, test, release, and deploy
 
-The `Verify` workflow ([.github/workflows/verify.yml](.github/workflows/verify.yml)) runs on pull requests, pushes to `dev` and `main`, and manual dispatch. On a pull request, a changes job ([tools/ci-policy.mjs](tools/ci-policy.mjs)) skips the grammar and binding jobs for a docs-only change or for a title or body edit of a head that already passed, and runs the Windows binding job only when the binding, the scanner, or other files that can behave differently there change; pushes and manual runs always run everything. The workflow validates the pull request title, scans the working tree and Git history for secrets with Gitleaks, regenerates the parser and fails on drift in the generated files or the node-kind snapshot, lints and format-checks the JavaScript, runs the corpus, highlight and fixture checks, runs `cargo fmt`, `clippy` and `cargo test`, builds and tests the Node binding on Linux and Windows, and lints the workflow files with actionlint and checks every YAML file parses. A final job rolls these up into one `Verify` status. Dependabot proposes npm, Cargo and GitHub Actions updates weekly against `dev`. The `Gala release` workflow ([.github/workflows/gala-release.yml](.github/workflows/gala-release.yml)) runs [gala](https://github.com/alfpricot/gala) on pushes to `main`: from the Conventional Commits since the last `v*` tag it bumps the version in `Cargo.toml`, `package.json`, and `tree-sitter.json`, refreshes `package-lock.json`, regenerates the parser (whose metadata embeds the `tree-sitter.json` version), writes `CHANGELOG.md`, commits, tags, pushes, and fast-forwards `dev` to the release commit (see [.gala.toml](.gala.toml)). It then dispatches the `Release` workflow ([.github/workflows/release.yml](.github/workflows/release.yml)) for the new tag, which validates the tag, re-verifies the tagged commit while it builds Node prebuilds for Linux and Windows and the WASM grammar, publishes the crate to crates.io and the npm package to npm and GitHub Packages, and creates the GitHub Release with the WASM build attached, plus a parse-rate report when a Parse rate run has measured code the release contains. The `Cleanup stale caches` workflow ([.github/workflows/cache-cleanup.yml](.github/workflows/cache-cleanup.yml)) runs daily and deletes Actions caches belonging to closed pull requests and deleted branches. Nothing is deployed.
+The `Verify` workflow ([.github/workflows/verify.yml](.github/workflows/verify.yml)) runs on pull requests, pushes to `dev` and `main`, and manual dispatch. On a pull request, a changes job ([tools/ci-policy.mjs](tools/ci-policy.mjs)) skips the grammar and binding jobs for a docs-only change or for a title or body edit of a head that already passed, and runs the Windows binding job only when the binding, the scanner, or other files that can behave differently there change; pushes and manual runs always run everything. The workflow validates the pull request title, scans the working tree and Git history for secrets with Gitleaks, regenerates the parser and fails on drift in the generated files or the node-kind snapshot, lints and format-checks the JavaScript, runs the corpus, highlight and fixture checks, runs `cargo fmt`, `clippy` and `cargo test`, tests the Python and Go bindings, builds and tests the Node binding on Linux and Windows, and lints the workflow files with actionlint and checks every YAML file parses. A final job rolls these up into one `Verify` status. Dependabot proposes npm, Cargo and GitHub Actions updates weekly against `dev`. The `Gala release` workflow ([.github/workflows/gala-release.yml](.github/workflows/gala-release.yml)) runs [gala](https://github.com/alfpricot/gala) on pushes to `main`: from the Conventional Commits since the last `v*` tag it bumps the version in `Cargo.toml`, `package.json`, `tree-sitter.json`, and `pyproject.toml`, refreshes `package-lock.json`, regenerates the parser (whose metadata embeds the `tree-sitter.json` version), writes `CHANGELOG.md`, commits, tags, pushes, and fast-forwards `dev` to the release commit (see [.gala.toml](.gala.toml)). It then dispatches the `Release` workflow ([.github/workflows/release.yml](.github/workflows/release.yml)) for the new tag, which validates the tag, re-verifies the tagged commit while it builds Node prebuilds for Linux and Windows and the WASM grammar, publishes the crate to crates.io and the npm package to npm and GitHub Packages, and creates the GitHub Release with the WASM build attached, plus a parse-rate report when a Parse rate run has measured code the release contains. The `Cleanup stale caches` workflow ([.github/workflows/cache-cleanup.yml](.github/workflows/cache-cleanup.yml)) runs daily and deletes Actions caches belonging to closed pull requests and deleted branches. Nothing is deployed.
 
 ## Where things live
 
@@ -64,8 +64,8 @@ The `Verify` workflow ([.github/workflows/verify.yml](.github/workflows/verify.y
 | --- | --- |
 | `grammar.js`, `grammar/` | Grammar source |
 | `src/` | External scanner and the generated, committed parser |
-| `queries/` | Highlight query |
-| `bindings/` | Node addon and Rust crate |
+| `queries/` | Editor and navigation queries |
+| `bindings/` | Node, Rust, Python, and Go bindings |
 | `test/` | Corpus, highlight and fixture tests, node-kind snapshot |
 | `tools/` | Fixture check, node-kind snapshot, package and release-policy checks, and the parse benchmark |
 | `.github/` | `Verify`, `Gala release`, `Release`, and cache cleanup workflows, Dependabot and code owners |

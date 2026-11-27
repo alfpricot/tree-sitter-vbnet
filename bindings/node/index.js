@@ -14,7 +14,12 @@ const binding =
 
 binding.nodeTypeInfo = nodeTypeInfo;
 
-const queries = [['HIGHLIGHTS_QUERY', `${root}/queries/highlights.scm`]];
+const queries = [
+  ['HIGHLIGHTS_QUERY', `${root}/queries/highlights.scm`],
+  ['LOCALS_QUERY', `${root}/queries/locals.scm`],
+  ['TAGS_QUERY', `${root}/queries/tags.scm`],
+  ['FOLDS_QUERY', `${root}/queries/folds.scm`],
+];
 
 for (const [prop, path] of queries) {
   Object.defineProperty(binding, prop, {

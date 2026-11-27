@@ -27,6 +27,14 @@ src/parser.c             -diff linguist-generated=true
 src/grammar.json         linguist-generated=true
 src/node-types.json      linguist-generated=true
 
+# Go and Python bindings
+*.go                     text eol=lf linguist-detectable=true linguist-language=Go
+go.mod                   text eol=lf
+go.sum                   text eol=lf linguist-generated=true
+*.py                     text eol=lf linguist-detectable=true linguist-language=Python
+*.pyi                    text eol=lf
+pyproject.toml           text eol=lf
+
 # JavaScript / TypeScript (node bindings and tooling scripts)
 *.js                     text eol=lf linguist-detectable=true linguist-language=JavaScript
 *.mjs                    text eol=lf linguist-detectable=true linguist-language=JavaScript
