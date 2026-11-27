@@ -5,6 +5,13 @@ updates:
     directory: /
     target-branch: dev
     versioning-strategy: auto
+    # Cargo.toml accepts any `cc` 1.x from 1.10 on, and no lockfile is
+    # committed, so a minor or patch release needs no change here.
+    ignore:
+      - dependency-name: cc
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
     schedule:
       interval: weekly
       day: monday

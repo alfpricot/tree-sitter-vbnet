@@ -22,7 +22,10 @@
 #                      inside the npm and GitHub Packages tarballs, so an
 #                      install on those platforms needs no C toolchain;
 #                      node-gyp-build prefers a matching prebuild over a
-#                      source build. A WASM build is attached to the GitHub
+#                      source build. No registry publish runs unless every
+#                      prebuild succeeded, and each npm publish also requires
+#                      the package to list a binary for each platform. A
+#                      WASM build is attached to the GitHub
 #                      Release for web-tree-sitter consumers, along with
 #                      test/node-kinds.txt as the node-kind stability
 #                      surface (only if the checkout has it — an older tag
@@ -61,9 +64,6 @@ on:
 concurrency:
   group: release
   cancel-in-progress: false
-
-env:
-  PREBUILDIFY_VERSION: '6.0.1'
 
 permissions:
   contents: read
@@ -139,15 +139,14 @@ jobs:
         with:
           node-version: '24.x'
       - name: Install dependencies
-        # node-addon-api is a runtime dependency binding.gyp resolves at gyp
-        # configure time (`require('node-addon-api').targets`); prebuildify
-        # only installs itself into npx's own temporary cache, which that
-        # require can't see. --ignore-scripts skips this package's own
-        # "install": "node-gyp-build" script, which would otherwise try (and
-        # fail, since there's nothing built yet) to load the addon.
+        # prebuildify and its dependencies come from package-lock.json, so
+        # the tool that produces the published binaries is pinned throughout.
+        # --ignore-scripts skips this package's own "install":
+        # "node-gyp-build" script, which would otherwise try (and fail, since
+        # there's nothing built yet) to load the addon.
         run: npm ci --ignore-scripts
       - name: Build the native Node addon prebuild
-        run: npx --yes prebuildify@${{ env.PREBUILDIFY_VERSION }} --napi --strip
+        run: npx --no-install prebuildify --napi --strip
       - name: Upload the prebuild
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -201,7 +200,9 @@ jobs:
 
   publish-crate:
     name: Publish to crates.io
-    needs: verify
+    # The crate needs no prebuild, but publishing it alone would use up the
+    # version on one registry while the npm publishes are blocked.
+    needs: [verify, prebuild]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -237,11 +238,8 @@ jobs:
   publish-npm:
     name: Publish to npm
     needs: [verify, prebuild]
-    # A prebuild failure on one platform is not fatal: node-gyp-build falls
-    # back to a source build where no matching prebuild exists. Waiting for
-    # `prebuild` without hard-requiring every leg keeps that fallback instead
-    # of blocking the publish on one platform's toolchain problem.
-    if: ${{ !cancelled() && needs.verify.result == 'success' }}
+    # Every prebuild leg must succeed: a published version cannot be replaced,
+    # so a rerun could never add the missing binaries to it.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -260,7 +258,9 @@ jobs:
         with:
           ref: ${{ needs.verify.outputs.policy }}
           path: .release-tools
-          sparse-checkout: tools/release-policy.mjs
+          sparse-checkout: |
+            tools/release-policy.mjs
+            tools/prebuild-check.mjs
           sparse-checkout-cone-mode: false
           persist-credentials: false
       - name: Set up Node.js
@@ -274,6 +274,8 @@ jobs:
           pattern: prebuilds-*
           path: prebuilds
           merge-multiple: true
+      - name: Require a prebuild for every platform
+        run: node .release-tools/tools/prebuild-check.mjs
       - name: Check the package versions match the tag
         id: package
         env:
@@ -295,11 +297,8 @@ jobs:
   publish-github-packages:
     name: Publish to GitHub Packages
     needs: [verify, prebuild]
-    # A prebuild failure on one platform is not fatal: node-gyp-build falls
-    # back to a source build where no matching prebuild exists. Waiting for
-    # `prebuild` without hard-requiring every leg keeps that fallback instead
-    # of blocking the publish on one platform's toolchain problem.
-    if: ${{ !cancelled() && needs.verify.result == 'success' }}
+    # Every prebuild leg must succeed: a published version cannot be replaced,
+    # so a rerun could never add the missing binaries to it.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -321,7 +320,9 @@ jobs:
         with:
           ref: ${{ needs.verify.outputs.policy }}
           path: .release-tools
-          sparse-checkout: tools/release-policy.mjs
+          sparse-checkout: |
+            tools/release-policy.mjs
+            tools/prebuild-check.mjs
           sparse-checkout-cone-mode: false
           persist-credentials: false
       - name: Set up Node.js
@@ -341,6 +342,8 @@ jobs:
           set -euo pipefail
           npm pkg set "name=@${OWNER}/tree-sitter-vbnet"
           node .release-tools/tools/release-policy.mjs check-npm
+      - name: Require a prebuild for every platform
+        run: node .release-tools/tools/prebuild-check.mjs
       - name: Publish (skip if this version is already live)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
