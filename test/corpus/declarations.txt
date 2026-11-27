@@ -359,16 +359,25 @@ End Class
       name: (identifier)
       parameters: (parameter_list
         (parameter
+          modifiers: (modifiers
+            (modifier))
           name: (identifier)
           type: (primitive_type))
         (parameter
+          modifiers: (modifiers
+            (modifier))
           name: (identifier)
           type: (primitive_type))
         (parameter
+          modifiers: (modifiers
+            (modifier)
+            (modifier))
           name: (identifier)
           type: (primitive_type)
           default: (integer_literal))
         (parameter
+          modifiers: (modifiers
+            (modifier))
           name: (identifier)
           (array_rank_specifier)
           type: (primitive_type))))
@@ -381,6 +390,8 @@ End Class
           (array_rank_specifier)
           type: (primitive_type))
         (parameter
+          modifiers: (modifiers
+            (modifier))
           name: (identifier)
           type: (primitive_type)
           default: (nothing))))))
@@ -488,19 +499,21 @@ End Class
     name: (identifier)
     (method_signature
       modifiers: (modifiers
+        (modifier)
         (modifier))
       name: (identifier)
       parameters: (parameter_list)
       return_type: (primitive_type))
     (method_signature
       modifiers: (modifiers
+        (modifier)
         (modifier))
       name: (identifier)
       parameters: (parameter_list))
     (property_signature
       modifiers: (modifiers
-        (modifier))
-      modifiers: (modifiers
+        (modifier)
+        (modifier)
         (modifier))
       name: (identifier)
       type: (primitive_type))
@@ -939,3 +952,55 @@ End Class
                 type: (primitive_type))
               (tuple_element
                 type: (primitive_type)))))))))
+
+========================================================================
+Parameter, local, lambda, and signature modifiers
+========================================================================
+
+Class C
+    Public MustOverride Overloads Sub F(Optional ByVal a As Integer = 1)
+
+    Sub S()
+        Static n As Integer
+        f = Async Function(x) x
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_signature
+      modifiers: (modifiers
+        (modifier)
+        (modifier)
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          modifiers: (modifiers
+            (modifier)
+            (modifier))
+          name: (identifier)
+          type: (primitive_type)
+          default: (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            type: (primitive_type)))
+        (assignment_statement
+          left: (identifier)
+          right: (lambda_expression
+            modifiers: (modifiers
+              (modifier))
+            parameters: (parameter_list
+              (parameter
+                name: (identifier)))
+            body: (identifier)))))))

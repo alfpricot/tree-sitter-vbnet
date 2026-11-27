@@ -421,6 +421,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (lambda_expression
@@ -431,9 +433,13 @@ End Module
                 left: (identifier)
                 right: (integer_literal)))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (lambda_expression
+              modifiers: (modifiers
+                (modifier))
               parameters: (parameter_list)
               body: (await_expression
                 (invocation_expression
@@ -495,6 +501,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (lambda_expression
@@ -654,12 +662,16 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (tuple_expression
               (integer_literal)
               (string_literal))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (tuple_expression

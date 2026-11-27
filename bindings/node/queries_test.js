@@ -34,10 +34,16 @@ test('the indent query opens and closes blocks but not single-line forms', () =>
     '            Else', // 7
     '            End If', // 8
     '        Next', // 9
-    '    End Sub', // 10
-    'End Class', // 11
+    '        If a Then b() _', // 10
+    '        Else c()', // 11
+    '    End Sub', // 12
+    'End Class', // 13
     '',
   ].join('\n');
+  assert.deepEqual(
+    at(captures('folds.scm', source), 'fold').filter((c) => c.endsWith(':else_clause')),
+    ['7:else_clause'],
+  );
   const found = captures('indents.scm', source);
   assert.deepEqual(at(found, 'indent.begin'), [
     '0:class_block',
@@ -49,8 +55,8 @@ test('the indent query opens and closes blocks but not single-line forms', () =>
     '7:else_clause',
     '8:End',
     '9:Next',
-    '10:End',
-    '11:End',
+    '12:End',
+    '13:End',
   ]);
 });
 
@@ -109,21 +115,23 @@ test('the indent query reproduces the layout of nested blocks', () => {
   );
 });
 
-test('a Next closing two loops keeps the bodies indented, one level deep itself', () => {
+test('a Next closing several loops keeps the bodies indented, at the innermost loop level', () => {
   const lines = [
     'Module M',
     '    Sub Run()',
     '        For i = 0 To 1',
     '            For j = 0 To 1',
-    '                x = 1',
-    '        Next j, i',
+    '                For k = 0 To 1',
+    '                    x = 1',
+    '        Next k, j, i',
     '        y = 2',
     '    End Sub',
     'End Module',
   ];
   const written = lines.map((line) => (line.length - line.trimStart().length) / 4);
-  // The shared line has two loops to close and one branch capture to do it.
-  const expected = written.map((level, row) => (row === 5 ? level + 1 : level));
+  // The shared line has every loop to close and one branch capture to do it, so
+  // it lands at the level of the innermost `For`.
+  const expected = written.map((level, row) => (row === 6 ? level + 2 : level));
   assert.deepEqual(indentLevels(lines.join('\n')), expected);
 });
 

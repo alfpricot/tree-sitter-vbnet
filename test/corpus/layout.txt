@@ -58,7 +58,7 @@ End Module
         (select_statement
           value: (identifier)
           (comment)
-          (case_block
+          (case_branch_clause
             (case_clause
               value: (integer_literal))
             body: (block
@@ -142,7 +142,7 @@ End Module
         (if_statement
           condition: (identifier)
           (comment)
-          consequence: (block
+          body: (block
             (expression_statement
               (invocation_expression
                 function: (identifier)
@@ -562,7 +562,7 @@ End Module
               object: (identifier)
               member: (identifier))
             arguments: (argument_list))
-          (case_block
+          (case_branch_clause
             (case_clause
               value: (integer_literal))
             body: (block
