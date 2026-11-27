@@ -17,6 +17,8 @@
 #
 #                      The pushes go over the RELEASE_DEPLOY_KEY deploy key,
 #                      which only the Release step receives,
+#                      and which is stored in the release environment so
+#                      that only a job running from main can read it,
 #                      because the rulesets block direct pushes to main and dev
 #                      and creating v* tags; the deploy key is the ruleset
 #                      bypass actor. The release commit carries a skip-ci
@@ -51,6 +53,8 @@ jobs:
     name: gala release
     # A manual dispatch from any other branch must never cut a release.
     if: github.ref == 'refs/heads/main'
+    # Holds the deploy key; the environment admits only main.
+    environment: release
     # Job-level elevation: the git pushes authenticate with the deploy key, so
     # contents stays read; actions: write is only for dispatching release.yml.
     permissions:
