@@ -18758,6 +18758,11 @@
     "named": true
   },
   {
+    "type": "inactive_preprocessor_branch",
+    "named": true,
+    "extra": true
+  },
+  {
     "type": "integer_literal",
     "named": true
   },

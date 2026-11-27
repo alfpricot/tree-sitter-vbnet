@@ -12513,6 +12513,10 @@
     },
     {
       "type": "SYMBOL",
+      "name": "inactive_preprocessor_branch"
+    },
+    {
+      "type": "SYMBOL",
       "name": "_line_continuation"
     }
   ],
@@ -12595,6 +12599,10 @@
     {
       "type": "SYMBOL",
       "name": "xml_processing_instruction"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "inactive_preprocessor_branch"
     },
     {
       "type": "SYMBOL",

@@ -365,14 +365,152 @@ End Module
         (expression_statement
           (invocation_expression
             function: (identifier)
+            arguments: (argument_list))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive))
+    (preprocessor_directive)))
+
+========================================================================
+Later #If branches are not parsed
+========================================================================
+
+Class C
+#If NET Then
+    Public Sub Emit(x As Integer, y As Span(Of Byte))
+#ElseIf OLD Then
+    Public Sub Emit(x As Integer)
+#If NESTED Then
+        Partial(
+#End If
+#Else
+    Public Sub Emit()
+#End If
+        Run(x)
+    End Sub
+
+#If A Then
+    Private f As Integer
+#Else
+
+#End If
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (preprocessor_directive)
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (generic_name
+            name: (identifier)
+            type_arguments: (type_argument_list
+              (primitive_type)))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (identifier))))))
+    (preprocessor_directive)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (preprocessor_directive)
+    (preprocessor_directive)))
+
+========================================================================
+An #Else with no #End If is parsed
+========================================================================
+
+Module M
+    Sub S()
+#If A Then
+        x()
+#Else
+        y()
+    End Sub
+
+    Sub T()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
             arguments: (argument_list)))
         (preprocessor_directive)
         (expression_statement
           (invocation_expression
             function: (identifier)
+            arguments: (argument_list)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+A typographic-quote comment after #End If ends the branch
+========================================================================
+
+Module M
+    Sub S()
+#If A Then
+        x()
+#Else
+        y()
+#End If’ done
+    End Sub
+
+    Sub T()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive)
+      body: (block
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
             arguments: (argument_list))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
       (preprocessor_directive))
-    (preprocessor_directive)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
 
 ========================================================================
 Hash date literal is not a directive
