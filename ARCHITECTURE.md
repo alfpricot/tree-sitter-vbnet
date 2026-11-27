@@ -32,7 +32,7 @@ Consumers match node kinds and field names at runtime, so a rename is a breaking
 - `block` is a list of statements, and the field that holds one is `body`.
 - `modifiers` is the node that groups a declaration's modifiers and the field that holds it; each keyword in it is a `modifier` node.
 
-Some names predate these rules and stay until a major release renames them together: `catch_block`, `case_block`, `case_else_block`, and `finally_block` are parts of a construct; `single_line_block` has no `End` line; `if_statement` and `elseif_clause` hold their statements in `consequence` and `alternative` fields; parameters, local declarations, and lambdas mark each modifier keyword with a singular `modifier` field; and `MustOverride` is a bare token in `method_signature` and `property_signature` rather than a `modifier` node.
+Some names predate these rules and stay until a major release renames them together: `catch_block`, `case_block`, `case_else_block`, and `finally_block` are parts of a construct; `single_line_block` has no `End` line; `if_statement` and `elseif_clause` hold their statements in a `consequence` field rather than `body`, and `if_statement` holds its `elseif_clause` and `else_clause` nodes in an `alternative` field, while `single_line_if_statement` uses both field names for statements; parameters, local declarations, and lambdas mark each modifier keyword with a singular `modifier` field; and `MustOverride` is a bare token in `method_signature` and `property_signature` rather than a `modifier` node, so each of those two can carry a `modifiers` field on both sides of it.
 
 ### [src/](src)
 
