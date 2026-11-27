@@ -97,6 +97,51 @@ mod tests {
         assert!(!tree.root_node().has_error());
     }
 
+    /// Undoing an edit that split the space after `Rem` must give the tree a
+    /// fresh parse gives: whether `Rem` starts a comment depends on the whole
+    /// character after it.
+    #[test]
+    fn test_reparses_an_edit_inside_the_space_after_rem() {
+        let code = "Module M\n    Sub S()\n        Rem\u{00A0}note\n    End Sub\nEnd Module\n";
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&LANGUAGE.into()).unwrap();
+        let expected = parser.parse(code, None).unwrap();
+        assert!(!expected.root_node().has_error());
+
+        // Between the two bytes of the no-break space.
+        let at = code.find('\u{00A0}').unwrap() + 1;
+        let line = code.as_bytes()[..at]
+            .iter()
+            .rposition(|&b| b == b'\n')
+            .unwrap()
+            + 1;
+        let start = tree_sitter::Point::new(2, at - line);
+        let after = tree_sitter::Point::new(2, at - line + 1);
+        let mut edited = code.as_bytes().to_vec();
+        edited.insert(at, 0x8B);
+
+        let mut tree = expected.clone();
+        tree.edit(&tree_sitter::InputEdit {
+            start_byte: at,
+            old_end_byte: at,
+            new_end_byte: at + 1,
+            start_position: start,
+            old_end_position: start,
+            new_end_position: after,
+        });
+        let mut tree = parser.parse(&edited, Some(&tree)).unwrap();
+        tree.edit(&tree_sitter::InputEdit {
+            start_byte: at,
+            old_end_byte: at + 1,
+            new_end_byte: at,
+            start_position: start,
+            old_end_position: after,
+            new_end_position: start,
+        });
+        let tree = parser.parse(code, Some(&tree)).unwrap();
+        assert_eq!(tree.root_node().to_sexp(), expected.root_node().to_sexp());
+    }
+
     /// A byte inserted inside a typographic quote and removed again must leave
     /// the tree a fresh parse gives. The closing quote of the string depends
     /// on the whole character after it, not only that character's first byte.
