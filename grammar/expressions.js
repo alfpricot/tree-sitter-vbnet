@@ -65,6 +65,8 @@ export default {
       $.name_of_expression,
       $.ternary_expression,
       $.coalesce_expression,
+      $.xml_element,
+      $.xml_axis_expression,
     ),
 
   me: (_) => kw('Me'),

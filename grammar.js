@@ -7,6 +7,7 @@ import declaration_rules from './grammar/declarations.js';
 import statement_rules from './grammar/statements.js';
 import expression_rules from './grammar/expressions.js';
 import type_rules from './grammar/types.js';
+import xml_rules from './grammar/xml.js';
 import literal_rules from './grammar/literals.js';
 
 export default grammar({
@@ -59,6 +60,16 @@ export default grammar({
     // the scanner that a line break before a query keyword continues the
     // query.
     $._query_clause_follows,
+    // The parts of an XML literal, scanned here because they can start like an
+    // identifier or contain `'`: a name in a tag, the text between tags, an
+    // attribute value in either kind of quote, and `<!-- -->`, `<![CDATA[ ]]>`,
+    // and `<? ?>` in an element's content.
+    $.xml_name,
+    $.xml_text,
+    $.xml_attribute_value,
+    $.xml_comment,
+    $.xml_cdata,
+    $.xml_processing_instruction,
     // Never used by a rule: it is only valid while the parser is recovering
     // from an error, which is how the scanner detects that.
     $._error_sentinel,
@@ -74,6 +85,7 @@ export default grammar({
     ...statement_rules,
     ...expression_rules,
     ...type_rules,
+    ...xml_rules,
     // Last: it ends with `identifier`, which must follow every keyword.
     ...literal_rules,
   },

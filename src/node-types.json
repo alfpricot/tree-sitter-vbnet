@@ -222,6 +222,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -383,6 +391,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -629,6 +645,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -775,6 +799,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -950,6 +982,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -1152,6 +1192,14 @@
           },
           {
             "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -1360,6 +1408,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -1599,6 +1655,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -1765,6 +1829,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -2029,6 +2101,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -2322,6 +2402,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -2515,6 +2603,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -2676,6 +2772,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -2868,6 +2972,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -3109,6 +3221,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -3286,6 +3406,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -3627,6 +3755,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -3789,6 +3925,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -3940,6 +4084,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -4257,6 +4409,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -4722,6 +4882,14 @@
           {
             "type": "tuple_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -4904,6 +5072,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -5112,6 +5288,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -5390,6 +5574,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -5541,6 +5733,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -5907,6 +6107,14 @@
         {
           "type": "tuple_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -6120,6 +6328,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -6314,6 +6530,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -6508,6 +6732,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -6686,6 +6918,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -6848,6 +7088,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -7009,6 +7257,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -7204,6 +7460,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -7486,6 +7750,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -7651,6 +7923,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -7877,6 +8157,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -8337,6 +8625,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -8509,6 +8805,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -8678,6 +8982,14 @@
           {
             "type": "tuple_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -8845,6 +9157,14 @@
           {
             "type": "tuple_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -8982,6 +9302,14 @@
           },
           {
             "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -9198,6 +9526,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -9435,6 +9771,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -9623,6 +9967,14 @@
           },
           {
             "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -10184,6 +10536,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -10361,6 +10721,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -10978,6 +11346,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -11154,6 +11530,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -11390,6 +11774,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -11555,6 +11947,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -11815,6 +12215,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -12081,6 +12489,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -12373,6 +12789,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -12534,6 +12958,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -12702,6 +13134,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -12903,6 +13343,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -13070,6 +13518,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -13231,6 +13687,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -13404,6 +13868,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -13554,6 +14026,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -13721,6 +14201,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -13913,6 +14401,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -14288,6 +14784,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -14456,6 +14960,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -14617,6 +15129,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -14780,6 +15300,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -14931,6 +15459,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -15170,6 +15706,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -15423,6 +15967,14 @@
           },
           {
             "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -15679,6 +16231,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       },
@@ -15888,6 +16448,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -16115,6 +16683,14 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -16266,6 +16842,14 @@
         },
         {
           "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
           "named": true
         }
       ]
@@ -16443,6 +17027,14 @@
           },
           {
             "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
             "named": true
           }
         ]
@@ -16622,6 +17214,468 @@
           {
             "type": "unary_expression",
             "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "xml_attribute",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "xml_embedded_expression",
+            "named": true
+          },
+          {
+            "type": "xml_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "xml_attribute_value",
+            "named": true
+          },
+          {
+            "type": "xml_embedded_expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "xml_axis_expression",
+    "named": true,
+    "fields": {
+      "axis": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": ".",
+            "named": false
+          },
+          {
+            "type": "...",
+            "named": false
+          },
+          {
+            "type": ".@",
+            "named": false
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "xml_name",
+            "named": true
+          }
+        ]
+      },
+      "object": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "Aggregate",
+            "named": false
+          },
+          {
+            "type": "Async",
+            "named": false
+          },
+          {
+            "type": "From",
+            "named": false
+          },
+          {
+            "type": "Iterator",
+            "named": false
+          },
+          {
+            "type": "anonymous_object_creation_expression",
+            "named": true
+          },
+          {
+            "type": "boolean_literal",
+            "named": true
+          },
+          {
+            "type": "cast_expression",
+            "named": true
+          },
+          {
+            "type": "character_literal",
+            "named": true
+          },
+          {
+            "type": "coalesce_expression",
+            "named": true
+          },
+          {
+            "type": "collection_initializer",
+            "named": true
+          },
+          {
+            "type": "conversion_expression",
+            "named": true
+          },
+          {
+            "type": "date_literal",
+            "named": true
+          },
+          {
+            "type": "dictionary_access_expression",
+            "named": true
+          },
+          {
+            "type": "floating_literal",
+            "named": true
+          },
+          {
+            "type": "generic_name",
+            "named": true
+          },
+          {
+            "type": "get_type_expression",
+            "named": true
+          },
+          {
+            "type": "global",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "integer_literal",
+            "named": true
+          },
+          {
+            "type": "interpolated_string_expression",
+            "named": true
+          },
+          {
+            "type": "invocation_expression",
+            "named": true
+          },
+          {
+            "type": "me",
+            "named": true
+          },
+          {
+            "type": "member_access_expression",
+            "named": true
+          },
+          {
+            "type": "my_base",
+            "named": true
+          },
+          {
+            "type": "my_class",
+            "named": true
+          },
+          {
+            "type": "name_of_expression",
+            "named": true
+          },
+          {
+            "type": "nothing",
+            "named": true
+          },
+          {
+            "type": "object_creation_expression",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "primitive_type",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          },
+          {
+            "type": "ternary_expression",
+            "named": true
+          },
+          {
+            "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "xml_element",
+    "named": true,
+    "fields": {
+      "end_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "xml_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "xml_embedded_expression",
+            "named": true
+          },
+          {
+            "type": "xml_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "xml_attribute",
+          "named": true
+        },
+        {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_embedded_expression",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
+          "named": true
+        },
+        {
+          "type": "xml_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "xml_embedded_expression",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "Aggregate",
+            "named": false
+          },
+          {
+            "type": "Async",
+            "named": false
+          },
+          {
+            "type": "From",
+            "named": false
+          },
+          {
+            "type": "Iterator",
+            "named": false
+          },
+          {
+            "type": "anonymous_object_creation_expression",
+            "named": true
+          },
+          {
+            "type": "await_expression",
+            "named": true
+          },
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "boolean_literal",
+            "named": true
+          },
+          {
+            "type": "cast_expression",
+            "named": true
+          },
+          {
+            "type": "character_literal",
+            "named": true
+          },
+          {
+            "type": "coalesce_expression",
+            "named": true
+          },
+          {
+            "type": "collection_initializer",
+            "named": true
+          },
+          {
+            "type": "conversion_expression",
+            "named": true
+          },
+          {
+            "type": "date_literal",
+            "named": true
+          },
+          {
+            "type": "dictionary_access_expression",
+            "named": true
+          },
+          {
+            "type": "floating_literal",
+            "named": true
+          },
+          {
+            "type": "generic_name",
+            "named": true
+          },
+          {
+            "type": "get_type_expression",
+            "named": true
+          },
+          {
+            "type": "global",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "integer_literal",
+            "named": true
+          },
+          {
+            "type": "interpolated_string_expression",
+            "named": true
+          },
+          {
+            "type": "invocation_expression",
+            "named": true
+          },
+          {
+            "type": "lambda_expression",
+            "named": true
+          },
+          {
+            "type": "me",
+            "named": true
+          },
+          {
+            "type": "member_access_expression",
+            "named": true
+          },
+          {
+            "type": "my_base",
+            "named": true
+          },
+          {
+            "type": "my_class",
+            "named": true
+          },
+          {
+            "type": "name_of_expression",
+            "named": true
+          },
+          {
+            "type": "nothing",
+            "named": true
+          },
+          {
+            "type": "object_creation_expression",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "primitive_type",
+            "named": true
+          },
+          {
+            "type": "query_expression",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          },
+          {
+            "type": "ternary_expression",
+            "named": true
+          },
+          {
+            "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "type_of_expression",
+            "named": true
+          },
+          {
+            "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "xml_axis_expression",
+            "named": true
+          },
+          {
+            "type": "xml_element",
+            "named": true
           }
         ]
       }
@@ -16774,6 +17828,14 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "xml_axis_expression",
+          "named": true
+        },
+        {
+          "type": "xml_element",
+          "named": true
         }
       ]
     }
@@ -16788,6 +17850,10 @@
   },
   {
     "type": "$\"",
+    "named": false
+  },
+  {
+    "type": "%>",
     "named": false
   },
   {
@@ -16839,11 +17905,23 @@
     "named": false
   },
   {
+    "type": "...",
+    "named": false
+  },
+  {
+    "type": ".@",
+    "named": false
+  },
+  {
     "type": "/",
     "named": false
   },
   {
     "type": "/=",
+    "named": false
+  },
+  {
+    "type": "/>",
     "named": false
   },
   {
@@ -16856,6 +17934,14 @@
   },
   {
     "type": "<",
+    "named": false
+  },
+  {
+    "type": "<%=",
+    "named": false
+  },
+  {
+    "type": "</",
     "named": false
   },
   {
@@ -17690,6 +18776,30 @@
   },
   {
     "type": "string_literal",
+    "named": true
+  },
+  {
+    "type": "xml_attribute_value",
+    "named": true
+  },
+  {
+    "type": "xml_cdata",
+    "named": true
+  },
+  {
+    "type": "xml_comment",
+    "named": true
+  },
+  {
+    "type": "xml_name",
+    "named": true
+  },
+  {
+    "type": "xml_processing_instruction",
+    "named": true
+  },
+  {
+    "type": "xml_text",
     "named": true
   },
   {

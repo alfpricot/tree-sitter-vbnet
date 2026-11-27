@@ -8,7 +8,7 @@
 // skipped as whitespace. That one rule covers implicit line continuation,
 // blank lines, and comment lines between statements.
 //
-// It also emits `#If`/`#Region`/... lines, the `(` of the `(Of` that opens a
+// It also emits `#If`/`#Region`/... lines, the parts of an XML literal, the `(` of the `(Of` that opens a
 // type argument list (so `Foo(Of T)` and `Foo(x)` part on one token of lookahead),
 // the line break that opens a property's `Get`/`Set` accessors, and the
 // `End` of a closing line: one token for statement blocks, another for members
@@ -38,6 +38,12 @@ enum TokenType {
   INTERPOLATED_TEXT,
   INTERPOLATION_FORMAT,
   QUERY_CLAUSE_FOLLOWS,
+  XML_NAME,
+  XML_TEXT,
+  XML_ATTRIBUTE_VALUE,
+  XML_COMMENT,
+  XML_CDATA,
+  XML_PROCESSING_INSTRUCTION,
   ERROR_SENTINEL,
 };
 
@@ -423,6 +429,162 @@ static bool scan_interpolation_format(TSLexer *lexer) {
   return true;
 }
 
+static void skip_whitespace(TSLexer *lexer) {
+  while (is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead)) {
+    skip(lexer);
+  }
+}
+
+static inline bool is_xml_name_start(int32_t c) {
+  return is_ascii_letter(c) || c == '_' ||
+         (c > 0x7F && !is_horizontal_space(c) && !is_line_break(c));
+}
+
+static inline bool is_xml_name_char(int32_t c) {
+  return is_identifier_char(c) || c == '-' || c == '.' || c == ':';
+}
+
+// The parser counts only the first byte of the character peeked at as looked
+// ahead. A token that ends because of that character reads past it when it is
+// a multi-byte one, so an edit to its later bytes invalidates the token.
+static void mark_end_before(TSLexer *lexer) {
+  lexer->mark_end(lexer);
+  if (lexer->lookahead > 0x7F) {
+    consume(lexer);
+  }
+}
+
+// A name in a tag, with an optional `prefix:`.
+static bool scan_xml_name(TSLexer *lexer) {
+  skip_whitespace(lexer);
+  if (!is_xml_name_start(lexer->lookahead)) {
+    return false;
+  }
+  while (is_xml_name_char(lexer->lookahead)) {
+    consume(lexer);
+  }
+  mark_end_before(lexer);
+  lexer->result_symbol = XML_NAME;
+  return true;
+}
+
+// `"..."` or `'...'`, quotes included.
+static bool scan_xml_attribute_value(TSLexer *lexer) {
+  skip_whitespace(lexer);
+  int32_t quote = lexer->lookahead;
+  if (quote != '"' && quote != '\'') {
+    return false;
+  }
+  consume(lexer);
+  while (lexer->lookahead != quote) {
+    if (lexer->eof(lexer)) {
+      return false;
+    }
+    consume(lexer);
+  }
+  consume(lexer);
+  lexer->mark_end(lexer);
+  lexer->result_symbol = XML_ATTRIBUTE_VALUE;
+  return true;
+}
+
+// Consumes through `terminator`, at most three characters long. Returns false
+// at the end of the file.
+static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length) {
+  int32_t window[3] = {0, 0, 0};
+  while (!lexer->eof(lexer)) {
+    window[0] = window[1];
+    window[1] = window[2];
+    window[2] = lexer->lookahead;
+    consume(lexer);
+    bool matched = true;
+    for (unsigned i = 0; i < length; i++) {
+      if (window[3 - length + i] != terminator[i]) {
+        matched = false;
+        break;
+      }
+    }
+    if (matched) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Consumes `expected`, returning false at the first character that differs.
+static bool consume_word(TSLexer *lexer, const char *expected) {
+  for (; *expected; expected++) {
+    if (lexer->lookahead != *expected) {
+      return false;
+    }
+    consume(lexer);
+  }
+  return true;
+}
+
+// `<!-- -->`, `<![CDATA[ ]]>`, or `<? ?>`, after the `<`.
+static bool scan_xml_markup(TSLexer *lexer, const bool *valid_symbols) {
+  consume(lexer);
+  enum TokenType symbol;
+  if (lexer->lookahead == '?') {
+    consume(lexer);
+    symbol = XML_PROCESSING_INSTRUCTION;
+    if (!consume_through(lexer, "?>", 2)) {
+      return false;
+    }
+  } else if (lexer->lookahead == '!') {
+    consume(lexer);
+    if (lexer->lookahead == '-') {
+      symbol = XML_COMMENT;
+      if (!consume_word(lexer, "--") || !consume_through(lexer, "-->", 3)) {
+        return false;
+      }
+    } else {
+      symbol = XML_CDATA;
+      if (!consume_word(lexer, "[CDATA[") || !consume_through(lexer, "]]>", 3)) {
+        return false;
+      }
+    }
+  } else {
+    return false;
+  }
+  if (!valid_symbols[symbol]) {
+    return false;
+  }
+  lexer->mark_end(lexer);
+  lexer->result_symbol = symbol;
+  return true;
+}
+
+// The content of an element between its tags: text up to the next `<`, or a
+// comment, CDATA section, or processing instruction. Whitespace around text,
+// and whitespace alone between tags, belongs to no token. Text that runs to
+// the end of the file belongs to an unterminated literal and is declined.
+static bool scan_xml_content(TSLexer *lexer, const bool *valid_symbols) {
+  skip_whitespace(lexer);
+  if (lexer->eof(lexer)) {
+    return false;
+  }
+  if (lexer->lookahead == '<') {
+    return scan_xml_markup(lexer, valid_symbols);
+  }
+  if (!valid_symbols[XML_TEXT]) {
+    return false;
+  }
+  while (lexer->lookahead != '<') {
+    if (lexer->eof(lexer)) {
+      return false;
+    }
+    bool space = is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead);
+    consume(lexer);
+    if (!space) {
+      lexer->mark_end(lexer);
+    }
+  }
+  lexer->result_symbol = XML_TEXT;
+  return true;
+}
+
 // ` _`, optional spaces, an optional comment, and the line break.
 static bool scan_line_continuation(TSLexer *lexer, Scanner *scanner) {
   consume(lexer);
@@ -521,6 +683,19 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
   if (valid_symbols[INTERPOLATION_FORMAT] && !error_recovery) {
     return scan_interpolation_format(lexer);
+  }
+  // Inside an XML literal the generated lexer would read `'` as a comment, so
+  // the scanner answers for every XML position.
+  if (!error_recovery) {
+    if (valid_symbols[XML_TEXT] || valid_symbols[XML_COMMENT]) {
+      return scan_xml_content(lexer, valid_symbols);
+    }
+    if (valid_symbols[XML_ATTRIBUTE_VALUE]) {
+      return scan_xml_attribute_value(lexer);
+    }
+    if (valid_symbols[XML_NAME]) {
+      return scan_xml_name(lexer);
+    }
   }
 
   bool newline_valid = valid_symbols[NEWLINE] || valid_symbols[ACCESSOR_NEWLINE];
