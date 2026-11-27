@@ -244,7 +244,7 @@ export default {
       prec.right(
         PREC.lambda,
         seq(
-          repeat(field('modifier', kws('Async', 'Iterator'))),
+          lambda_modifiers(),
           kw('Function'),
           field('parameters', $.parameter_list),
           field('body', $._expression),
@@ -253,14 +253,14 @@ export default {
       prec.right(
         PREC.lambda,
         seq(
-          repeat(field('modifier', kws('Async', 'Iterator'))),
+          lambda_modifiers(),
           kw('Sub'),
           field('parameters', $.parameter_list),
           field('body', $._lambda_statement),
         ),
       ),
       seq(
-        repeat(field('modifier', kws('Async', 'Iterator'))),
+        lambda_modifiers(),
         kws('Function', 'Sub'),
         field('parameters', $.parameter_list),
         optional(seq(kw('As'), field('return_type', $._type))),
@@ -285,13 +285,7 @@ export default {
     ),
 
   query_expression: ($) =>
-    prec.right(
-      PREC.query,
-      seq(
-        choice($.from_clause, $.aggregate_clause),
-        repeat(seq(optional($._query_clause_follows), $._query_clause)),
-      ),
-    ),
+    prec.right(PREC.query, seq(choice($.from_clause, $.aggregate_clause), following_clauses($))),
 
   _query_clause: ($) =>
     choice(
@@ -312,12 +306,7 @@ export default {
 
   aggregate_clause: ($) =>
     prec.right(
-      seq(
-        kw('Aggregate'),
-        comma_sep1($.range_variable),
-        repeat(seq(optional($._query_clause_follows), $._query_clause)),
-        $.into_clause,
-      ),
+      seq(kw('Aggregate'), comma_sep1($.range_variable), following_clauses($), $.into_clause),
     ),
 
   range_variable: ($) =>
@@ -349,16 +338,7 @@ export default {
     ),
 
   join_clause: ($) =>
-    prec.right(
-      seq(
-        kw('Join'),
-        $.range_variable,
-        repeat($.join_clause),
-        kw('On'),
-        $.join_condition,
-        repeat(seq(kw('And'), $.join_condition)),
-      ),
-    ),
+    prec.right(seq(kw('Join'), $.range_variable, repeat($.join_clause), ...join_on($))),
 
   // Primary operands, so the `And` between two conditions is not read as
   // a Boolean `And` inside the right operand.
@@ -366,15 +346,7 @@ export default {
     seq(field('left', $._primary_expression), kw('Equals'), field('right', $._primary_expression)),
 
   group_join_clause: ($) =>
-    seq(
-      kw('Group'),
-      kw('Join'),
-      $.range_variable,
-      kw('On'),
-      $.join_condition,
-      repeat(seq(kw('And'), $.join_condition)),
-      $.into_clause,
-    ),
+    seq(kw('Group'), kw('Join'), $.range_variable, ...join_on($), $.into_clause),
 
   into_clause: ($) => prec.right(seq(kw('Into'), comma_sep1($.aggregation))),
 
@@ -400,3 +372,17 @@ export default {
   partition_clause: ($) =>
     seq(field('kind', kws('Skip', 'Take')), optional(kw('While')), $._expression),
 };
+
+function lambda_modifiers() {
+  return repeat(field('modifier', kws('Async', 'Iterator')));
+}
+
+// The clauses that may follow a query's first one.
+function following_clauses($) {
+  return repeat(seq(optional($._query_clause_follows), $._query_clause));
+}
+
+// `On a Equals b [And c Equals d]`, the conditions of a join.
+function join_on($) {
+  return [kw('On'), $.join_condition, repeat(seq(kw('And'), $.join_condition))];
+}

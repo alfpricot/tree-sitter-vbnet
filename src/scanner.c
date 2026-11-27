@@ -62,16 +62,22 @@ static inline bool is_line_break(int32_t c) {
 }
 
 static inline bool is_horizontal_space(int32_t c) {
-  return c == ' ' || c == '\t' || c == '\f' || c == '\v' || c == 0xA0 || c == 0xFEFF ||
-         c == 0x3000 || (c >= 0x2000 && c <= 0x200A);
+  return c == ' ' || c == '\t' || c == '\f' || c == '\v' || c == 0xA0 || c == 0x1680 ||
+         (c >= 0x2000 && c <= 0x200A) || c == 0x202F || c == 0x205F || c == 0x3000 ||
+         c == 0xFEFF;
 }
 
 static inline bool is_ascii_letter(int32_t c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+// Every other code point above ASCII is taken as a letter, apart from the
+// Unicode spaces and line breaks, which end a word as their ASCII forms do.
+// U+FEFF is the exception: it is a format character, which the grammar's
+// `identifier` lets continue a name, so it must not end a word here either.
 static inline bool is_identifier_char(int32_t c) {
-  return is_ascii_letter(c) || (c >= '0' && c <= '9') || c == '_' || c > 0x7F;
+  return is_ascii_letter(c) || (c >= '0' && c <= '9') || c == '_' || c == 0xFEFF ||
+         (c > 0x7F && !is_horizontal_space(c) && !is_line_break(c));
 }
 
 static inline bool is_comment_start(int32_t c) {
@@ -280,7 +286,8 @@ static inline bool is_double_quote(int32_t c) {
 }
 
 // Text between the quotes and interpolations of `$"..."`: anything up to a
-// lone quote or brace, with `""`, `{{` and `}}` as escapes.
+// lone quote or brace, with `{{`, `}}`, and any two quotes in a row as
+// escapes.
 static bool scan_interpolated_text(TSLexer *lexer) {
   bool has_content = false;
   for (;;) {
@@ -292,7 +299,8 @@ static bool scan_interpolated_text(TSLexer *lexer) {
     if (is_double_quote(c) || c == '{' || c == '}') {
       lexer->mark_end(lexer);
       consume(lexer);
-      if (lexer->lookahead != c) {
+      bool escaped = is_double_quote(c) ? is_double_quote(lexer->lookahead) : lexer->lookahead == c;
+      if (!escaped) {
         break;
       }
     }
