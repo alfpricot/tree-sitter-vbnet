@@ -615,3 +615,43 @@ End Module
           name: (identifier)
           type_arguments: (type_argument_list
             (primitive_type)))))))
+
+========================================================================
+REM lines before property accessors
+========================================================================
+
+Class C
+    Property P As Integer
+        REM before the getter
+        <A>
+        REM after the attribute
+        Get
+            Return 1
+        End Get
+        Set(value As Integer)
+        End Set
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (primitive_type)
+      (comment)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)))
+        (comment)
+        body: (block
+          (return_statement
+            (integer_literal))))
+      (accessor_declaration
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (primitive_type)))))))

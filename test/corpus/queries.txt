@@ -269,3 +269,74 @@ End Module
             function: (identifier)
             arguments: (argument_list))))
       (preprocessor_directive))))
+
+========================================================================
+Comment lines between query clauses
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs ' trailing
+
+                ' apostrophe
+                Where x > 0
+                REM keyword
+                rem again
+#If D Then
+#End If
+                ' after a directive
+                Select x
+        REM after the query
+        Dim r = From x In xs
+        ' before a name that starts like a clause
+        _take = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (comment)
+              (comment)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (comment)
+              (comment)
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (comment)
+              (select_clause
+                (identifier)))))
+        (comment)
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
