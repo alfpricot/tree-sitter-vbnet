@@ -72,9 +72,9 @@ typedef struct {
   // Set after a skipped false branch: the `#ElseIf` or `#Else` that ends it
   // opens a branch that can be parsed. It lasts until that line.
   bool false_so_far;
-  // Set by a comment or `#` line after a document literal's root element, which
-  // ends the literal even where no statement can end. It lasts until the next
-  // literal starts.
+  // Set by a comment or `#` line after a document literal's root element where no
+  // statement can end, which ends the literal there. It lasts until a token is
+  // read anywhere else, so it does not reach past the literal.
   bool literal_ended;
 } Scanner;
 
@@ -710,7 +710,7 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
     lexer->result_symbol = NEWLINE;
     return true;
   }
-  if (misc_follows && valid_symbols[XML_MISC_FOLLOWS] && !scanner->literal_ended) {
+  if (misc_follows && valid_symbols[XML_MISC_FOLLOWS]) {
     // The literal goes on. As for a query clause below, the generated lexer
     // could not read what follows, so the break is a continuation.
     lexer->result_symbol = LINE_CONTINUATION;
@@ -945,7 +945,7 @@ static bool scan_xml_attribute_value(TSLexer *lexer) {
 // Consumes through `terminator`, at most three characters long, and returns
 // false at the end of the file. With `stop_at_closer` it also returns false at a
 // line that closes a member or a type, so that a comment or processing
-// instruction left open is not read for to the end of the file. That rejects a
+// instruction left open is not read to the end of the file. That rejects a
 // real one holding such a line; a CDATA section, which often holds code, is read
 // whole.
 static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length,
@@ -1204,8 +1204,13 @@ static bool scan_inactive_branch(TSLexer *lexer, Branch branch) {
   return true;
 }
 
-bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
-                                             const bool *valid_symbols) {
+// Whether a comment or processing instruction can follow a document literal's
+// root element here.
+static bool is_after_root(const bool *valid_symbols) {
+  return valid_symbols[XML_MISC_FOLLOWS] && !valid_symbols[ERROR_SENTINEL];
+}
+
+static bool scan_token(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = payload;
   bool error_recovery = valid_symbols[ERROR_SENTINEL];
   // Applies to this token only; the state is saved only when one is found.
@@ -1275,17 +1280,19 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   int32_t c = lexer->lookahead;
-  bool after_root = valid_symbols[XML_MISC_FOLLOWS] && !error_recovery;
+  // Where a statement can end, the line break before a line that ends a literal
+  // is what ends it; elsewhere the comment or `#` line has to record that.
+  bool ends_literal = is_after_root(valid_symbols) && !newline_valid;
 
   if (c == '#' && valid_symbols[PREPROCESSOR_DIRECTIVE] &&
       (skipped_line_break || directive_follows ||
        lexer->get_column(lexer) == skipped_spaces)) {
-    scanner->literal_ended = scanner->literal_ended || after_root;
+    scanner->literal_ended = scanner->literal_ended || ends_literal;
     return scan_directive(lexer, scanner);
   }
 
   if (is_comment_start(c) && valid_symbols[COMMENT]) {
-    scanner->literal_ended = scanner->literal_ended || after_root;
+    scanner->literal_ended = scanner->literal_ended || ends_literal;
     advance_to_line_end(lexer, false);
     lexer->mark_end(lexer);
     lexer->result_symbol = COMMENT;
@@ -1298,7 +1305,7 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
 
   if ((c | 0x20) == 'r' && valid_symbols[COMMENT]) {
     // Kept only if a comment is found: a declined token saves no state.
-    scanner->literal_ended = scanner->literal_ended || after_root;
+    scanner->literal_ended = scanner->literal_ended || ends_literal;
     return scan_rem_comment(lexer);
   }
 
@@ -1312,14 +1319,8 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   // A comment, CDATA section, processing instruction, or declaration where an
   // expression can start. Any other `<` is left to the generated lexer.
   if (c == '<' && valid_symbols[XML_COMMENT] && !error_recovery &&
-      !(after_root && scanner->literal_ended)) {
-    if (!scan_xml_markup(lexer, valid_symbols)) {
-      return false;
-    }
-    if (lexer->result_symbol == XML_DECLARATION) {
-      scanner->literal_ended = false;
-    }
-    return true;
+      !(is_after_root(valid_symbols) && scanner->literal_ended)) {
+    return scan_xml_markup(lexer, valid_symbols);
   }
 
   if (lexer->lookahead == '(' && valid_symbols[OPEN_PAREN_OF]) {
@@ -1327,4 +1328,15 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   return false;
+}
+
+bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
+                                             const bool *valid_symbols) {
+  Scanner *scanner = payload;
+  bool found = scan_token(payload, lexer, valid_symbols);
+  // A token read anywhere but after a root leaves any earlier literal behind.
+  if (found && !is_after_root(valid_symbols)) {
+    scanner->literal_ended = false;
+  }
+  return found;
 }

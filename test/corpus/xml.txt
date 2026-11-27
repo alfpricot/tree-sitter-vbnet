@@ -908,3 +908,60 @@ End Module
 
 ------------------------------------------------------------------------
 
+========================================================================
+A comment in a nested document literal leaves the outer one open
+========================================================================
+
+Module M
+  Sub S()
+    y = <?xml?><r><%= F(<?xml?><s/> ' c
+      ) %></r> <!-- outer -->
+    z = <?xml?><r><%= F(<?xml?><s/> ' c
+      ) %></r>
+      <!-- outer -->
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (xml_document
+            (xml_declaration)
+            root: (xml_element
+              name: (xml_name)
+              (xml_embedded_expression
+                value: (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list
+                    (xml_document
+                      (xml_declaration)
+                      root: (xml_element
+                        name: (xml_name)))
+                    (comment))))
+              end_name: (xml_name))
+            (xml_comment)))
+        (assignment_statement
+          left: (identifier)
+          right: (xml_document
+            (xml_declaration)
+            root: (xml_element
+              name: (xml_name)
+              (xml_embedded_expression
+                value: (invocation_expression
+                  function: (identifier)
+                  arguments: (argument_list
+                    (xml_document
+                      (xml_declaration)
+                      root: (xml_element
+                        name: (xml_name)))
+                    (comment))))
+              end_name: (xml_name))
+            (xml_comment)))))))

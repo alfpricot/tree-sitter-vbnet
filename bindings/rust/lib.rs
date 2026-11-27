@@ -97,9 +97,6 @@ mod tests {
         assert!(!tree.root_node().has_error());
     }
 
-    /// A byte inserted inside a typographic quote and removed again must leave
-    /// the tree a fresh parse gives. The closing quote of the string depends
-    /// on the whole character after it, not only that character's first byte.
     /// Undoing an edit that split the space after `Rem` must give the tree a
     /// fresh parse gives: whether `Rem` starts a comment depends on the whole
     /// character after it.
@@ -145,6 +142,9 @@ mod tests {
         assert_eq!(tree.root_node().to_sexp(), expected.root_node().to_sexp());
     }
 
+    /// A byte inserted inside a typographic quote and removed again must leave
+    /// the tree a fresh parse gives. The closing quote of the string depends
+    /// on the whole character after it, not only that character's first byte.
     #[test]
     fn test_reparses_an_edit_inside_a_typographic_quote() {
         let code = "Module M\n    Sub S()\n        t = $\u{201D}\u{201C}\u{201D}quoted\"\"\u{201C}\n    End Sub\nEnd Module\n";
