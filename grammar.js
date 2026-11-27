@@ -64,13 +64,15 @@ export default grammar({
     // The parts of an XML literal, scanned here because they can start like an
     // identifier or contain `'`: a name in a tag, the text between tags, an
     // attribute value in either kind of quote, and `<!-- -->`, `<![CDATA[ ]]>`,
-    // and `<? ?>` in an element's content.
+    // and `<? ?>`, in an element's content or as expressions.
     $.xml_name,
     $.xml_text,
     $.xml_attribute_value,
     $.xml_comment,
     $.xml_cdata,
     $.xml_processing_instruction,
+    // The `<?xml ...?>` that opens an XML document literal.
+    $.xml_declaration,
     // The lines of an `#Else` or `#ElseIf` branch up to its `#End If`, which
     // are not parsed: the first branch of an `#If` is.
     $.inactive_preprocessor_branch,

@@ -277,6 +277,39 @@
             "type": "SYMBOL",
             "name": "_type_name"
           }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "<"
+            },
+            {
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "xml_name"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "SYMBOL",
+                "name": "xml_attribute_value"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": ">"
+            }
+          ]
         }
       ]
     },
@@ -8150,6 +8183,22 @@
         },
         {
           "type": "SYMBOL",
+          "name": "xml_document"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "xml_comment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "xml_cdata"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "xml_processing_instruction"
+        },
+        {
+          "type": "SYMBOL",
           "name": "xml_axis_expression"
         }
       ]
@@ -11757,6 +11806,48 @@
         }
       ]
     },
+    "xml_document": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "xml_declaration"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "xml_comment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "xml_processing_instruction"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "root",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "xml_element"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "xml_embedded_expression"
+              }
+            ]
+          }
+        }
+      ]
+    },
     "xml_element": {
       "type": "SEQ",
       "members": [
@@ -12030,6 +12121,22 @@
                           "content": {
                             "type": "SYMBOL",
                             "name": "identifier"
+                          },
+                          "named": true,
+                          "value": "xml_name"
+                        }
+                      },
+                      {
+                        "type": "FIELD",
+                        "name": "name",
+                        "content": {
+                          "type": "ALIAS",
+                          "content": {
+                            "type": "IMMEDIATE_TOKEN",
+                            "content": {
+                              "type": "PATTERN",
+                              "value": "[\\p{L}\\p{Nl}_][\\p{L}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Cf}]*:[\\p{L}\\p{Nl}_][\\p{L}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Cf}]*"
+                            }
                           },
                           "named": true,
                           "value": "xml_name"
@@ -12599,6 +12706,10 @@
     {
       "type": "SYMBOL",
       "name": "xml_processing_instruction"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "xml_declaration"
     },
     {
       "type": "SYMBOL",

@@ -228,7 +228,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -398,7 +414,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -651,7 +683,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -806,7 +854,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -989,7 +1053,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -1199,7 +1279,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -1415,7 +1511,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -1661,7 +1773,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -1836,7 +1964,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -2108,7 +2252,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -2408,7 +2568,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -2609,7 +2785,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -2779,7 +2971,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -2979,7 +3187,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -3227,7 +3451,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -3413,7 +3653,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -3761,7 +4017,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -3931,7 +4203,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -4091,7 +4379,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -4416,7 +4720,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -4888,7 +5208,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -5079,7 +5415,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -5295,7 +5647,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -5580,7 +5948,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -5740,7 +6124,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -6113,7 +6513,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -6334,7 +6750,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -6536,7 +6968,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -6739,7 +7187,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -6924,7 +7388,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -7094,7 +7574,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -7264,7 +7760,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -7467,7 +7979,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -7756,7 +8284,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -7930,7 +8474,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -8164,7 +8724,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -8287,6 +8863,20 @@
           },
           {
             "type": "qualified_name",
+            "named": true
+          },
+          {
+            "type": "xml_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "xml_attribute_value",
             "named": true
           }
         ]
@@ -8631,7 +9221,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -8811,7 +9417,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -8988,7 +9610,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -9163,7 +9801,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -9309,7 +9963,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -9533,7 +10203,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -9777,7 +10463,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -9974,7 +10676,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -10542,7 +11260,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -10728,7 +11462,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -11352,7 +12102,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -11537,7 +12303,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -11780,7 +12562,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -11954,7 +12752,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -12222,7 +13036,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -12496,7 +13326,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -12795,7 +13641,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -12965,7 +13827,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -13141,7 +14019,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -13349,7 +14243,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -13524,7 +14434,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -13694,7 +14620,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -13874,7 +14816,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -14033,7 +14991,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -14208,7 +15182,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -14408,7 +15398,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -14790,7 +15796,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -14966,7 +15988,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -15136,7 +16174,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -15306,7 +16360,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -15466,7 +16536,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -15713,7 +16799,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -15974,7 +17076,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -16237,7 +17355,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -16455,7 +17589,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -16689,7 +17839,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -16849,7 +18015,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -17034,7 +18216,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -17220,7 +18418,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -17434,11 +18648,65 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
       }
+    }
+  },
+  {
+    "type": "xml_document",
+    "named": true,
+    "fields": {
+      "root": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_embedded_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_declaration",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -17674,7 +18942,23 @@
             "named": true
           },
           {
+            "type": "xml_cdata",
+            "named": true
+          },
+          {
+            "type": "xml_comment",
+            "named": true
+          },
+          {
+            "type": "xml_document",
+            "named": true
+          },
+          {
             "type": "xml_element",
+            "named": true
+          },
+          {
+            "type": "xml_processing_instruction",
             "named": true
           }
         ]
@@ -17834,7 +19118,23 @@
           "named": true
         },
         {
+          "type": "xml_cdata",
+          "named": true
+        },
+        {
+          "type": "xml_comment",
+          "named": true
+        },
+        {
+          "type": "xml_document",
+          "named": true
+        },
+        {
           "type": "xml_element",
+          "named": true
+        },
+        {
+          "type": "xml_processing_instruction",
           "named": true
         }
       ]
@@ -18793,6 +20093,10 @@
   },
   {
     "type": "xml_comment",
+    "named": true
+  },
+  {
+    "type": "xml_declaration",
     "named": true
   },
   {

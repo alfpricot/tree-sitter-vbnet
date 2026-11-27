@@ -2,7 +2,8 @@
 ; after its first line, so the closing keyword is what identifies it: a
 ; single-line `If`, a single-line lambda, or an auto-implemented property has
 ; none. `For` loops are captured whole, because an outer loop closed by an
-; inner loop's `Next j, i` has no `Next` of its own.
+; inner loop's `Next j, i` has no `Next` of its own. An XML element with an end
+; tag indents its content the same way; a self-closing one does not.
 ;
 ; Permanent limit: that shared line has to close every loop it names, but it
 ; lands at the level of the innermost `For`. Only a node that starts on a line
@@ -32,6 +33,7 @@
   (while_statement "End")
   (with_statement "End")
   (do_statement "Loop")
+  (xml_element "</")
   (for_each_statement)
   (for_statement)
 ] @indent.begin
@@ -69,6 +71,7 @@
 (while_statement "End" @indent.branch)
 (with_statement "End" @indent.branch)
 (do_statement "Loop" @indent.branch)
+(xml_element "</" @indent.branch)
 (for_each_statement "Next" @indent.branch)
 (for_statement "Next" @indent.branch)
 

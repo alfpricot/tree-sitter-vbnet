@@ -66,6 +66,10 @@ export default {
       $.ternary_expression,
       $.coalesce_expression,
       $.xml_element,
+      $.xml_document,
+      $.xml_comment,
+      $.xml_cdata,
+      $.xml_processing_instruction,
       $.xml_axis_expression,
     ),
 

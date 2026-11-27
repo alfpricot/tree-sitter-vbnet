@@ -61,6 +61,8 @@ export default {
     choice(
       seq(field('alias', $.identifier), '=', field('name', $._type_name)),
       field('name', $._type_name),
+      // `<xmlns="uri">` or `<xmlns:prefix="uri">`.
+      seq('<', field('name', $.xml_name), '=', field('value', $.xml_attribute_value), '>'),
     ),
 
   // An assembly- or module-level attribute block on its own line.
