@@ -27,3 +27,7 @@ key = "version"
 [[versionFile]]
 path = "tree-sitter.json"
 key = "metadata.version"
+
+[[versionFile]]
+path = "pyproject.toml"
+key = "project.version"

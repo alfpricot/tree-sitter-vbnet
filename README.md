@@ -13,12 +13,21 @@ npm install tree-sitter-vbnet tree-sitter
 cargo add tree-sitter-vbnet
 ```
 
+The Python and Go bindings are in this repository but not yet published to PyPI. Install the Python one from Git, and get the Go module with `go get`:
+
+```sh
+pip install "tree-sitter-vbnet[core] @ git+https://github.com/alfpricot/tree-sitter-vbnet"
+go get github.com/alfpricot/tree-sitter-vbnet@dev
+```
+
 The generated parser (`src/parser.c`, `src/grammar.json`, `src/node-types.json`) is committed, so consumers build the C parser without the tree-sitter CLI. `src/scanner.c` must be compiled with it: it decides which line breaks end a statement and scans comments, line continuations, preprocessor lines, and interpolated-string text. The C symbol is `tree_sitter_vbnet`.
 
 ### Requirements
 
 - Node.js 24 or newer for the Node binding (see `.nvmrc`). The npm package carries prebuilt addons for Linux x64 (glibc) and Windows x64; other platforms, musl-based Linux included, compile it on install and need a C/C++ toolchain.
 - Rust 1.85 or newer, edition 2024, and a C compiler for the Rust crate.
+- Python 3.10 or newer, `tree-sitter` 0.25 or newer, and a C compiler for the Python binding.
+- Go 1.23 or newer with cgo for the Go binding.
 
 ## Usage
 
@@ -41,6 +50,26 @@ parser
     .set_language(&tree_sitter_vbnet::LANGUAGE.into())
     .expect("Error loading VB.NET parser");
 let tree = parser.parse("Class C\nEnd Class\n", None).unwrap();
+```
+
+Or from Python:
+
+```python
+import tree_sitter_vbnet
+from tree_sitter import Language, Parser
+
+parser = Parser(Language(tree_sitter_vbnet.language()))
+tree = parser.parse(b"Class C\nEnd Class\n")
+```
+
+Or from Go, with `tree_sitter` as `github.com/tree-sitter/go-tree-sitter` and `tree_sitter_vbnet` as `github.com/alfpricot/tree-sitter-vbnet/bindings/go`:
+
+```go
+parser := tree_sitter.NewParser()
+defer parser.Close()
+parser.SetLanguage(tree_sitter.NewLanguage(tree_sitter_vbnet.Language()))
+tree := parser.Parse([]byte("Class C\nEnd Class\n"), nil)
+defer tree.Close()
 ```
 
 ### What it parses
@@ -90,7 +119,7 @@ End Class
 
 ### Queries
 
-`queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. The Node binding exposes it as `HIGHLIGHTS_QUERY`; the Rust crate as the `HIGHLIGHTS_QUERY` constant.
+`queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. `queries/tags.scm` lists namespaces, types, members, calls, and object creation for symbol navigation. `queries/locals.scm` marks scopes, definitions, and references for local names; it matches text exactly, so a name written in a different letter case than its declaration does not resolve. `queries/folds.scm` marks foldable constructs with `@fold`. The Node and Python bindings and the Rust crate expose these four as `HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `LOCALS_QUERY`, and `FOLDS_QUERY`; the Go binding exposes the language only.
 
 `queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
 

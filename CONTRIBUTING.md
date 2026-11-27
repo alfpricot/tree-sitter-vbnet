@@ -18,6 +18,8 @@ cargo build
 
 You need Node.js 24 (`.nvmrc`), a C compiler, and Rust 1.90 or newer (the library itself builds on 1.85, but the `tree-sitter` crate its tests use does not). The exact tree-sitter CLI version is declared in `package.json` and resolved by `package-lock.json`; CI uses the same lockfile. `npm start` builds the WebAssembly parser and opens the tree-sitter playground.
 
+`npm run check` does not cover the Python and Go bindings; CI does. To run their tests, use Python 3.10 or newer in a virtual environment (`pip install ".[core]" pytest`, then `pytest bindings/python/tests`) and Go 1.23 or newer (`go test ./bindings/go`). Building the Python binding writes into `build/`, which the Node addon also uses, so rebuild the addon afterwards.
+
 The generated parser (`src/parser.c`, `src/grammar.json`, `src/node-types.json`) is committed. Regenerate and commit its diff after every change under `grammar/` or to `grammar.js`. A failed generation leaves the prior parser in place, so confirm that generation succeeded before trusting a test run.
 
 ## Validation before a pull request

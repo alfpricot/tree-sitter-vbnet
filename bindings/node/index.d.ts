@@ -53,6 +53,15 @@ declare const binding: {
 
   /** The syntax highlighting query for this grammar. */
   HIGHLIGHTS_QUERY?: string;
+
+  /** The query for resolving local names. */
+  LOCALS_QUERY?: string;
+
+  /** The symbol tagging query for this grammar. */
+  TAGS_QUERY?: string;
+
+  /** The folding query for this grammar. */
+  FOLDS_QUERY?: string;
 };
 
 export default binding;

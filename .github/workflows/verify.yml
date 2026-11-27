@@ -15,7 +15,8 @@
 #                      ERROR/MISSING/zero-width node, hold the generated
 #                      parser to its keyword and state-count budget, compile
 #                      the scanner with warnings as errors, fuzz incremental
-#                      reparsing, build and test the Rust and Node bindings,
+#                      reparsing, build and test the Rust, Node, Python, and
+#                      Go bindings,
 #                      validate the PR title, scan the working tree and Git
 #                      history for secrets, and lint workflow/YAML files. A final aggregate job rolls every
 #                      check up into a single `Verify` status for branch
@@ -249,6 +250,26 @@ jobs:
 
       - name: Cargo build & test
         run: cargo test
+
+      - name: Test the Python binding
+        # Built from a copy: the build writes into `build/`, which would end up
+        # beside the checkout's own files.
+        run: |
+          copy="$RUNNER_TEMP/python-binding"
+          mkdir "$copy"
+          git archive HEAD | tar -x -C "$copy"
+          cd "$copy"
+          python3 -m venv .venv
+          .venv/bin/pip install --disable-pip-version-check --quiet ".[core]" pytest
+          .venv/bin/python -m pytest bindings/python/tests
+
+      - name: Set up Go
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+
+      - name: Test the Go binding
+        run: go test ./bindings/go
 
       - name: Verify publishable package contents
         # The same crate and npm package checks release.yml runs before
