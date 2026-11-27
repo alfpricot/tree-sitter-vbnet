@@ -21,6 +21,7 @@ export default grammar({
     /[\s\u0085\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]/,
     $.comment,
     $.preprocessor_directive,
+    $.inactive_preprocessor_branch,
     $._line_continuation,
   ],
 
@@ -70,6 +71,9 @@ export default grammar({
     $.xml_comment,
     $.xml_cdata,
     $.xml_processing_instruction,
+    // The lines of an `#Else` or `#ElseIf` branch up to its `#End If`, which
+    // are not parsed: the first branch of an `#If` is.
+    $.inactive_preprocessor_branch,
     // Never used by a rule: it is only valid while the parser is recovering
     // from an error, which is how the scanner detects that.
     $._error_sentinel,

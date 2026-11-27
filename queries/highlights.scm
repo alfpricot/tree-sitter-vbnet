@@ -4,6 +4,10 @@
 
 (preprocessor_directive) @keyword.directive
 
+; The later branches of an `#If`, which are not parsed
+
+(inactive_preprocessor_branch) @comment
+
 ; Literals
 
 (string_literal) @string

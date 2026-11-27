@@ -186,6 +186,7 @@ imports_clause
 imports_clause.alias
 imports_clause.name
 imports_statement
+inactive_preprocessor_branch
 inherits_statement
 integer_literal
 interface_block

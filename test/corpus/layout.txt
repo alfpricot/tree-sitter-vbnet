@@ -365,13 +365,74 @@ End Module
         (expression_statement
           (invocation_expression
             function: (identifier)
-            arguments: (argument_list)))
-        (preprocessor_directive)
+            arguments: (argument_list))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive))
+    (preprocessor_directive)))
+
+========================================================================
+Later #If branches are not parsed
+========================================================================
+
+Class C
+#If NET Then
+    Public Sub Emit(x As Integer, y As Span(Of Byte))
+#ElseIf OLD Then
+    Public Sub Emit(x As Integer)
+#If NESTED Then
+        Partial(
+#End If
+#Else
+    Public Sub Emit()
+#End If
+        Run(x)
+    End Sub
+
+#If A Then
+    Private f As Integer
+#Else
+
+#End If
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (preprocessor_directive)
+    (method_declaration
+      modifiers: (modifiers
+        (modifier))
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (primitive_type))
+        (parameter
+          name: (identifier)
+          type: (generic_name
+            name: (identifier)
+            type_arguments: (type_argument_list
+              (primitive_type)))))
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive)
+      body: (block
         (expression_statement
           (invocation_expression
             function: (identifier)
-            arguments: (argument_list))))
-      (preprocessor_directive))
+            arguments: (argument_list
+              (identifier))))))
+    (preprocessor_directive)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (primitive_type)))
+    (preprocessor_directive)
     (preprocessor_directive)))
 
 ========================================================================
