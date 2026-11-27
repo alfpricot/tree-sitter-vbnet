@@ -639,3 +639,35 @@ End Module
             (member_access_expression
               object: (identifier)
               member: (identifier))))))))
+
+========================================================================
+GoTo and array types
+========================================================================
+
+Module M
+    Sub Run(names As String(), grid As Integer(,))
+        GoTo Done
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (array_type
+            element: (primitive_type)
+            (array_rank_specifier)))
+        (parameter
+          name: (identifier)
+          type: (array_type
+            element: (primitive_type)
+            (array_rank_specifier))))
+      body: (block
+        (goto_statement
+          label: (identifier))))))

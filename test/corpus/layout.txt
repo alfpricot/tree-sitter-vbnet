@@ -476,3 +476,94 @@ End Module
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
+========================================================================
+Attributes before an accessor on the lines after a property header
+========================================================================
+
+Class C
+    Property Name As String
+        <Obsolete("use > instead")>
+        Private Get
+            Return n
+        End Get
+        <Obsolete>
+        Set(value As String)
+            n = value
+        End Set
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (primitive_type)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)
+            arguments: (argument_list
+              (string_literal))))
+        modifiers: (modifiers
+          (modifier))
+        body: (block
+          (return_statement
+            (identifier))))
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)))
+        parameters: (parameter_list
+          (parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (assignment_statement
+            left: (identifier)
+            right: (identifier)))))))
+
+========================================================================
+Select Case on the line after a query starts a statement
+========================================================================
+
+Module M
+    Sub Run()
+        q = From c In customers
+        Select Case q.Count()
+            Case 0
+                Return
+        End Select
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (query_expression
+            (from_clause
+              (range_variable
+                name: (identifier)
+                collection: (identifier)))))
+        (select_statement
+          value: (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list))
+          (case_block
+            (case_clause
+              value: (integer_literal))
+            body: (block
+              (return_statement))))))))

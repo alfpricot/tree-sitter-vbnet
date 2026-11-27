@@ -711,3 +711,93 @@ End Module
         (assignment_statement
           left: (identifier)
           right: (interpolated_string_expression))))))
+
+========================================================================
+Parenthesized expressions, MyClass, and range arguments
+========================================================================
+
+Module M
+    Sub Run()
+        a = (b + 1) * 2
+        MyClass.Start()
+        ReDim values(0 To 9)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (parenthesized_expression
+              (binary_expression
+                left: (identifier)
+                right: (integer_literal)))
+            right: (integer_literal)))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (my_class)
+              member: (identifier))
+            arguments: (argument_list)))
+        (redim_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (range_argument
+                low: (integer_literal)
+                high: (integer_literal)))))))))
+
+========================================================================
+Group Join
+========================================================================
+
+Module M
+    Sub Run()
+        q = From c In customers
+            Group Join o In orders On c.Id Equals o.CustomerId Into Count()
+            Select c
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (query_expression
+            (from_clause
+              (range_variable
+                name: (identifier)
+                collection: (identifier)))
+            (group_join_clause
+              (range_variable
+                name: (identifier)
+                collection: (identifier))
+              (join_condition
+                left: (member_access_expression
+                  object: (identifier)
+                  member: (identifier))
+                right: (member_access_expression
+                  object: (identifier)
+                  member: (identifier)))
+              (into_clause
+                (aggregation
+                  (invocation_expression
+                    function: (identifier)
+                    arguments: (argument_list)))))
+            (select_clause
+              (identifier))))))))
