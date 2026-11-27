@@ -11556,7 +11556,15 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "\\$[\"\\u201C\\u201D]"
+            }
+          },
+          "named": false,
           "value": "$\""
         },
         {
@@ -11580,8 +11588,8 @@
           "content": {
             "type": "IMMEDIATE_TOKEN",
             "content": {
-              "type": "STRING",
-              "value": "\""
+              "type": "PATTERN",
+              "value": "[\"\\u201C\\u201D]"
             }
           },
           "named": false,
@@ -11676,7 +11684,7 @@
   "extras": [
     {
       "type": "PATTERN",
-      "value": "[\\s\\uFEFF]"
+      "value": "[\\s\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]"
     },
     {
       "type": "SYMBOL",

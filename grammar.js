@@ -14,7 +14,14 @@ export default grammar({
 
   word: ($) => $.identifier,
 
-  extras: ($) => [/[\s\uFEFF]/, $.comment, $.preprocessor_directive, $._line_continuation],
+  // `\s` covers only ASCII whitespace in the generated lexer, so the Unicode
+  // spaces and line breaks the scanner knows are listed too.
+  extras: ($) => [
+    /[\s\u0085\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]/,
+    $.comment,
+    $.preprocessor_directive,
+    $._line_continuation,
+  ],
 
   // Order is the scanner's TokenType enum in src/scanner.c.
   externals: ($) => [

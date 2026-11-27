@@ -400,3 +400,56 @@ End Module
             function: (identifier)
             arguments: (argument_list
               (date_literal))))))))
+
+========================================================================
+Unicode spaces end a word like ASCII spaces
+========================================================================
+
+Module M
+    Sub Run(Of　T)()
+        Rem note
+        x =　1 + 2
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      type_parameters: (type_parameter_list
+        (type_parameter
+          name: (identifier)))
+      parameters: (parameter_list)
+      (comment)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (integer_literal)
+            right: (integer_literal)))))))
+
+========================================================================
+A Unicode space inside (Of
+========================================================================
+
+Module M
+    Dim x As List( Of Integer)
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        type: (generic_name
+          name: (identifier)
+          type_arguments: (type_argument_list
+            (primitive_type)))))))

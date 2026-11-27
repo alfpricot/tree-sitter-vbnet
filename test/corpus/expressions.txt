@@ -669,3 +669,45 @@ End Module
               (named_argument
                 name: (identifier)
                 value: (string_literal)))))))))
+
+========================================================================
+Interpolated strings with typographic quotes
+========================================================================
+
+Module M
+    Sub Run()
+        s = $“Name: {name}”
+        t = $”“”quoted""“
+        u = $"{n:N2}”
+        v = $“”
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (interpolation
+              value: (identifier))))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolation
+              value: (identifier)
+              format: (interpolation_format))))
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression))))))
