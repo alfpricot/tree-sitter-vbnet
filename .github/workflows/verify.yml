@@ -12,10 +12,12 @@
 #                      node-kind snapshot, lint and format-check the grammar
 #                      and tooling JavaScript, run the corpus and highlight
 #                      tests, parse every fixture and fail on any
-#                      ERROR/MISSING/zero-width node, build and test the Rust
-#                      and Node bindings, validate the PR title, scan the
-#                      working tree and Git history for secrets, and lint
-#                      workflow/YAML files. A final aggregate job rolls every
+#                      ERROR/MISSING/zero-width node, hold the generated
+#                      parser to its keyword and state-count budget, compile
+#                      the scanner with warnings as errors, fuzz incremental
+#                      reparsing, build and test the Rust and Node bindings,
+#                      validate the PR title, scan the working tree and Git
+#                      history for secrets, and lint workflow/YAML files. A final aggregate job rolls every
 #                      check up into a single `Verify` status for branch
 #                      rulesets to require.
 #
@@ -99,12 +101,12 @@ jobs:
           asset: gitleaks_${{ env.GITLEAKS_VERSION }}_linux_x64.tar.gz
 
       - name: Scan the working tree with Gitleaks
-        run: $HOME/.local/bin/gitleaks detect --no-git --source . --exit-code 1 --report-format json --report-path gitleaks-report.json
+        run: $HOME/.local/bin/gitleaks detect --no-git --redact --source . --exit-code 1 --report-format json --report-path gitleaks-report.json
 
       - name: Scan Git history with Gitleaks
-        run: $HOME/.local/bin/gitleaks detect --source . --exit-code 1 --report-format json --report-path gitleaks-history-report.json
+        run: $HOME/.local/bin/gitleaks detect --redact --source . --exit-code 1 --report-format json --report-path gitleaks-history-report.json
 
-      - name: Upload Gitleaks report on failure
+      - name: Upload redacted Gitleaks report on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -151,13 +153,16 @@ jobs:
       - name: Fail if the node-kind snapshot is out of date
         run: node tools/node-kinds.mjs --check
 
+      - name: Fail if keyword extraction shrank or the parse table grew
+        run: node tools/parser-budget.mjs
+
       - name: Lint the grammar and tooling JS
         run: npm run lint
 
       - name: Check formatting of the grammar and tooling JS
         run: npm run format:check
 
-      - name: Test the release policy scripts
+      - name: Test the tooling scripts
         run: node --test tools/*.test.mjs
 
       - name: Check Cargo.toml, package.json, and tree-sitter.json agree
@@ -170,6 +175,14 @@ jobs:
 
       - name: Parse every fixture and fail on ERROR/MISSING or zero-width nodes
         run: node tools/fixture-check.mjs
+
+      - name: Compile the scanner with warnings as errors
+        run: gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 -c -Isrc src/scanner.c -o /dev/null
+
+      # The seed is random and printed in the log; set TREE_SITTER_SEED to
+      # that value to replay a failure.
+      - name: Fuzz incremental reparsing
+        run: node tools/fuzz-check.mjs
 
       - name: Format check
         run: cargo fmt --all --check
