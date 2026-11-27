@@ -1,0 +1,87 @@
+; Indentation. A construct that closes with its own line indents everything
+; after its first line, so the closing keyword is what identifies it: a
+; single-line `If`, a single-line lambda, or an auto-implemented property has
+; none. `For` loops are captured whole, because an outer loop closed by an
+; inner loop's `Next j, i` has no `Next` of its own. An XML element with an end
+; tag indents its content the same way; a self-closing one does not.
+;
+; Permanent limit: that shared line has to close every loop it names, but it
+; lands at the level of the innermost `For`. Only a node that starts on a line
+; can take a level back from that line alone, and nvim-treesitter takes back one
+; level for all the nodes that start on the same line.
+
+[
+  (accessor_declaration "End")
+  (class_block "End")
+  (constructor_declaration "End")
+  (custom_event_declaration "End")
+  (enum_block "End")
+  (event_accessor_declaration "End")
+  (if_statement "End")
+  (interface_block "End")
+  (lambda_expression "End")
+  (method_declaration "End")
+  (module_block "End")
+  (namespace_block "End")
+  (operator_declaration "End")
+  (property_declaration "End")
+  (select_statement "End")
+  (structure_block "End")
+  (sync_lock_statement "End")
+  (try_statement "End")
+  (using_statement "End")
+  (while_statement "End")
+  (with_statement "End")
+  (do_statement "Loop")
+  (xml_element "</")
+  (for_each_statement)
+  (for_statement)
+] @indent.begin
+
+; A `Case` line sits one level inside its `Select`, and its statements one
+; level inside that.
+
+[
+  (case_branch_clause)
+  (case_else_clause)
+] @indent.begin
+
+; Closing lines return to the level of the opening line. `End` is captured per
+; construct so that a bare `End` statement is left alone.
+
+(accessor_declaration "End" @indent.branch)
+(class_block "End" @indent.branch)
+(constructor_declaration "End" @indent.branch)
+(custom_event_declaration "End" @indent.branch)
+(enum_block "End" @indent.branch)
+(event_accessor_declaration "End" @indent.branch)
+(if_statement "End" @indent.branch)
+(interface_block "End" @indent.branch)
+(lambda_expression "End" @indent.branch)
+(method_declaration "End" @indent.branch)
+(module_block "End" @indent.branch)
+(namespace_block "End" @indent.branch)
+(operator_declaration "End" @indent.branch)
+(property_declaration "End" @indent.branch)
+(select_statement "End" @indent.branch)
+(structure_block "End" @indent.branch)
+(sync_lock_statement "End" @indent.branch)
+(try_statement "End" @indent.branch)
+(using_statement "End" @indent.branch)
+(while_statement "End" @indent.branch)
+(with_statement "End" @indent.branch)
+(do_statement "Loop" @indent.branch)
+(xml_element "</" @indent.branch)
+(for_each_statement "Next" @indent.branch)
+(for_statement "Next" @indent.branch)
+
+; Lines that divide a construct sit at its level.
+
+[
+  (catch_clause)
+  (elseif_clause)
+  (finally_clause)
+] @indent.branch
+
+; A single-line `If` holds an `else_clause` too, which divides no block.
+(if_statement (else_clause) @indent.branch)

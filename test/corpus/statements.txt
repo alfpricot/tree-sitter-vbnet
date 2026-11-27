@@ -25,12 +25,16 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (object_creation_expression
               type: (identifier)
               arguments: (argument_list))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (object_creation_expression
@@ -44,6 +48,8 @@ End Module
                       member: (identifier))
                     right: (string_literal)))))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             type: (generic_name
@@ -51,6 +57,8 @@ End Module
               type_arguments: (type_argument_list
                 (primitive_type)))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             bounds: (argument_list
@@ -64,6 +72,8 @@ End Module
               (integer_literal)
               (integer_literal))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (integer_literal))
@@ -71,15 +81,21 @@ End Module
             name: (identifier)
             type: (primitive_type)))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             type: (primitive_type)
             value: (integer_literal)))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             type: (primitive_type)))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             type: (nullable_type
@@ -209,23 +225,23 @@ End Module
       body: (block
         (if_statement
           condition: (identifier)
-          consequence: (block
+          body: (block
             (assignment_statement
               left: (identifier)
               right: (integer_literal)))
-          alternative: (elseif_clause
+          (elseif_clause
             condition: (identifier)
-            consequence: (block
+            body: (block
               (assignment_statement
                 left: (identifier)
                 right: (integer_literal))))
-          alternative: (elseif_clause
+          (elseif_clause
             condition: (identifier)
-            consequence: (block
+            body: (block
               (assignment_statement
                 left: (identifier)
                 right: (integer_literal))))
-          alternative: (else_clause
+          (else_clause
             body: (block
               (assignment_statement
                 left: (identifier)
@@ -257,35 +273,37 @@ End Module
       body: (block
         (single_line_if_statement
           condition: (identifier)
-          consequence: (single_line_block
+          body: (block
             (exit_statement)))
         (single_line_if_statement
           condition: (identifier)
-          consequence: (single_line_block
+          body: (block
             (assignment_statement
               left: (identifier)
               right: (integer_literal))
             (assignment_statement
               left: (identifier)
               right: (integer_literal)))
-          alternative: (single_line_block
-            (assignment_statement
-              left: (identifier)
-              right: (integer_literal))))
+          (else_clause
+            body: (block
+              (assignment_statement
+                left: (identifier)
+                right: (integer_literal)))))
         (single_line_if_statement
           condition: (identifier)
-          consequence: (single_line_block
+          body: (block
             (return_statement))
-          alternative: (single_line_block
-            (throw_statement
-              (object_creation_expression
-                type: (identifier)
-                arguments: (argument_list)))))
+          (else_clause
+            body: (block
+              (throw_statement
+                (object_creation_expression
+                  type: (identifier)
+                  arguments: (argument_list))))))
         (single_line_if_statement
           condition: (type_of_expression
             value: (identifier)
             type: (identifier))
-          consequence: (single_line_block
+          body: (block
             (expression_statement
               (invocation_expression
                 function: (identifier)
@@ -320,7 +338,7 @@ End Module
       body: (block
         (select_statement
           value: (identifier)
-          (case_block
+          (case_branch_clause
             (case_clause
               value: (integer_literal))
             (case_clause
@@ -330,17 +348,17 @@ End Module
                 (invocation_expression
                   function: (identifier)
                   arguments: (argument_list)))))
-          (case_block
+          (case_branch_clause
             (case_clause
               low: (integer_literal)
               high: (integer_literal)))
-          (case_block
+          (case_branch_clause
             (case_clause
               value: (integer_literal))
             (case_clause
               value: (unary_expression
                 operand: (integer_literal))))
-          (case_else_block
+          (case_else_clause
             body: (block
               (expression_statement
                 (invocation_expression
@@ -439,7 +457,7 @@ End Module
               (invocation_expression
                 function: (identifier)
                 arguments: (argument_list))))
-          (catch_block
+          (catch_clause
             name: (identifier)
             type: (identifier)
             filter: (binary_expression
@@ -453,10 +471,10 @@ End Module
                   function: (identifier)
                   arguments: (argument_list
                     (identifier))))))
-          (catch_block
+          (catch_clause
             body: (block
               (throw_statement)))
-          (finally_block
+          (finally_clause
             body: (block
               (expression_statement
                 (invocation_expression
@@ -579,8 +597,7 @@ End Module
         (stop_statement)
         (end_statement)
         (label_statement
-          label: (identifier
-            (identifier)))
+          label: (identifier))
         (resume_statement)))))
 
 ========================================================================
@@ -639,3 +656,207 @@ End Module
             (member_access_expression
               object: (identifier)
               member: (identifier))))))))
+
+========================================================================
+GoTo and array types
+========================================================================
+
+Module M
+    Sub Run(names As String(), grid As Integer(,))
+        GoTo Done
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list
+        (parameter
+          name: (identifier)
+          type: (array_type
+            element: (primitive_type)
+            (array_rank_specifier)))
+        (parameter
+          name: (identifier)
+          type: (array_type
+            element: (primitive_type)
+            (array_rank_specifier))))
+      body: (block
+        (goto_statement
+          label: (identifier))))))
+
+========================================================================
+One Next closes two nested loops
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            For j = 0 To 1
+                x = 1
+        Next j, i
+        y = 2
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (for_statement
+          variable: (identifier)
+          start: (integer_literal)
+          end: (integer_literal)
+          body: (block
+            (for_statement
+              variable: (identifier)
+              start: (integer_literal)
+              end: (integer_literal)
+              body: (block
+                (assignment_statement
+                  left: (identifier)
+                  right: (integer_literal)))
+              (identifier)))
+          (identifier))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+One Next closes a For Each and a For
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            a = 1
+            For Each item In items
+        Next item, i
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (for_statement
+          variable: (identifier)
+          start: (integer_literal)
+          end: (integer_literal)
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))
+            (for_each_statement
+              variable: (identifier)
+              collection: (identifier)
+              (identifier)))
+          (identifier))))))
+
+========================================================================
+One Next closes the inner two of three loops
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            For j = 0 To 1
+                For k = 0 To 1
+            Next k, j
+        Next i
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (for_statement
+          variable: (identifier)
+          start: (integer_literal)
+          end: (integer_literal)
+          body: (block
+            (for_statement
+              variable: (identifier)
+              start: (integer_literal)
+              end: (integer_literal)
+              body: (block
+                (for_statement
+                  variable: (identifier)
+                  start: (integer_literal)
+                  end: (integer_literal)
+                  (identifier)))
+              (identifier)))
+          (identifier))))))
+
+========================================================================
+One Next closes four nested loops
+========================================================================
+
+Module M
+    Sub S()
+        For a = 0 To 1
+            For Each b In bs
+                x = 1
+                For c = 0 To 1
+                    For Each d In ds
+        Next d, c, b, a
+        y = 2
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (for_statement
+          variable: (identifier)
+          start: (integer_literal)
+          end: (integer_literal)
+          body: (block
+            (for_each_statement
+              variable: (identifier)
+              collection: (identifier)
+              body: (block
+                (assignment_statement
+                  left: (identifier)
+                  right: (integer_literal))
+                (for_statement
+                  variable: (identifier)
+                  start: (integer_literal)
+                  end: (integer_literal)
+                  body: (block
+                    (for_each_statement
+                      variable: (identifier)
+                      collection: (identifier)
+                      (identifier)))
+                  (identifier)))
+              (identifier)))
+          (identifier))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))

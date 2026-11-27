@@ -2,7 +2,15 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 
 const tracked = new Set(execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0'));
-const common = ['LICENSE', 'README.md', 'src/parser.c', 'src/scanner.c', 'queries/highlights.scm'];
+const common = [
+  'LICENSE',
+  'README.md',
+  'src/parser.c',
+  'src/scanner.c',
+  'src/node-types.json',
+  'src/tree_sitter/parser.h',
+  'queries/highlights.scm',
+];
 
 function check(paths, required, prefix = '', generated = []) {
   const files = paths.map((path) => path.replaceAll('\\', '/'));
@@ -45,14 +53,15 @@ const args =
 const result = JSON.parse(execFileSync(command, args, { encoding: 'utf8' }));
 const packages = Array.isArray(result) ? result : Object.values(result);
 assert.equal(packages.length, 1, 'Expected one npm package');
-check(
-  packages[0].files.map(({ path }) => path),
-  [
-    ...common,
-    'package.json',
-    'binding.gyp',
-    'bindings/node/index.js',
-    'bindings/node/binding.cc',
-    'tree-sitter.json',
-  ],
-);
+const npmFiles = packages[0].files.map(({ path }) => path);
+check(npmFiles, [
+  ...common,
+  'package.json',
+  'binding.gyp',
+  'bindings/node/index.js',
+  'bindings/node/index.d.ts',
+  'bindings/node/binding.cc',
+  'tree-sitter.json',
+]);
+const tests = npmFiles.filter((path) => /^bindings[\\/]node[\\/].*_test\.js$/.test(path));
+assert.deepEqual(tests, [], 'The npm package must not ship the binding tests');

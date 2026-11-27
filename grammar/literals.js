@@ -1,7 +1,8 @@
 // Identifiers, comments, and literals.
 import { kw, kws } from './helpers.js';
 
-// VB accepts typographic quotes as string delimiters.
+// VB accepts typographic quotes as string delimiters, in plain and
+// interpolated strings.
 const QUOTE = '["\\u201C\\u201D]';
 const STRING_BODY = `${QUOTE}([^"\\u201C\\u201D]|${QUOTE}${QUOTE})*${QUOTE}`;
 
@@ -59,9 +60,9 @@ export default {
 
   interpolated_string_expression: ($) =>
     seq(
-      '$"',
+      alias(token(new RegExp(`\\$${QUOTE}`)), '$"'),
       repeat(choice($.interpolated_text, $.interpolation)),
-      alias(token.immediate('"'), '"'),
+      alias(token.immediate(new RegExp(QUOTE)), '"'),
     ),
 
   interpolation: ($) =>

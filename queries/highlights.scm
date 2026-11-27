@@ -4,6 +4,10 @@
 
 (preprocessor_directive) @keyword.directive
 
+; The branches of an `#If` that are not parsed
+
+(inactive_preprocessor_branch) @comment
+
 ; Literals
 
 (string_literal) @string
@@ -95,7 +99,7 @@
   "Inherits" "Interface" "Into" "IsFalse" "IsTrue" "Iterator"
   "Join" "Key" "Let" "Lib" "Loop" "Module"
   "MustInherit" "MustOverride" "Namespace" "Narrowing" "New" "Next"
-  "NotInheritable" "NotOverridable" "Off" "On" "Operator" "Option"
+  "NotInheritable" "NotOverridable" "Of" "Off" "On" "Operator" "Option"
   "Optional" "Order" "Out" "Overloads" "Overridable" "Overrides"
   "ParamArray" "Partial" "Preserve" "Private" "Property" "Protected"
   "Public" "RaiseEvent" "ReDim" "ReadOnly" "RemoveHandler" "Resume"
@@ -118,3 +122,27 @@
   "."
   ":"
 ] @punctuation.delimiter
+
+; The angle brackets of an attribute block are not comparisons
+
+(attribute_list ["<" ">"] @punctuation.bracket)
+(attribute_statement ["<" ">"] @punctuation.bracket)
+
+; XML literals and axis properties
+
+(xml_element name: (xml_name) @tag)
+(xml_element end_name: (xml_name) @tag)
+(xml_attribute name: (xml_name) @tag.attribute)
+(xml_attribute_value) @string
+(xml_comment) @comment
+(xml_cdata) @string.special
+(xml_processing_instruction) @keyword.directive
+(xml_declaration) @keyword.directive
+(imports_clause name: (xml_name) @tag.attribute)
+(imports_clause ["<" ">"] @tag.delimiter)
+(xml_axis_expression axis: ".@" name: (xml_name) @tag.attribute)
+(xml_axis_expression axis: ["." "..."] name: (xml_name) @tag)
+(xml_element ["<" ">" "</" "/>"] @tag.delimiter)
+(xml_axis_expression ["<" ">"] @tag.delimiter)
+(xml_axis_expression [".@" "..."] @punctuation.delimiter)
+(xml_embedded_expression ["<%=" "%>"] @punctuation.special)

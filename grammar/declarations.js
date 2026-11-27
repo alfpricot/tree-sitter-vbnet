@@ -1,5 +1,5 @@
 // Files, namespaces, types, and type members.
-import { comma_sep1, end_kw, kw, kws } from './helpers.js';
+import { comma_sep1, end_kw, kw, kws, open_paren_of } from './helpers.js';
 
 // Member items separated by statement terminators.
 function members($, item) {
@@ -10,6 +10,14 @@ function members($, item) {
 // The leading attributes and modifiers every declaration accepts.
 function prefix($) {
   return [repeat(field('attributes', $.attribute_list)), optional(field('modifiers', $.modifiers))];
+}
+
+// The attributes and modifiers of a `MustOverride` signature.
+function signature_prefix($) {
+  return [
+    repeat(field('attributes', $.attribute_list)),
+    field('modifiers', alias($._signature_modifiers, $.modifiers)),
+  ];
 }
 
 // The `As` clause and the `Handles`/`Implements` tails of a method header.
@@ -53,6 +61,8 @@ export default {
     choice(
       seq(field('alias', $.identifier), '=', field('name', $._type_name)),
       field('name', $._type_name),
+      // `<xmlns="uri">` or `<xmlns:prefix="uri">`.
+      seq('<', field('name', $.xml_name), '=', field('value', $.xml_attribute_value), '>'),
     ),
 
   // An assembly- or module-level attribute block on its own line.
@@ -169,6 +179,12 @@ export default {
       'Const',
     ),
 
+  // The modifiers of a signature, one of which is `MustOverride`.
+  _signature_modifiers: ($) =>
+    seq(repeat($.modifier), alias($._must_override, $.modifier), repeat($.modifier)),
+
+  _must_override: (_) => kw('MustOverride'),
+
   field_declaration: ($) =>
     seq(
       repeat(field('attributes', $.attribute_list)),
@@ -190,9 +206,7 @@ export default {
   // A `MustOverride` method, which has no body.
   method_signature: ($) =>
     seq(
-      ...prefix($),
-      kw('MustOverride'),
-      optional(field('modifiers', $.modifiers)),
+      ...signature_prefix($),
       kws('Sub', 'Function'),
       field('name', $.identifier),
       ...method_tail($),
@@ -251,13 +265,7 @@ export default {
     ),
 
   // A `MustOverride` property, which has no accessors.
-  property_signature: ($) =>
-    seq(
-      ...prefix($),
-      kw('MustOverride'),
-      optional(field('modifiers', $.modifiers)),
-      ...property_header_rest($),
-    ),
+  property_signature: ($) => seq(...signature_prefix($), ...property_header_rest($)),
 
   interface_property: ($) => seq(...property_header($)),
 
@@ -346,10 +354,14 @@ export default {
 
   parameter_list: ($) => seq('(', optional(comma_sep1($.parameter)), ')'),
 
+  _parameter_modifiers: ($) => repeat1(alias($._parameter_modifier, $.modifier)),
+
+  _parameter_modifier: (_) => kws('Optional', 'ByVal', 'ByRef', 'ParamArray'),
+
   parameter: ($) =>
     seq(
       repeat(field('attributes', $.attribute_list)),
-      repeat(field('modifier', kws('Optional', 'ByVal', 'ByRef', 'ParamArray'))),
+      optional(field('modifiers', alias($._parameter_modifiers, $.modifiers))),
       field('name', $.identifier),
       repeat($.array_rank_specifier),
       optional('?'),
@@ -357,7 +369,7 @@ export default {
       optional(seq('=', field('default', $._expression))),
     ),
 
-  type_parameter_list: ($) => seq($._open_paren_of, comma_sep1($.type_parameter), ')'),
+  type_parameter_list: ($) => seq(...open_paren_of($), comma_sep1($.type_parameter), ')'),
 
   type_parameter: ($) =>
     seq(

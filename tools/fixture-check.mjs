@@ -9,12 +9,13 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
-import { fixtureResult, resolveTreeSitterCli } from './fixture-result.mjs';
+import { fixtureResult, resolveTreeSitterCli, rootNodeName } from './fixture-result.mjs';
 
 const repo = fileURLToPath(new URL('..', import.meta.url));
 const cli = resolveTreeSitterCli(repo);
 const fixtures = readdirSync(join(repo, 'test/fixtures')).filter((f) => f.endsWith('.vb'));
 assert(fixtures.length > 0, 'No VB fixtures found');
+const root = rootNodeName(repo);
 
 let bad = 0;
 for (const f of fixtures) {
@@ -24,14 +25,14 @@ for (const f of fixtures) {
     maxBuffer: 1 << 26,
   });
   try {
-    const { errors, zeroWidth } = fixtureResult(proc);
+    const { errors, zeroWidth } = fixtureResult(proc, root);
     if (errors || zeroWidth) {
       bad++;
       console.log(`${f}: errors=${errors} zero-width=${zeroWidth}`);
     }
   } catch (error) {
     bad++;
-    console.error(`${f}: ${error.message}`);
+    console.error(`${f}: ${/** @type {Error} */ (error).message}`);
   }
 }
 console.log(

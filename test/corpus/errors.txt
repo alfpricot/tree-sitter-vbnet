@@ -23,3 +23,758 @@ End Module
 ------------------------------------------------------------------------
 
 
+
+========================================================================
+An unterminated string leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        s = "open
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          (ERROR
+            (UNEXPECTED '"'))
+          right: (identifier))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+An unterminated field initializer leaves the next method intact
+========================================================================
+
+Class C
+    Dim s = "open
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        (ERROR
+          (UNEXPECTED '"'))
+        value: (identifier)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+A stray End If leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+    End Sub
+    End If
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))
+    (ERROR)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+An unclosed parameter list leaves the next method intact
+========================================================================
+
+Class C
+    Sub X(
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (ERROR
+      (identifier))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+A stray closing parenthesis leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        a = 1)
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (ERROR)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+A missing operand leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        a = 1 + * 2
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (integer_literal)
+            (ERROR)
+            right: (integer_literal)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+A Next naming two variables closes only nested loops
+:error
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+        Next i, j
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+
+
+========================================================================
+A Next naming more variables than there are loops
+:error
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            For j = 0 To 1
+        Next k, j, i
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+
+
+========================================================================
+A shared Next whose innermost loop names no variable
+:error
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            For j = 0 To 1
+        Next
+        , i
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+
+
+========================================================================
+A missing End If leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        If a Then
+            b = 1
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (identifier)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+An unterminated interpolated string leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (MISSING """)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+
+========================================================================
+An unclosed call parenthesis leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        Foo(a, b
+    End Sub
+
+    Sub After()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (identifier)
+        (identifier)
+        (identifier)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+An unterminated interpolated string stops before a later quote
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (MISSING """)))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
+
+========================================================================
+An unterminated interpolated string stops after an interpolation
+========================================================================
+
+Class C
+    Sub X()
+        s = $"{name}
+    End Sub ' done
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolation
+              value: (identifier))
+            (MISSING """)))))
+    (comment)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
+
+========================================================================
+An unclosed XML literal leaves the next method intact
+========================================================================
+
+Class C
+    Sub X()
+        Dim v = <root>
+    End Sub
+
+    Sub After()
+        If a < b Then y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (ERROR
+        (modifier)
+        (identifier)
+        (xml_name)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (single_line_if_statement
+          condition: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          body: (block
+            (assignment_statement
+              left: (identifier)
+              right: (integer_literal))))))))
+
+========================================================================
+An attribute after an unfinished method loses only its own line
+========================================================================
+
+Class C
+    Sub A()
+        x = 1
+
+    <Obsolete> Sub B()
+    End Sub
+
+    Sub D()
+        y = 2
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal)))
+      (ERROR
+        (xml_name)
+        (xml_text)))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+A closed branch does not answer for a later open #Else
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#If A Then
+#Else
+        Where x > 0
+#End If
+#If B Then
+#Else
+        ' comment
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))))))
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (comment))
+
+========================================================================
+An unterminated interpolated string stops before a closing line with REM
+========================================================================
+
+Class C
+    Sub X()
+        s = $"open
+    End Sub REM done
+
+    Sub After()
+        y = "two"
+    End Sub
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (interpolated_string_expression
+            (interpolated_text)
+            (MISSING """)))))
+    (comment)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))
+
+========================================================================
+A nested false branch does not answer for an open #Else
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If X
+#Else
+#If False
+    Console.WriteLine()
+#End If
+      Where x > 0
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (inactive_preprocessor_branch)
+          (preprocessor_directive)
+          (where_clause
+            (binary_expression
+              left: (identifier)
+              right: (integer_literal))))))))
+
+========================================================================
+A branch after a nested false one answers for an open #Else
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If X
+#Else
+#If False
+    Foo()
+#Else
+      Where x > 0
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (inactive_preprocessor_branch)
+          (preprocessor_directive)
+          (where_clause
+            (binary_expression
+              left: (identifier)
+              right: (integer_literal)))))))
+  (preprocessor_directive))
+
+========================================================================
+An unclosed comment after a document root leaves the next method intact
+========================================================================
+
+Module M
+  Sub S()
+    Dim d = <?xml?><r/>
+    <!-- open
+    x = 1
+  End Sub
+  Sub T()
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)))))
+        (ERROR)
+        (expression_statement
+          (identifier))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+An unclosed XML comment is not read past the end of its member
+========================================================================
+
+Module M
+    Sub S()
+        Dim b = <!-- open
+    End Sub
+    Sub T()
+        y = "-->"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            (ERROR)
+            value: (unary_expression
+              operand: (unary_expression
+                operand: (identifier)))))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))

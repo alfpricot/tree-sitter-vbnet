@@ -1,5 +1,5 @@
 // Type names.
-import { kw, kws } from './helpers.js';
+import { kw, kws, open_paren_of } from './helpers.js';
 
 export default {
   _type: ($) => choice($._non_array_type, $.array_type),
@@ -34,7 +34,7 @@ export default {
 
   // `(Of T, U)`, or `(Of ,)` for an unbound generic type in `GetType`.
   type_argument_list: ($) =>
-    seq($._open_paren_of, optional($._type), repeat(seq(',', optional($._type))), ')'),
+    seq(...open_paren_of($), optional($._type), repeat(seq(',', optional($._type))), ')'),
 
   array_type: ($) => seq(field('element', $._type), $.array_rank_specifier),
 

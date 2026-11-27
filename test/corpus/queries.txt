@@ -18,6 +18,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -61,6 +63,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -116,6 +120,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -160,6 +166,8 @@ End Module
                       function: (identifier)
                       arguments: (argument_list))))))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -176,6 +184,8 @@ End Module
                           object: (identifier)
                           member: (identifier))))))))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -195,3 +205,607 @@ End Module
                 (binary_expression
                   left: (identifier)
                   right: (integer_literal))))))))))
+
+========================================================================
+Preprocessor lines between query clauses
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#If D Then
+                Where x > 0
+#Else
+
+                ' either branch
+#If E Then
+                Order By x
+#End If
+#End If
+                Select x
+#If D Then
+        Run()
+#End If
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (preprocessor_directive)
+              (inactive_preprocessor_branch)
+              (preprocessor_directive)
+              (select_clause
+                (identifier)))))
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list))))
+      (preprocessor_directive))))
+
+========================================================================
+A query continues past an inactive branch
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#If D Then
+                Where x > 0
+#Else
+        Run()
+#End If
+                Select x
+        Dim r = From x In xs
+#If D Then
+#Else
+                Where x > 1
+#End If
+        order = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (preprocessor_directive)
+              (inactive_preprocessor_branch)
+              (preprocessor_directive)
+              (select_clause
+                (identifier)))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (preprocessor_directive)
+        (inactive_preprocessor_branch)
+        (preprocessor_directive)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+Comment lines between query clauses
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs ' trailing
+
+                ' apostrophe
+                Where x > 0
+                REM keyword
+                rem again
+#If D Then
+#End If
+                ' after a directive
+                Select x
+        REM after the query
+        Dim r = From x In xs
+        ' before a name that starts like a clause
+        _take = 1
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (comment)
+              (comment)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (comment)
+              (comment)
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (comment)
+              (select_clause
+                (identifier)))))
+        (comment)
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))
+
+========================================================================
+Names like query operators after a query
+========================================================================
+
+Module M
+    Sub S()
+        Dim a = From x In xs
+        ' an assignment
+        order = 1
+        Dim b = From x In xs
+        REM a member call
+        group.Add(b)
+        group?.Add(b)
+        Dim c = From x In xs
+        ' a compound assignment
+        take += 1
+        Dim d = From x In xs
+        ' a shift assignment
+        skip <<= 1
+        Dim e = From x In xs
+
+        distinct()
+        Dim f = From x In xs
+        ' clauses that start like those statements
+        Where (x > 0)
+        Where -x < 0
+        Select .Name
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (comment)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (comment)
+              (where_clause
+                (parenthesized_expression
+                  (binary_expression
+                    left: (identifier)
+                    right: (integer_literal))))
+              (where_clause
+                (binary_expression
+                  left: (unary_expression
+                    operand: (identifier))
+                  right: (integer_literal)))
+              (select_clause
+                (member_access_expression
+                  member: (identifier))))))))))
+
+========================================================================
+A query continues past an #Else with no #End If
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+
+        ' comment
+        Where x > 0
+        Select x
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (comment)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (select_clause
+                (identifier)))))))))
+
+========================================================================
+A statement after an #Else with no #End If is not a query clause
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+        order = 1
+        group.Add(x)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))
+        (expression_statement
+          (invocation_expression
+            function: (member_access_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list
+              (identifier))))))))
+
+========================================================================
+A query ends past a nested later branch under an open #Else
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+#If B Then
+#Else
+        Where x > 0
+#End If
+        Foo()
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (preprocessor_directive)
+        (preprocessor_directive)
+        (inactive_preprocessor_branch)
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list)))))))
+
+========================================================================
+A query continues into an open nested later branch
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#Else
+#If B Then
+#Else
+        Where x > 0
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal))))))))))
+
+========================================================================
+A query continues past a false branch into the #Else
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If False Then
+    junk (
+#Else
+
+      Where x > 0
+#End If
+      Select x
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (inactive_preprocessor_branch)
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (preprocessor_directive)
+              (select_clause
+                (identifier)))))))))
+
+========================================================================
+A clause in a false branch does not continue a query
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If False Then
+      Where x > 0
+#End If
+    order = 1
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier))))))
+        (preprocessor_directive)
+        (inactive_preprocessor_branch)
+        (preprocessor_directive)
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))))

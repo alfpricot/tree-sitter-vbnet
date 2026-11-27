@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=84.2.1", "wheel"]
+
+[project]
+authors = [{ name = "M. Reifschneider" }]
+classifiers = [
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Compilers",
+  "Topic :: Text Processing :: Linguistic",
+  "Typing :: Typed",
+]
+description = "Tree-sitter grammar for Visual Basic .NET"
+keywords = ["incremental", "parsing", "tree-sitter", "vbnet", "visual-basic"]
+license.text = "MIT"
+name = "tree-sitter-vbnet"
+readme = "README.md"
+requires-python = ">=3.10"
+version = "0.2.0"
+
+[project.urls]
+Homepage = "https://github.com/alfpricot/tree-sitter-vbnet"
+
+[project.optional-dependencies]
+# The generated parser's ABI needs this release or newer.
+core = ["tree-sitter~=0.26"]

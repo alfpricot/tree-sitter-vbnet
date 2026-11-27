@@ -12,12 +12,23 @@
 #                      node-kind snapshot, lint and format-check the grammar
 #                      and tooling JavaScript, run the corpus and highlight
 #                      tests, parse every fixture and fail on any
-#                      ERROR/MISSING/zero-width node, build and test the Rust
-#                      and Node bindings, validate the PR title, scan the
-#                      working tree and Git history for secrets, and lint
-#                      workflow/YAML files. A final aggregate job rolls every
+#                      ERROR/MISSING/zero-width node, hold the generated
+#                      parser to its keyword and state-count budget, compile
+#                      the scanner with warnings as errors, fuzz incremental
+#                      reparsing, build and test the Rust, Node, Python, and
+#                      Go bindings,
+#                      validate the PR title, scan the working tree and Git
+#                      history for secrets, and lint workflow/YAML files. A final aggregate job rolls every
 #                      check up into a single `Verify` status for branch
 #                      rulesets to require.
+#
+#                      On a pull request, a changes job decides what the
+#                      change needs (tools/ci-policy.mjs): a docs-only change,
+#                      or a title or body edit of a head that already passed,
+#                      skips the grammar and Node binding jobs, and the Windows
+#                      binding leg runs only for changes it can see
+#                      differently. The aggregate job accepts exactly those
+#                      skips.
 #
 #                      workflow_dispatch lets a maintainer run the checks by
 #                      hand on any branch.
@@ -41,6 +52,53 @@ concurrency:
   cancel-in-progress: ${{ github.event.action != 'edited' }}
 
 jobs:
+  changes:
+    name: Changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      build: ${{ steps.paths.outputs.build }}
+      windows: ${{ steps.paths.outputs.windows }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The changed paths are a diff between the base and head commits.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+
+      # A title or body edit builds nothing new, but skipping is only safe when
+      # the last completed Verify check for this head succeeded. A failed lookup
+      # counts as no success, so the edit is planned from its changed paths
+      # instead of failing.
+      - name: Read the last Verify result for this head
+        id: prior
+        if: github.event_name == 'pull_request' && github.event.action == 'edited' && !github.event.changes.base
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if ! conclusion=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?check_name=Verify&filter=all&per_page=100" \
+            --jq '[.check_runs[] | select(.status == "completed")] | sort_by(.completed_at) | last | .conclusion // "none"'); then
+            echo "::warning::Could not read earlier Verify results; planning from the changed paths"
+            conclusion=none
+          fi
+          echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+
+      - name: Decide which jobs the change needs
+        id: paths
+        env:
+          PRIOR_VERIFIED: ${{ steps.prior.outputs.conclusion == 'success' }}
+        run: node tools/ci-policy.mjs changes
+
   pr-title:
     name: PR title
     if: github.event_name == 'pull_request'
@@ -50,7 +108,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Validate conventional PR title
-        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        uses: amannn/action-semantic-pull-request@66e72920af32222769c386d81f89656ebcb6d6d5 # v6.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -99,12 +157,12 @@ jobs:
           asset: gitleaks_${{ env.GITLEAKS_VERSION }}_linux_x64.tar.gz
 
       - name: Scan the working tree with Gitleaks
-        run: $HOME/.local/bin/gitleaks detect --no-git --source . --exit-code 1 --report-format json --report-path gitleaks-report.json
+        run: $HOME/.local/bin/gitleaks detect --no-git --redact --source . --exit-code 1 --report-format json --report-path gitleaks-report.json
 
       - name: Scan Git history with Gitleaks
-        run: $HOME/.local/bin/gitleaks detect --source . --exit-code 1 --report-format json --report-path gitleaks-history-report.json
+        run: $HOME/.local/bin/gitleaks detect --redact --source . --exit-code 1 --report-format json --report-path gitleaks-history-report.json
 
-      - name: Upload Gitleaks report on failure
+      - name: Upload redacted Gitleaks report on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -118,6 +176,8 @@ jobs:
 
   verify:
     name: Grammar, fixtures, Rust build/test
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -130,7 +190,7 @@ jobs:
           node-version: '24.x'
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # v1.97.0 rustc stable as of 2026-08-17 (action itself publishes no version tags)
+        uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable branch as of 2026-11-27; installs the current stable Rust (action itself publishes no version tags)
         with:
           components: rustfmt, clippy
 
@@ -151,13 +211,16 @@ jobs:
       - name: Fail if the node-kind snapshot is out of date
         run: node tools/node-kinds.mjs --check
 
+      - name: Fail if keyword extraction shrank or the parse table grew
+        run: node tools/parser-budget.mjs
+
       - name: Lint the grammar and tooling JS
         run: npm run lint
 
       - name: Check formatting of the grammar and tooling JS
         run: npm run format:check
 
-      - name: Test the release policy scripts
+      - name: Test the tooling scripts
         run: node --test tools/*.test.mjs
 
       - name: Check Cargo.toml, package.json, and tree-sitter.json agree
@@ -171,6 +234,14 @@ jobs:
       - name: Parse every fixture and fail on ERROR/MISSING or zero-width nodes
         run: node tools/fixture-check.mjs
 
+      - name: Compile the scanner with warnings as errors
+        run: gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 -c -Isrc src/scanner.c -o /dev/null
+
+      # The seed is random and printed in the log; set TREE_SITTER_SEED to
+      # that value to replay a failure.
+      - name: Fuzz incremental reparsing
+        run: node tools/fuzz-check.mjs
+
       - name: Format check
         run: cargo fmt --all --check
 
@@ -180,17 +251,55 @@ jobs:
       - name: Cargo build & test
         run: cargo test
 
+      - name: Test the Python binding
+        # Built from a copy: the build writes into `build/`, which would end up
+        # beside the checkout's own files.
+        run: |
+          copy="$RUNNER_TEMP/python-binding"
+          mkdir "$copy"
+          git archive HEAD | tar -x -C "$copy"
+          cd "$copy"
+          python3 -m venv .venv
+          .venv/bin/pip install --disable-pip-version-check --quiet ".[core]" "pytest~=9.2.0"
+          .venv/bin/python -m pytest bindings/python/tests
+
+      - name: Set up Go
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+
+      - name: Test the Go binding
+        run: go test ./bindings/go
+
       - name: Verify publishable package contents
         # The same crate and npm package checks release.yml runs before
         # publishing, so a packaging gap fails here first.
         run: node tools/package-check.mjs
 
+      # Cargo resolves dev-dependencies even for `cargo check`, and the
+      # `tree-sitter` one needs a newer compiler than the library does, so the
+      # check runs on a copy with them removed. The checkout stays as it was,
+      # which the cache's post-job save depends on.
+      - name: Check the library builds on the declared minimum Rust version
+        run: |
+          copy="$RUNNER_TEMP/msrv"
+          mkdir "$copy"
+          git archive HEAD | tar -x -C "$copy"
+          cd "$copy"
+          msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
+          awk '/^\[/ { skip = /^\[dev-dependencies/ } !skip' Cargo.toml > Cargo.toml.library
+          mv Cargo.toml.library Cargo.toml
+          rustup toolchain install "$msrv" --profile minimal
+          cargo "+$msrv" check
+
   node-binding:
     name: Node binding build/test
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: ${{ fromJSON(needs.changes.outputs.windows == 'true' && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -270,16 +379,20 @@ jobs:
     # A dispatched run must report as `Verify` too: it is how a
     # GITHUB_TOKEN-pushed release or sync branch satisfies the required check.
     name: ${{ github.event_name == 'push' && 'Verify (push)' || 'Verify' }}
-    needs: [verify, node-binding, secret-scanning, pr-title, workflow-meta]
+    needs: [changes, verify, node-binding, secret-scanning, pr-title, workflow-meta]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require every job to succeed (pr-title may skip outside PRs)
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+
+      - name: Require every job to succeed or be a planned skip
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
-        run: |
-          echo "$JOB_RESULTS" | jq -e '
-            to_entries
-            | all(.value.result == "success" or (.key == "pr-title" and .value.result == "skipped"))
-          '
+        run: node tools/ci-policy.mjs verify

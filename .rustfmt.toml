@@ -1,3 +1,6 @@
+# Shared with other tree-sitter grammar repositories; the reference copy is in
+# https://github.com/alfpricot/tree-sitter-snowflake.
+# Carry a fix made here over to it, or say why not.
 # Every stable rustfmt option (per `rustfmt --help=config`), pinned explicitly so a
 # future rustfmt version's own default drift doesn't silently reformat the codebase.
 # Only edition, style_edition, and newline_style deviate from rustfmt's own defaults.

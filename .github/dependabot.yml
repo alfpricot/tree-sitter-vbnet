@@ -1,3 +1,6 @@
+# Shared with other tree-sitter grammar repositories; the reference copy is in
+# https://github.com/alfpricot/tree-sitter-snowflake.
+# Carry a fix made here over to it, or say why not.
 version: 2
 
 updates:
@@ -5,6 +8,13 @@ updates:
     directory: /
     target-branch: dev
     versioning-strategy: auto
+    # Cargo.toml accepts any `cc` 1.x from 1.10 on, and no lockfile is
+    # committed, so a minor or patch release needs no change here.
+    ignore:
+      - dependency-name: cc
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
     schedule:
       interval: weekly
       day: monday
@@ -76,6 +86,12 @@ updates:
       semver-major-days: 7
       semver-minor-days: 4
       semver-patch-days: 2
+    ignore:
+      # The Node types stay on the major CI runs; newer ones let the type check
+      # accept APIs that runtime lacks. Raise both together.
+      - dependency-name: '@types/node'
+        update-types:
+          - version-update:semver-major
     commit-message:
       prefix: chore
       include: scope
@@ -94,3 +110,49 @@ updates:
           - '*'
         update-types:
           - major
+
+  - package-ecosystem: gomod
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:15"
+      timezone: America/New_York
+    open-pull-requests-limit: 2
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependabot
+      - go
+    groups:
+      gomod-all:
+        patterns:
+          - '*'
+
+  - package-ecosystem: pip
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: America/New_York
+    open-pull-requests-limit: 2
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependabot
+      - python
+    groups:
+      pip-all:
+        patterns:
+          - '*'
