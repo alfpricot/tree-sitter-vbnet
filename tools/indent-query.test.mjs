@@ -18,14 +18,17 @@ function closesWithEnd(node) {
 
 const blocks = Object.keys(rules)
   .filter((name) => closesWithEnd(rules[name]))
-  .sort();
+  .toSorted();
 
-for (const [role, pattern] of [
+/** @type {[string, RegExp][]} */
+const roles = [
   ['begins an indent', /^ {2}\((\w+) "End"\)$/gm],
   ['outdents its End line', /^\((\w+) "End" @indent\.branch\)$/gm],
-]) {
+];
+
+for (const [role, pattern] of roles) {
   test(`every construct closed by an End line ${role}`, () => {
-    const named = [...query.matchAll(pattern)].map((m) => m[1]).sort();
+    const named = [...query.matchAll(pattern)].map((m) => m[1]).toSorted();
     assert.deepEqual(named, blocks);
   });
 }

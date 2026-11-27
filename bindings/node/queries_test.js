@@ -20,7 +20,7 @@ const at = (found, name) =>
     ...new Set(
       found.filter((c) => c.name === name).map((c) => `${c.node.startPosition.row}:${c.node.type}`),
     ),
-  ].sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10) || a.localeCompare(b));
+  ].toSorted((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10) || a.localeCompare(b));
 
 test('the indent query opens and closes blocks but not single-line forms', () => {
   const source = [

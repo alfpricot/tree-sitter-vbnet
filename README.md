@@ -6,19 +6,19 @@ A [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for Visual B
 
 ## Installation
 
-Install from the Git repository:
+Install from npm or crates.io:
 
 ```sh
-npm install github:alfpricot/tree-sitter-vbnet
-cargo add tree-sitter-vbnet --git https://github.com/alfpricot/tree-sitter-vbnet
+npm install tree-sitter-vbnet tree-sitter
+cargo add tree-sitter-vbnet
 ```
 
 The generated parser (`src/parser.c`, `src/grammar.json`, `src/node-types.json`) is committed, so consumers build the C parser without the tree-sitter CLI. `src/scanner.c` must be compiled with it: it decides which line breaks end a statement and scans comments, line continuations, preprocessor lines, and interpolated-string text. The C symbol is `tree_sitter_vbnet`.
 
 ### Requirements
 
-- Node.js 24 and a C/C++ toolchain for the Node binding (see `.nvmrc`).
-- Rust 1.85 or newer, edition 2024, for the Rust crate.
+- Node.js 24 or newer for the Node binding (see `.nvmrc`). The npm package carries prebuilt addons for Linux x64 (glibc) and Windows x64; other platforms, musl-based Linux included, compile it on install and need a C/C++ toolchain.
+- Rust 1.85 or newer, edition 2024, and a C compiler for the Rust crate.
 
 ## Usage
 

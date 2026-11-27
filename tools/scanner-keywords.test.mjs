@@ -40,14 +40,14 @@ function leading(node) {
   return leading(node.content);
 }
 
-const sorted = (words) => [...new Set(words)].sort();
+const sorted = (words) => [...new Set(words)].toSorted();
 
 test('the scanner closes blocks on the keywords the grammar ends them with', () => {
   assert.deepEqual(sorted(scannerList('closers')), sorted(closers(rules)));
 });
 
 test('the scanner continues a query on every keyword that starts a later clause', () => {
-  const expected = [...leading(rules._query_clause), ...leading(rules.into_clause)];
+  const expected = [...leading(rules['_query_clause']), ...leading(rules.into_clause)];
   // `Select` is handled on its own, to tell it from `Select Case`.
   assert.deepEqual(sorted([...scannerList('operators'), 'select']), sorted(expected));
   assert.match(scanner, /word_is\(word, "select"\)/);
