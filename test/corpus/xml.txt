@@ -557,3 +557,211 @@ End Module
               object: (identifier)
               name: (xml_name))
             right: (integer_literal)))))))
+
+========================================================================
+Comments and processing instructions after a document root
+========================================================================
+
+Module M
+    Private d = <?xml version="1.0"?>
+                <r/>
+                <!-- field -->
+
+    Sub Run()
+        Dim a = <?xml version="1.0"?><r/><!-- c --> <?p?>
+        Dim b = <?xml version="1.0"?>
+                <r>
+                </r>
+                <!-- c -->
+
+                <?pi x?>
+        y = F(<?xml version="1.0"?><r/>
+              <!-- c -->)
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (field_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (xml_document
+          (xml_declaration)
+          root: (xml_element
+            name: (xml_name))
+          (xml_comment))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name))
+              (xml_comment)
+              (xml_processing_instruction))))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)
+                end_name: (xml_name))
+              (xml_comment)
+              (xml_processing_instruction))))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (xml_document
+                (xml_declaration)
+                root: (xml_element
+                  name: (xml_name))
+                (xml_comment)))))))))
+
+========================================================================
+Trailing markup in a property initializer
+========================================================================
+
+Class C
+    Property P As XDocument = <?xml version="1.0"?>
+                              <r/>
+                              <!-- property -->
+
+                              <?pi?>
+    <Obsolete>
+    Property Q As Integer
+        <A>
+        Get
+        End Get
+    End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (identifier)
+      value: (xml_document
+        (xml_declaration)
+        root: (xml_element
+          name: (xml_name))
+        (xml_comment)
+        (xml_processing_instruction)))
+    (property_declaration
+      attributes: (attribute_list
+        (attribute
+          name: (identifier)))
+      name: (identifier)
+      type: (primitive_type)
+      (accessor_declaration
+        attributes: (attribute_list
+          (attribute
+            name: (identifier)))))))
+
+========================================================================
+A document literal ends before any other line
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = <?xml version="1.0"?><r/>
+        ' note
+        <!-- statement -->
+        Dim b = <r/>
+        <!-- statement -->
+        Dim c = <?xml version="1.0"?><r/>
+#Region "x"
+        <!-- statement -->
+        Dim d = <?xml version="1.0"?><r/>
+        x = a <
+            b
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)))))
+        (comment)
+        (expression_statement
+          (xml_comment))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_element
+              name: (xml_name))))
+        (expression_statement
+          (xml_comment))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)))))
+        (preprocessor_directive)
+        (expression_statement
+          (xml_comment))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)))))
+        (assignment_statement
+          left: (identifier)
+          right: (binary_expression
+            left: (identifier)
+            right: (identifier)))))))
+
+========================================================================
+A type character that touches the end of an embedded expression
+:error
+========================================================================
+
+Module M
+    Sub Run()
+        Dim a = <a><%= x%></a>
+    End Sub
+End Module
+
+------------------------------------------------------------------------

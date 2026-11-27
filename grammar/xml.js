@@ -15,13 +15,15 @@ const NAME = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]*/.source
 const PREFIXED_NAME = new RegExp(`${NAME}:${NAME}`);
 
 export default {
-  // `<?xml ...?>`, any comments and processing instructions, and the root
-  // element, which can be computed.
+  // `<?xml ...?>`, any comments and processing instructions, the root element,
+  // which can be computed, and any comments and processing instructions after
+  // it, on its line or on the lines that follow.
   xml_document: ($) =>
     seq(
       $.xml_declaration,
       repeat(choice($.xml_comment, $.xml_processing_instruction)),
       field('root', choice($.xml_element, $.xml_embedded_expression)),
+      repeat(choice($._xml_misc_follows, $.xml_comment, $.xml_processing_instruction)),
     ),
 
   // `<name attr="value">content</name>` or `<name attr="value"/>`. The name
