@@ -121,7 +121,7 @@ End Class
 
 `queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. `queries/tags.scm` lists namespaces, types, members, calls, and object creation for symbol navigation. `queries/locals.scm` marks scopes, definitions, and references for local names; it matches text exactly, so a name written in a different letter case than its declaration does not resolve. `queries/folds.scm` marks foldable constructs with `@fold`. The Node and Python bindings and the Rust crate expose these four as `HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `LOCALS_QUERY`, and `FOLDS_QUERY`; the Go binding exposes the language only.
 
-`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
+`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures; a `Next j, i` line that closes two loops is indented one level deeper than the outer `For`, because those captures take back only one level per line. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
 
 ## How to contribute
 
