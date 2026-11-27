@@ -44,6 +44,10 @@ export default grammar({
     // keyword follows, so a bare `End` statement inside a block is a different
     // token.
     $._block_end,
+    // The `End` of a line that closes a member or a type. It is its own token
+    // so that one arriving inside an unclosed block is rejected at the `End`,
+    // and recovery can drop the block and keep what follows.
+    $._member_end,
     // The `(` of `(Of`, opening a type argument or type parameter list.
     $._open_paren_of,
     // Literal text inside `$"..."`, scanned here so a `'` in it is text and

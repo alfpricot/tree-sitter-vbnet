@@ -12,7 +12,8 @@ const query = readFileSync(join(repo, 'queries/indents.scm'), 'utf8');
 
 function closesWithEnd(node) {
   if (!node || typeof node !== 'object') return false;
-  if (node.type === 'ALIAS' && node.content?.name === '_block_end') return true;
+  const token = node.content?.name;
+  if (node.type === 'ALIAS' && (token === '_block_end' || token === '_member_end')) return true;
   return Object.values(node).some(closesWithEnd);
 }
 

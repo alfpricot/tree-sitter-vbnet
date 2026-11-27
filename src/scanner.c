@@ -11,7 +11,8 @@
 // It also emits `#If`/`#Region`/... lines, the `(` of the `(Of` that opens a
 // type argument list (so `Foo(Of T)` and `Foo(x)` part on one token of lookahead),
 // the line break that opens a property's `Get`/`Set` accessors, and the
-// `End` of a block's closing line.
+// `End` of a closing line: one token for statement blocks, another for members
+// and types.
 //
 // Comments, ` _` line continuations, and that `End` are scanned here rather
 // than by the generated lexer because each of them can start like an
@@ -32,6 +33,7 @@ enum TokenType {
   COMMENT,
   LINE_CONTINUATION,
   BLOCK_END,
+  MEMBER_END,
   OPEN_PAREN_OF,
   INTERPOLATED_TEXT,
   INTERPOLATION_FORMAT,
@@ -158,13 +160,15 @@ static void note_directive(TSLexer *lexer, Scanner *scanner) {
 
 // Moves past blank lines, comment lines, and preprocessor lines to the first
 // character of the next line that holds code. Used only for lookahead past
-// the end of a token, so everything it reads is discarded.
-static void skip_to_next_code(TSLexer *lexer) {
+// the end of a token, so everything it reads is discarded. Returns whether it
+// passed a line starting with `#`.
+static bool skip_to_next_code(TSLexer *lexer) {
+  bool passed_directive = false;
   for (;;) {
     skip_horizontal_space(lexer);
     int32_t c = lexer->lookahead;
     if (lexer->eof(lexer)) {
-      return;
+      return passed_directive;
     }
     if (is_line_break(c)) {
       advance_line_break(lexer, false);
@@ -173,21 +177,25 @@ static void skip_to_next_code(TSLexer *lexer) {
       consume(lexer);
       skip_horizontal_space(lexer);
       if (!is_line_break(lexer->lookahead)) {
-        return;
+        return passed_directive;
       }
       advance_line_break(lexer, false);
     } else if (is_comment_start(c) || c == '#') {
+      passed_directive = passed_directive || c == '#';
       advance_to_line_end(lexer, false);
     } else {
-      return;
+      return passed_directive;
     }
   }
 }
 
 // Whether the next line of code continues a query: it starts with a query
 // operator keyword. `Select Case` starts a statement, not a `Select` clause.
-static bool next_line_continues_query(TSLexer *lexer) {
-  skip_to_next_code(lexer);
+// Sets `passed_directive` when a `#` line lies before that code.
+static bool next_line_continues_query(TSLexer *lexer, bool *passed_directive) {
+  if (skip_to_next_code(lexer)) {
+    *passed_directive = true;
+  }
   char word[WORD_MAX + 1];
   if (!read_word(lexer, word)) {
     return false;
@@ -262,9 +270,18 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
       lexer->result_symbol = ACCESSOR_NEWLINE;
       return true;
     }
-  } else if (valid_symbols[QUERY_CLAUSE_FOLLOWS] && next_line_continues_query(lexer)) {
-    // The line break is whitespace: the query goes on.
-    return false;
+  } else if (valid_symbols[QUERY_CLAUSE_FOLLOWS]) {
+    bool passed_directive = scanner->directive_follows;
+    if (next_line_continues_query(lexer, &passed_directive)) {
+      // The line break is whitespace: the query goes on. Left to the generated
+      // lexer it would meet any `#` line itself, so with one ahead the break is
+      // taken as a continuation and the scanner gets to the directive.
+      if (passed_directive && valid_symbols[LINE_CONTINUATION]) {
+        lexer->result_symbol = LINE_CONTINUATION;
+        return true;
+      }
+      return false;
+    }
   }
   if (!valid_symbols[NEWLINE]) {
     return false;
@@ -320,15 +337,24 @@ static bool scan_interpolated_text(TSLexer *lexer) {
   bool has_content = false;
   for (;;) {
     int32_t c = lexer->lookahead;
+    // Text that runs to the end of the file belongs to an unterminated string.
+    // Declining it keeps the error at the opening quote. A string may span
+    // lines, so one left open with a lone quote or brace somewhere after it
+    // still runs to that character.
     if (lexer->eof(lexer)) {
-      lexer->mark_end(lexer);
-      break;
+      return false;
     }
     if (is_double_quote(c) || c == '{' || c == '}') {
       lexer->mark_end(lexer);
       consume(lexer);
       bool escaped = is_double_quote(c) ? is_double_quote(lexer->lookahead) : lexer->lookahead == c;
       if (!escaped) {
+        // The parser counts only the first byte of the character peeked at as
+        // looked ahead. Reading past a multi-byte one makes an edit to its
+        // later bytes invalidate this token.
+        if (lexer->lookahead > 0x7F) {
+          consume(lexer);
+        }
         break;
       }
     }
@@ -390,7 +416,17 @@ static bool scan_rem_comment(TSLexer *lexer) {
   return true;
 }
 
-// The `End` of a closing line, when a block keyword follows it.
+static bool word_in(const char *word, const char *const *words, unsigned count) {
+  for (unsigned i = 0; i < count; i++) {
+    if (word_is(word, words[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// The `End` of a closing line, when a block keyword follows it. Which token it
+// is depends on that keyword alone, whether or not the parser accepts it here.
 static bool scan_block_end(TSLexer *lexer) {
   char word[WORD_MAX + 1];
   if (!read_word(lexer, word) || !word_is(word, "end")) {
@@ -401,17 +437,21 @@ static bool scan_block_end(TSLexer *lexer) {
   if (!read_word(lexer, word)) {
     return false;
   }
-  static const char *const closers[] = {
-      "sub",       "function", "if",        "select",     "while",     "with",
-      "try",       "using",    "synclock",  "class",      "module",    "structure",
-      "interface", "enum",     "namespace", "property",   "get",       "set",
-      "event",     "operator", "addhandler", "removehandler", "raiseevent",
+  static const char *const block_closers[] = {
+      "if", "select", "while", "with", "try", "using", "synclock",
   };
-  for (unsigned i = 0; i < sizeof(closers) / sizeof(closers[0]); i++) {
-    if (word_is(word, closers[i])) {
-      lexer->result_symbol = BLOCK_END;
-      return true;
-    }
+  static const char *const member_closers[] = {
+      "sub",       "function", "class",      "module",        "structure",  "interface",
+      "enum",      "namespace", "property",  "get",           "set",        "event",
+      "operator",  "addhandler", "removehandler", "raiseevent",
+  };
+  if (word_in(word, block_closers, sizeof(block_closers) / sizeof(block_closers[0]))) {
+    lexer->result_symbol = BLOCK_END;
+    return true;
+  }
+  if (word_in(word, member_closers, sizeof(member_closers) / sizeof(member_closers[0]))) {
+    lexer->result_symbol = MEMBER_END;
+    return true;
   }
   return false;
 }
@@ -502,7 +542,10 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
     return scan_rem_comment(lexer);
   }
 
-  if ((c | 0x20) == 'e' && valid_symbols[BLOCK_END]) {
+  // At the start of a line a closing line is one even where nothing can close,
+  // as after an unclosed parenthesis: `End` is reserved, so it is no name.
+  if ((c | 0x20) == 'e' &&
+      (skipped_line_break || valid_symbols[BLOCK_END] || valid_symbols[MEMBER_END])) {
     return scan_block_end(lexer);
   }
 

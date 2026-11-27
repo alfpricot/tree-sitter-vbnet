@@ -205,3 +205,67 @@ End Module
                 (binary_expression
                   left: (identifier)
                   right: (integer_literal))))))))))
+
+========================================================================
+Preprocessor lines between query clauses
+========================================================================
+
+Module M
+    Sub S()
+        Dim q = From x In xs
+#If D Then
+                Where x > 0
+#Else
+
+                ' either branch
+#If E Then
+                Order By x
+#End If
+#End If
+                Select x
+#If D Then
+        Run()
+#End If
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (query_expression
+              (from_clause
+                (range_variable
+                  name: (identifier)
+                  collection: (identifier)))
+              (preprocessor_directive)
+              (where_clause
+                (binary_expression
+                  left: (identifier)
+                  right: (integer_literal)))
+              (preprocessor_directive)
+              (comment)
+              (preprocessor_directive)
+              (order_by_clause
+                (ordering
+                  (identifier)))
+              (preprocessor_directive)
+              (preprocessor_directive)
+              (select_clause
+                (identifier)))))
+        (preprocessor_directive)
+        (expression_statement
+          (invocation_expression
+            function: (identifier)
+            arguments: (argument_list))))
+      (preprocessor_directive))))
