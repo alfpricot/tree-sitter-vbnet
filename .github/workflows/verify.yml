@@ -75,7 +75,8 @@ jobs:
 
       # A title or body edit builds nothing new, but skipping is only safe when
       # the last completed Verify check for this head succeeded. A failed lookup
-      # counts as no success, so the edit builds instead of failing.
+      # counts as no success, so the edit is planned from its changed paths
+      # instead of failing.
       - name: Read the last Verify result for this head
         id: prior
         if: github.event_name == 'pull_request' && github.event.action == 'edited' && !github.event.changes.base
@@ -86,7 +87,7 @@ jobs:
           set -euo pipefail
           if ! conclusion=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?check_name=Verify&filter=all&per_page=100" \
             --jq '[.check_runs[] | select(.status == "completed")] | sort_by(.completed_at) | last | .conclusion // "none"'); then
-            echo "::warning::Could not read earlier Verify results; running the full plan"
+            echo "::warning::Could not read earlier Verify results; planning from the changed paths"
             conclusion=none
           fi
           echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
