@@ -36,6 +36,7 @@ pub const LANGUAGE: LanguageFn = unsafe { LanguageFn::from_raw(tree_sitter_vbnet
 /// [`node-types.json`]: https://tree-sitter.github.io/tree-sitter/using-parsers#static-node-types
 pub const NODE_TYPES: &str = include_str!("../../src/node-types.json");
 
+/// The syntax highlighting query for this grammar.
 pub const HIGHLIGHTS_QUERY: &str = include_str!("../../queries/highlights.scm");
 
 /// The exported C symbol name, `tree_sitter_vbnet`. Another VB grammar
@@ -63,7 +64,7 @@ mod tests {
             .expect("Error loading VB.NET parser");
     }
 
-    /// The exported symbol must be `tree_sitter_vbnet` — see SYMBOL_NAME.
+    /// The exported symbol must be `tree_sitter_vbnet` — see `SYMBOL_NAME`.
     #[test]
     fn test_exports_the_expected_symbol() {
         let parser_c = include_str!("../../src/parser.c");

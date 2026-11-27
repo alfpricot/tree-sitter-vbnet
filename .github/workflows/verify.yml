@@ -198,6 +198,18 @@ jobs:
         # publishing, so a packaging gap fails here first.
         run: node tools/package-check.mjs
 
+      # Cargo resolves dev-dependencies even for `cargo check`, and the
+      # `tree-sitter` one needs a newer compiler than the library does, so
+      # this drops them from the checkout's manifest. It has to run last.
+      - name: Check the library builds on the declared minimum Rust version
+        run: |
+          msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
+          awk '/^\[/ { skip = /^\[dev-dependencies/ } !skip' Cargo.toml > "$RUNNER_TEMP/Cargo.toml"
+          cp "$RUNNER_TEMP/Cargo.toml" Cargo.toml
+          rm -f Cargo.lock
+          rustup toolchain install "$msrv" --profile minimal
+          cargo "+$msrv" check
+
   node-binding:
     name: Node binding build/test
     strategy:
