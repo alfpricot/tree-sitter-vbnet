@@ -92,6 +92,8 @@ End Class
 
 `queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. The Node binding exposes it as `HIGHLIGHTS_QUERY`; the Rust crate as the `HIGHLIGHTS_QUERY` constant.
 
+`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
+
 ## How to contribute
 
 Branch from `dev`, change the grammar under `grammar/` or in `grammar.js`, regenerate the parser, and run the checks. CI regenerates the parser and rejects drift in the generated files and the node-kind snapshot, and requires a Conventional Commit pull request title. Build steps, the full validation list, and pull request rules are in [CONTRIBUTING.md](CONTRIBUTING.md); the design is in [ARCHITECTURE.md](ARCHITECTURE.md).

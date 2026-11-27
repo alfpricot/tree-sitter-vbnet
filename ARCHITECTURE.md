@@ -29,7 +29,7 @@ The external scanner. It emits the statement-ending line break described above, 
 
 ### [queries/](queries)
 
-`highlights.scm`, registered in [tree-sitter.json](tree-sitter.json) together with the file type `vb`.
+`highlights.scm` and `injections.scm`, registered in [tree-sitter.json](tree-sitter.json) together with the file type `vb`, and `indents.scm` for editors that use tree-sitter indentation. A tools test fails when a construct closed by an `End` line is missing from the indent query.
 
 ### [bindings/node](bindings/node) and [bindings/rust](bindings/rust)
 
