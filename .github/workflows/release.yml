@@ -17,6 +17,15 @@
 #                      the repository owner, so that job publishes under
 #                      @<owner>/tree-sitter-vbnet in its own short-lived
 #                      checkout only; the public npm package stays unscoped.
+#                      crates.io and the public npm registry use trusted
+#                      publishing: each job exchanges its OIDC token for a
+#                      short-lived publish token, so no registry token is
+#                      stored. Both jobs run in the publish environment,
+#                      which admits only v* tags, so a manual dispatch has to
+#                      select the tag as its ref. Both registries match the
+#                      publisher on this file's name and that environment, so
+#                      renaming either stops publishing until their settings
+#                      are updated.
 #                      Prebuilt native addons (Linux and Windows, Node-API)
 #                      are built by the prebuild matrix job and published
 #                      inside the npm and GitHub Packages tarballs, so an
@@ -43,12 +52,13 @@
 #                      gala-release.yml's release commit carries a skip-ci
 #                      marker, which can also suppress the tag-push trigger;
 #                      gala-release.yml dispatches this workflow with the tag
-#                      gala just pushed instead. A tag pushed by hand still
-#                      triggers it directly. GitHub only registers a
-#                      workflow once a push has triggered it or changed its
-#                      file, so in a new repository this file needs one
-#                      change on the default branch before that dispatch
-#                      can find it.
+#                      gala just pushed instead. The tag-push trigger covers a
+#                      v* tag pushed without that marker; the tag ruleset
+#                      lets only the release deploy key create one. GitHub
+#                      only registers a workflow once a push has triggered it
+#                      or changed its file, so in a new repository this file
+#                      needs one change on the default branch before that
+#                      dispatch can find it.
 #
 #                      gala writes every version file (Cargo.toml,
 #                      package.json, tree-sitter.json, pyproject.toml) and
@@ -146,6 +156,10 @@ jobs:
         run: node "$RUNNER_TEMP/release-package-check.mjs"
       - name: Cargo build & test
         run: cargo test
+      - name: Build the packaged crate
+        # publish-crate skips cargo's own verification build, so no build
+        # script runs in a job that can mint a publish token.
+        run: cargo package -p tree-sitter-vbnet
 
   prebuild:
     name: Prebuild native addon (${{ matrix.os }})
@@ -233,10 +247,12 @@ jobs:
     # The crate needs no prebuild, but publishing it alone would use up the
     # version on one registry while the npm publishes are blocked.
     needs: [resolve, verify, prebuild]
+    environment: publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
+      id-token: write
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
@@ -247,11 +263,8 @@ jobs:
           persist-credentials: false
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # v1.97.0
-      - name: Cache cargo registry and build artifacts
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Publish (skip if this version is already live)
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Check whether this version is already live
+        id: crate
         run: |
           set -euo pipefail
           version="${TAG#v}"
@@ -259,17 +272,30 @@ jobs:
           if [ "$status" = "200" ]; then
             echo "tree-sitter-vbnet@${version} is already published, skipping"
           elif [ "$status" = "404" ]; then
-            cargo publish -p tree-sitter-vbnet
+            echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "crates.io lookup failed with HTTP ${status}" >&2
             exit 1
           fi
+      - name: Get a short-lived crates.io token
+        if: steps.crate.outputs.publish == 'true'
+        id: auth
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+      - name: Publish to crates.io
+        if: steps.crate.outputs.publish == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        # --no-verify: either registry accepts a token minted in this job,
+        # so no dependency code may run here. The verify job builds the
+        # packaged crate instead.
+        run: cargo publish -p tree-sitter-vbnet --no-verify
 
   publish-npm:
     name: Publish to npm
     needs: [resolve, verify, prebuild]
     # Every prebuild leg must succeed: a published version cannot be replaced,
     # so a rerun could never add the missing binaries to it.
+    environment: publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -296,8 +322,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          # No registry-url: it writes an .npmrc that expects a stored
+          # token. npm publishes to the public registry by default and gets
+          # its own token from the job's OIDC token.
           node-version: '24.x'
-          registry-url: https://registry.npmjs.org/
       - name: Download the prebuilt native addons
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -313,7 +341,6 @@ jobs:
         run: node .release-tools/tools/release-policy.mjs check-npm
       - name: Publish (skip if this version is already live)
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PROVENANCE: ${{ steps.package.outputs.provenance }}
         run: |
           set -euo pipefail
