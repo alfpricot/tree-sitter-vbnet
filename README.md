@@ -17,7 +17,7 @@ The generated parser (`src/parser.c`, `src/grammar.json`, `src/node-types.json`)
 
 ### Requirements
 
-- Node.js 24 or newer for the Node binding (see `.nvmrc`). The npm package carries prebuilt addons for Linux x64 and Windows x64; other platforms compile it on install and need a C/C++ toolchain.
+- Node.js 24 or newer for the Node binding (see `.nvmrc`). The npm package carries prebuilt addons for Linux x64 (glibc) and Windows x64; other platforms, musl-based Linux included, compile it on install and need a C/C++ toolchain.
 - Rust 1.85 or newer, edition 2024, and a C compiler for the Rust crate.
 
 ## Usage

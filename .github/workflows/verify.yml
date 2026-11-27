@@ -199,14 +199,18 @@ jobs:
         run: node tools/package-check.mjs
 
       # Cargo resolves dev-dependencies even for `cargo check`, and the
-      # `tree-sitter` one needs a newer compiler than the library does, so
-      # this drops them from the checkout's manifest. It has to run last.
+      # `tree-sitter` one needs a newer compiler than the library does, so the
+      # check runs on a copy with them removed. The checkout stays as it was,
+      # which the cache's post-job save depends on.
       - name: Check the library builds on the declared minimum Rust version
         run: |
+          copy="$RUNNER_TEMP/msrv"
+          mkdir "$copy"
+          git archive HEAD | tar -x -C "$copy"
+          cd "$copy"
           msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
-          awk '/^\[/ { skip = /^\[dev-dependencies/ } !skip' Cargo.toml > "$RUNNER_TEMP/Cargo.toml"
-          cp "$RUNNER_TEMP/Cargo.toml" Cargo.toml
-          rm -f Cargo.lock
+          awk '/^\[/ { skip = /^\[dev-dependencies/ } !skip' Cargo.toml > Cargo.toml.library
+          mv Cargo.toml.library Cargo.toml
           rustup toolchain install "$msrv" --profile minimal
           cargo "+$msrv" check
 
