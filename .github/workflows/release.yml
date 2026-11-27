@@ -30,8 +30,9 @@
 #                      test/node-kinds.txt as the node-kind stability
 #                      surface (only if the checkout has it — an older tag
 #                      re-dispatched by hand can predate it) and the report
-#                      from the latest successful Parse rate run, when one
-#                      still has its artifact.
+#                      from the newest successful Parse rate run that measured
+#                      a commit the release contains, when one still has its
+#                      artifact.
 #
 #                      A short resolve job validates the tag first, so the
 #                      prebuild and WASM jobs run beside the full re-verify
@@ -440,29 +441,41 @@ jobs:
             gh release upload "$TAG" test/node-kinds.txt --clobber
           fi
 
-      - name: Attach the latest parse-rate report
+      - name: Attach the parse-rate report
         # A measurement only: a missing report or a failed lookup must not
         # fail a release whose packages are already published.
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ needs.resolve.outputs.commit }}
         run: |
           set -euo pipefail
-          # The first report attached stays: a later rerun of this tag would
-          # otherwise replace it with a measurement of newer code.
+          # The first report attached stays, so a rerun of this tag does not
+          # change a published asset.
           assets=$(gh release view "$TAG" --json assets --jq '.assets[].name')
           if grep -qx 'parse-rate.md' <<<"$assets"; then
             echo "parse-rate.md is already attached, skipping"
             exit 0
           fi
-          latest=$(gh run list --workflow parse-rate.yml --branch dev --status success --limit 1 \
+          # Newest first.
+          runs=$(gh run list --workflow parse-rate.yml --branch dev --status success --limit 20 \
             --json databaseId,headSha,createdAt \
             --jq '.[] | "\(.databaseId) \(.headSha) \(.createdAt)"')
-          if [ -z "$latest" ]; then
-            echo "::notice::No successful Parse rate run to attach"
+          found=
+          while read -r run sha created; do
+            [ -n "$run" ] || continue
+            # Comparing measured...released, "ahead" or "identical" means the
+            # release contains the measured commit.
+            status=$(gh api "repos/${GITHUB_REPOSITORY}/compare/${sha}...${RELEASE_COMMIT}" --jq .status)
+            if [ "$status" = "ahead" ] || [ "$status" = "identical" ]; then
+              found=1
+              break
+            fi
+          done <<<"$runs"
+          if [ -z "$found" ]; then
+            echo "::notice::No successful Parse rate run measured a commit in this release"
             exit 0
           fi
-          read -r run sha created <<<"$latest"
           gh run download "$run" --name parse-rate --dir "$RUNNER_TEMP/parse-rate"
           report="$RUNNER_TEMP/parse-rate/parse-rate.md"
           printf '\nMeasured on %s at commit %s.\n' "${created%%T*}" "$sha" >> "$report"
