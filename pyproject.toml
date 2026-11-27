@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=62.4.0", "wheel"]
+requires = ["setuptools>=84.2.1", "wheel"]
 
 [project]
 authors = [{ name = "M. Reifschneider" }]
@@ -23,4 +23,4 @@ Homepage = "https://github.com/alfpricot/tree-sitter-vbnet"
 
 [project.optional-dependencies]
 # The generated parser's ABI needs this release or newer.
-core = ["tree-sitter~=0.25"]
+core = ["tree-sitter~=0.26"]
