@@ -72,6 +72,10 @@ typedef struct {
   // Set after a skipped false branch: the `#ElseIf` or `#Else` that ends it
   // opens a branch that can be parsed. It lasts until that line.
   bool false_so_far;
+  // Set by a comment or `#` line after a document literal's root element, which
+  // ends the literal even where no statement can end. It lasts until the next
+  // literal starts.
+  bool literal_ended;
 } Scanner;
 
 void *tree_sitter_vbnet_external_scanner_create(void) { return ts_calloc(1, sizeof(Scanner)); }
@@ -79,7 +83,7 @@ void tree_sitter_vbnet_external_scanner_destroy(void *payload) { ts_free(payload
 unsigned tree_sitter_vbnet_external_scanner_serialize(void *payload, char *buffer) {
   Scanner *scanner = payload;
   unsigned state = scanner->directive_follows | scanner->false_so_far << 1 |
-                   (unsigned)scanner->inactive_branch_follows << 2;
+                   (unsigned)scanner->inactive_branch_follows << 2 | scanner->literal_ended << 4;
   if (state == 0) {
     return 0;
   }
@@ -92,7 +96,8 @@ void tree_sitter_vbnet_external_scanner_deserialize(void *payload, const char *b
   unsigned state = length > 0 ? (unsigned char)buffer[0] : 0;
   scanner->directive_follows = state & 1;
   scanner->false_so_far = state & 2;
-  scanner->inactive_branch_follows = (Branch)(state >> 2);
+  scanner->inactive_branch_follows = (Branch)(state >> 2 & 3);
+  scanner->literal_ended = state & 16;
 }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
@@ -154,6 +159,11 @@ static bool read_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
   while (is_identifier_char(lexer->lookahead)) {
     int32_t c = lexer->lookahead;
     if (!is_ascii_letter(c) || length == WORD_MAX) {
+      // A caller that declines rests on the whole of a multi-byte character,
+      // and only its first byte is counted as looked ahead until it is read.
+      if (c > 0x7F) {
+        consume(lexer);
+      }
       word[0] = '\0';
       return false;
     }
@@ -350,9 +360,11 @@ typedef struct {
 static BranchEnd read_inactive_branch(TSLexer *lexer, Branch branch, bool mark, Probe *probe) {
   unsigned depth = 0;
   bool content = false;
-  // The depth of the outermost nested `#If` that is in a later branch, or zero,
-  // and whether the probe had tested a line when that branch began.
-  unsigned later = 0;
+  // For the probe: the depth of the outermost nested `#If` whose current branch
+  // is not parsed, or zero; whether that is a false branch, which an `#ElseIf`
+  // or `#Else` can end; and whether a line had been tested when it began.
+  unsigned hidden = 0;
+  bool hidden_false = false;
   bool tested_before = false;
   for (;;) {
     skip_horizontal_space(lexer);
@@ -364,19 +376,17 @@ static BranchEnd read_inactive_branch(TSLexer *lexer, Branch branch, bool mark, 
       skip_horizontal_space(lexer);
       char word[WORD_MAX + 1];
       if (read_directive_word(lexer, word)) {
-        if (word_is(word, "if")) {
-          depth++;
-        } else if (word_is(word, "end")) {
+        if (word_is(word, "end")) {
           skip_horizontal_space(lexer);
           if (read_directive_word(lexer, word) && word_is(word, "if")) {
             if (depth == 0) {
               return (BranchEnd){.closed = true, .content = content};
             }
-            // That later branch is closed, so it is not parsed: what was tested
-            // in it does not count.
-            if (probe && depth == later) {
+            // That branch is closed, so it is not parsed: what was tested in it
+            // does not count.
+            if (probe && depth == hidden) {
               probe->tested = tested_before;
-              later = 0;
+              hidden = 0;
             }
             depth--;
           }
@@ -384,9 +394,28 @@ static BranchEnd read_inactive_branch(TSLexer *lexer, Branch branch, bool mark, 
           return (BranchEnd){.closed = true,
                              .content = content,
                              .later = word_is(word, "else") ? "else" : "elseif"};
-        } else if (probe && depth > 0 && later == 0 && opens_later_branch(word)) {
-          later = depth;
-          tested_before = probe->tested;
+        } else {
+          bool opens = word_is(word, "if");
+          if (opens) {
+            depth++;
+          }
+          if (probe && depth > 0 && (opens || opens_later_branch(word)) &&
+              (hidden == 0 || hidden == depth)) {
+            bool false_so_far = hidden == depth && hidden_false;
+            Branch nested = read_directive_rest(lexer, word, &false_so_far);
+            if (nested == PARSED_BRANCH) {
+              if (hidden == depth) {
+                probe->tested = tested_before;
+                hidden = 0;
+              }
+            } else {
+              if (hidden == 0) {
+                hidden = depth;
+                tested_before = probe->tested;
+              }
+              hidden_false = nested == FALSE_BRANCH;
+            }
+          }
         }
       }
       content = true;
@@ -633,7 +662,8 @@ static bool next_line_starts_accessor(TSLexer *lexer, Probe *probe, bool in_attr
                              : words_start_accessor(lexer, word);
 }
 
-static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length);
+static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length,
+                            bool stop_at_closer);
 static bool consume_word(TSLexer *lexer, const char *expected);
 
 // Moves past blank lines to the first character of the next line that is not.
@@ -649,9 +679,9 @@ static bool starts_xml_misc(TSLexer *lexer) {
   consume(lexer);
   if (lexer->lookahead == '?') {
     consume(lexer);
-    return consume_through(lexer, "?>", 2);
+    return consume_through(lexer, "?>", 2, true);
   }
-  return consume_word(lexer, "!--") && consume_through(lexer, "-->", 3);
+  return consume_word(lexer, "!--") && consume_through(lexer, "-->", 3, true);
 }
 
 static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_symbols,
@@ -680,7 +710,7 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
     lexer->result_symbol = NEWLINE;
     return true;
   }
-  if (misc_follows && valid_symbols[XML_MISC_FOLLOWS]) {
+  if (misc_follows && valid_symbols[XML_MISC_FOLLOWS] && !scanner->literal_ended) {
     // The literal goes on. As for a query clause below, the generated lexer
     // could not read what follows, so the break is a continuation.
     lexer->result_symbol = LINE_CONTINUATION;
@@ -912,15 +942,31 @@ static bool scan_xml_attribute_value(TSLexer *lexer) {
   return true;
 }
 
-// Consumes through `terminator`, at most three characters long. Returns false
-// at the end of the file.
-static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length) {
+// Consumes through `terminator`, at most three characters long, and returns
+// false at the end of the file. With `stop_at_closer` it also returns false at a
+// line that closes a member or a type, so that a comment or processing
+// instruction left open is not read for to the end of the file. That rejects a
+// real one holding such a line; a CDATA section, which often holds code, is read
+// whole.
+static bool consume_through(TSLexer *lexer, const char *terminator, unsigned length,
+                            bool stop_at_closer) {
   int32_t window[3] = {0, 0, 0};
   while (!lexer->eof(lexer)) {
+    int32_t c = lexer->lookahead;
+    if (is_line_break(c)) {
+      advance_line_break(lexer, false);
+      skip_horizontal_space(lexer);
+      if (stop_at_closer && line_closes_member(lexer)) {
+        return false;
+      }
+      // No terminator spans lines, and what was read of this one holds none.
+      window[0] = window[1] = window[2] = 0;
+      continue;
+    }
+    consume(lexer);
     window[0] = window[1];
     window[1] = window[2];
-    window[2] = lexer->lookahead;
-    consume(lexer);
+    window[2] = c;
     bool matched = true;
     for (unsigned i = 0; i < length; i++) {
       if (window[3 - length + i] != terminator[i]) {
@@ -959,19 +1005,19 @@ static bool scan_xml_markup(TSLexer *lexer, const bool *valid_symbols) {
          is_line_break(lexer->lookahead))) {
       symbol = XML_DECLARATION;
     }
-    if (!consume_through(lexer, "?>", 2)) {
+    if (!consume_through(lexer, "?>", 2, true)) {
       return false;
     }
   } else if (lexer->lookahead == '!') {
     consume(lexer);
     if (lexer->lookahead == '-') {
       symbol = XML_COMMENT;
-      if (!consume_word(lexer, "--") || !consume_through(lexer, "-->", 3)) {
+      if (!consume_word(lexer, "--") || !consume_through(lexer, "-->", 3, true)) {
         return false;
       }
     } else {
       symbol = XML_CDATA;
-      if (!consume_word(lexer, "[CDATA[") || !consume_through(lexer, "]]>", 3)) {
+      if (!consume_word(lexer, "[CDATA[") || !consume_through(lexer, "]]>", 3, false)) {
         return false;
       }
     }
@@ -1229,14 +1275,17 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   int32_t c = lexer->lookahead;
+  bool after_root = valid_symbols[XML_MISC_FOLLOWS] && !error_recovery;
 
   if (c == '#' && valid_symbols[PREPROCESSOR_DIRECTIVE] &&
       (skipped_line_break || directive_follows ||
        lexer->get_column(lexer) == skipped_spaces)) {
+    scanner->literal_ended = scanner->literal_ended || after_root;
     return scan_directive(lexer, scanner);
   }
 
   if (is_comment_start(c) && valid_symbols[COMMENT]) {
+    scanner->literal_ended = scanner->literal_ended || after_root;
     advance_to_line_end(lexer, false);
     lexer->mark_end(lexer);
     lexer->result_symbol = COMMENT;
@@ -1248,6 +1297,8 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   if ((c | 0x20) == 'r' && valid_symbols[COMMENT]) {
+    // Kept only if a comment is found: a declined token saves no state.
+    scanner->literal_ended = scanner->literal_ended || after_root;
     return scan_rem_comment(lexer);
   }
 
@@ -1260,8 +1311,15 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
 
   // A comment, CDATA section, processing instruction, or declaration where an
   // expression can start. Any other `<` is left to the generated lexer.
-  if (c == '<' && valid_symbols[XML_COMMENT] && !error_recovery) {
-    return scan_xml_markup(lexer, valid_symbols);
+  if (c == '<' && valid_symbols[XML_COMMENT] && !error_recovery &&
+      !(after_root && scanner->literal_ended)) {
+    if (!scan_xml_markup(lexer, valid_symbols)) {
+      return false;
+    }
+    if (lexer->result_symbol == XML_DECLARATION) {
+      scanner->literal_ended = false;
+    }
+    return true;
   }
 
   if (lexer->lookahead == '(' && valid_symbols[OPEN_PAREN_OF]) {

@@ -613,3 +613,168 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (string_literal))))))
+
+========================================================================
+A nested false branch does not answer for an open #Else
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If X
+#Else
+#If False
+    Console.WriteLine()
+#End If
+      Where x > 0
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (inactive_preprocessor_branch)
+          (preprocessor_directive)
+          (where_clause
+            (binary_expression
+              left: (identifier)
+              right: (integer_literal))))))))
+
+========================================================================
+A branch after a nested false one answers for an open #Else
+========================================================================
+
+Module M
+  Sub S()
+    Dim q = From x In xs
+#If X
+#Else
+#If False
+    Foo()
+#Else
+      Where x > 0
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)
+    (parameter_list)
+    (local_declaration
+      modifiers: (modifiers
+        (modifier))
+      declarator: (variable_declarator
+        name: (identifier)
+        value: (query_expression
+          (from_clause
+            (range_variable
+              name: (identifier)
+              collection: (identifier)))
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (preprocessor_directive)
+          (inactive_preprocessor_branch)
+          (preprocessor_directive)
+          (where_clause
+            (binary_expression
+              left: (identifier)
+              right: (integer_literal)))))))
+  (preprocessor_directive))
+
+========================================================================
+An unclosed comment after a document root leaves the next method intact
+========================================================================
+
+Module M
+  Sub S()
+    Dim d = <?xml?><r/>
+    <!-- open
+    x = 1
+  End Sub
+  Sub T()
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_document
+              (xml_declaration)
+              root: (xml_element
+                name: (xml_name)))))
+        (ERROR)
+        (expression_statement
+          (identifier))
+        (assignment_statement
+          left: (identifier)
+          right: (integer_literal))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list))))
+
+========================================================================
+An unclosed XML comment is not read past the end of its member
+========================================================================
+
+Module M
+    Sub S()
+        Dim b = <!-- open
+    End Sub
+    Sub T()
+        y = "-->"
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            (ERROR)
+            value: (unary_expression
+              operand: (unary_expression
+                operand: (identifier)))))))
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (string_literal))))))

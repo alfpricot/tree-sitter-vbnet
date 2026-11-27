@@ -765,3 +765,146 @@ Module M
 End Module
 
 ------------------------------------------------------------------------
+
+========================================================================
+A ' comment ends a document literal inside parentheses
+:error
+========================================================================
+
+Module M
+  Sub S()
+    y = F(<?xml?><r/>
+      ' note
+      <!-- c -->)
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+========================================================================
+A # line ends a document literal inside parentheses
+:error
+========================================================================
+
+Module M
+  Sub S()
+    y = F(<?xml?><r/>
+#Region "x"
+      <!-- c -->)
+#End Region
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+========================================================================
+A new document literal after one that a comment ended
+========================================================================
+
+Module M
+  Sub S()
+    y = F(<?xml?><r/>
+      <!-- c -->, ' fine
+      <!-- d -->)
+    z = F(<?xml?><r/> REM x
+      )
+    w = F(<?xml?><r/>
+      <!-- again -->)
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (xml_document
+                (xml_declaration)
+                root: (xml_element
+                  name: (xml_name))
+                (xml_comment))
+              (comment)
+              (xml_comment))))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (xml_document
+                (xml_declaration)
+                root: (xml_element
+                  name: (xml_name)))
+              (comment))))
+        (assignment_statement
+          left: (identifier)
+          right: (invocation_expression
+            function: (identifier)
+            arguments: (argument_list
+              (xml_document
+                (xml_declaration)
+                root: (xml_element
+                  name: (xml_name))
+                (xml_comment)))))))))
+
+========================================================================
+Multi-line markup holding lines that close no member
+========================================================================
+
+Module M
+    Sub S()
+        Dim a = <!-- first
+            End If
+            End Sub x
+        -->
+        Dim b = <![CDATA[
+    End Sub
+]]>
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      body: (block
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_comment)))
+        (local_declaration
+          modifiers: (modifiers
+            (modifier))
+          declarator: (variable_declarator
+            name: (identifier)
+            value: (xml_cdata)))))))
+
+========================================================================
+An XML comment holding a line that closes a member
+:error
+========================================================================
+
+Module M
+    Sub S()
+        Dim a = <!--
+    End Sub
+        -->
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
