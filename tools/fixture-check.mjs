@@ -31,7 +31,7 @@ for (const f of fixtures) {
     }
   } catch (error) {
     bad++;
-    console.error(`${f}: ${error.message}`);
+    console.error(`${f}: ${/** @type {Error} */ (error).message}`);
   }
 }
 console.log(

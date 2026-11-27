@@ -23,7 +23,7 @@ export function vbFiles(dir) {
   return readdirSync(dir, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.vb'))
     .map((entry) => join(entry.parentPath, entry.name))
-    .sort();
+    .toSorted();
 }
 
 // The files that did not parse clean, from `tree-sitter parse --json-summary`

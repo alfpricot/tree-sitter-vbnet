@@ -16,25 +16,17 @@ npx --no-install tree-sitter generate
 cargo build
 ```
 
-You need Node.js 24 (`.nvmrc`), a C compiler, and Rust 1.85 or newer. The exact tree-sitter CLI version is declared in `package.json` and resolved by `package-lock.json`; CI uses the same lockfile. `npm start` builds the WebAssembly parser and opens the tree-sitter playground.
+You need Node.js 24 (`.nvmrc`), a C compiler, and Rust 1.90 or newer (the library itself builds on 1.85, but the `tree-sitter` crate its tests use does not). The exact tree-sitter CLI version is declared in `package.json` and resolved by `package-lock.json`; CI uses the same lockfile. `npm start` builds the WebAssembly parser and opens the tree-sitter playground.
 
 The generated parser (`src/parser.c`, `src/grammar.json`, `src/node-types.json`) is committed. Regenerate and commit its diff after every change under `grammar/` or to `grammar.js`. A failed generation leaves the prior parser in place, so confirm that generation succeeded before trusting a test run.
 
 ## Validation before a pull request
 
 ```sh
-npx --no-install tree-sitter test
-node tools/node-kinds.mjs --check
-node tools/fixture-check.mjs
-node tools/parser-budget.mjs
-npm run lint
-npm run format:check
-node --test tools/*.test.mjs
-cargo fmt --all --check
-cargo clippy --all-targets -- -D warnings
-cargo test
-npm test
+npm run check
 ```
+
+It regenerates the parser, then runs what CI runs: the snapshot and parser-budget checks, lint (including the type check), the format check, the tooling, corpus, highlight, fixture, Rust, and Node tests, the scanner warning compile and fuzzer, and the package check. It needs `gcc`. The package check rejects files Git does not track yet, so stage new files first. CI additionally fails if the regenerated parser differs from what is committed (`git diff --exit-code -- src/`), and checks that the library builds on the declared minimum Rust version.
 
 `test/corpus/` holds per-construct tree assertions; `npx --no-install tree-sitter test -u --show-fields` rewrites their expected trees after a deliberate change (review the diff). `test/highlight/` holds highlight assertions. `test/fixtures/*.vb` are whole files checked for `ERROR`, `MISSING`, and zero-width nodes (see [test/fixtures/README.md](test/fixtures/README.md)). `npm test` needs a full `npm ci` so the native addon is built; `npm ci` keeps an existing `build/` directory, so after a grammar or scanner change run `npx --no-install node-gyp rebuild` before `npm test` or `node tools/bench.mjs`, or they load the old parser. Use `npm run format` to apply formatting; the generated parser under `src/` is excluded. CI also regenerates the parser and fails if it differs from what is committed.
 

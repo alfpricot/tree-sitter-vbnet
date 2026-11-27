@@ -9,23 +9,29 @@
     "prestart": "tree-sitter build --wasm",
     "start": "tree-sitter playground",
     "test": "node --test bindings/node/*_test.js",
-    "lint": "oxlint grammar.js grammar tools bindings/node",
-    "format": "oxfmt grammar.js \"grammar/**/*.js\" \"tools/**/*.mjs\" \"bindings/node/*.js\"",
-    "format:check": "oxfmt --check grammar.js \"grammar/**/*.js\" \"tools/**/*.mjs\" \"bindings/node/*.js\""
+    "check": "tree-sitter generate && node tools/node-kinds.mjs --check && node tools/parser-budget.mjs && npm run lint && npm run format:check && node --test tools/*.test.mjs && node tools/release-policy.mjs versions && tree-sitter test && node tools/fixture-check.mjs && gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 -c -Isrc src/scanner.c -o /dev/null && node tools/fuzz-check.mjs && cargo fmt --all --check && cargo clippy --all-targets -- -D warnings && cargo test && node tools/package-check.mjs && node-gyp rebuild && npm test",
+    "lint": "oxlint grammar.js grammar tools bindings/node && tsc -p tsconfig.json",
+    "format": "oxfmt grammar.js \"grammar/**/*.js\" \"tools/**/*.mjs\" \"bindings/node/*.js\" \"bindings/node/*.d.ts\"",
+    "format:check": "oxfmt --check grammar.js \"grammar/**/*.js\" \"tools/**/*.mjs\" \"bindings/node/*.js\" \"bindings/node/*.d.ts\""
   },
   "author": "M. Reifschneider",
   "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "node-addon-api": "^8.9.2",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
+    "@types/node": "24.19.4",
     "node-gyp": "13.1.0",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "prebuildify": "6.0.1",
     "tree-sitter": "0.25.1",
-    "tree-sitter-cli": "0.27.1"
+    "tree-sitter-cli": "0.27.1",
+    "typescript": "7.0.2"
   },
   "peerDependencies": {
     "tree-sitter": "^0.25.0"

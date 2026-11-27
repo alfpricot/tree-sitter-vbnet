@@ -14,9 +14,12 @@ import { fileURLToPath } from 'node:url';
 
 export function snapshotLines(types) {
   return types
-    .filter((n) => n.named)
-    .flatMap((n) => [n.type, ...Object.keys(n.fields ?? {}).map((field) => `${n.type}.${field}`)])
-    .sort();
+    .flatMap((n) => {
+      if (!n.named) return [];
+      const fields = Object.keys(n.fields ?? {}).map((field) => `${n.type}.${field}`);
+      return [n.type].concat(fields);
+    })
+    .toSorted();
 }
 
 function main() {
