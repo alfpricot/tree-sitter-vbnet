@@ -82,7 +82,7 @@ defer tree.Close()
 - **Queries**: `From`, `Where`, `Select`, `Order By`, `Group ... By ... Into`, `Join ... On ... Equals`, `Group Join`, `Let`, `Distinct`, `Skip`/`Take` (with `While`), and `Aggregate`, on one line or split across lines.
 - **Comments and preprocessor lines**: `'`, typographic quotes, and `REM` comments wherever they occur, and every `#` directive (`#If`, `#Region`, `#Const`, ...) as a `preprocessor_directive` node, including outside a method.
 
-Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`), `Imports <xmlns:...>`, and one `Next` closing several loops (`Next j, i`). The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
+Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`), `Imports <xmlns:...>`, and one `Next` closing three or more loops (`Next k, j, i`). `Next j, i` closing two nested loops parses. The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
 
 ### Example
 
@@ -121,7 +121,7 @@ End Class
 
 `queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. `queries/tags.scm` lists namespaces, types, members, calls, and object creation for symbol navigation. `queries/locals.scm` marks scopes, definitions, and references for local names; it matches text exactly, so a name written in a different letter case than its declaration does not resolve. `queries/folds.scm` marks foldable constructs with `@fold`. The Node and Python bindings and the Rust crate expose these four as `HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `LOCALS_QUERY`, and `FOLDS_QUERY`; the Go binding exposes the language only.
 
-`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
+`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures; a `Next j, i` line that closes two loops is indented one level deeper than the outer `For`, because those captures take back only one level per line. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
 
 ## How to contribute
 

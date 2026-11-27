@@ -226,3 +226,36 @@ End Class
         (assignment_statement
           left: (identifier)
           right: (integer_literal))))))
+
+========================================================================
+A Next naming two variables closes only nested loops
+:error
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+        Next i, j
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+
+
+========================================================================
+A Next naming more variables than there are loops
+:error
+========================================================================
+
+Module M
+    Sub S()
+        For i = 0 To 1
+            For j = 0 To 1
+        Next k, j, i
+    End Sub
+End Module
+
+------------------------------------------------------------------------
+
+

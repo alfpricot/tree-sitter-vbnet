@@ -6,11 +6,39 @@ function body($) {
   return optional(field('body', $.block));
 }
 
+// A `For` line, up to and including its terminator.
+function for_header($) {
+  return [
+    kw('For'),
+    $._loop_variable,
+    '=',
+    field('start', $._expression),
+    kw('To'),
+    field('end', $._expression),
+    optional(seq(kw('Step'), field('step', $._expression))),
+    $._terminator,
+  ];
+}
+
+// A `For Each` line, up to and including its terminator.
+function for_each_header($) {
+  return [
+    kw('For'),
+    kw('Each'),
+    $._loop_variable,
+    kw('In'),
+    field('collection', $._expression),
+    $._terminator,
+  ];
+}
+
 export default {
   // A line break or a colon ends a statement.
   _terminator: ($) => choice($._newline, ':'),
 
-  block: ($) => repeat1(choice(seq($._statement, $._terminator), $.label_statement, ':')),
+  block: ($) => repeat1($._block_item),
+
+  _block_item: ($) => choice(seq($._statement, $._terminator), $.label_statement, ':'),
 
   _statement: ($) =>
     choice(
@@ -198,36 +226,36 @@ export default {
       ),
     ),
 
-  for_statement: ($) =>
+  for_statement: ($) => seq(...for_header($), $._loop_end),
+
+  for_each_statement: ($) => seq(...for_each_header($), $._loop_end),
+
+  // A loop is closed by its own `Next`, or it ends with a nested loop whose
+  // `Next j, i` closes both.
+  _loop_end: ($) =>
+    choice(seq(body($), $._next), field('body', alias($._shared_next_block, $.block))),
+
+  // Statements, then the nested loop that closes this one too.
+  _shared_next_block: ($) =>
     seq(
-      kw('For'),
-      $._loop_variable,
-      '=',
-      field('start', $._expression),
-      kw('To'),
-      field('end', $._expression),
-      optional(seq(kw('Step'), field('step', $._expression))),
-      $._terminator,
-      body($),
-      $._next,
+      repeat($._block_item),
+      choice(
+        alias($._shared_next_for, $.for_statement),
+        alias($._shared_next_for_each, $.for_each_statement),
+      ),
     ),
 
-  for_each_statement: ($) =>
-    seq(
-      kw('For'),
-      kw('Each'),
-      $._loop_variable,
-      kw('In'),
-      field('collection', $._expression),
-      $._terminator,
-      body($),
-      $._next,
-    ),
+  _shared_next_for: ($) => seq(...for_header($), body($), $._shared_next),
+
+  _shared_next_for_each: ($) => seq(...for_each_header($), body($), $._shared_next),
+
+  // `Next j, i`: the inner loop's variable, then the outer loop's.
+  _shared_next: ($) => seq(kw('Next'), $._expression, ',', $._expression),
 
   _loop_variable: ($) =>
     seq(field('variable', $.identifier), optional(seq(kw('As'), field('type', $._type)))),
 
-  _next: ($) => prec.right(seq(kw('Next'), optional(comma_sep1($._expression)))),
+  _next: ($) => prec.right(seq(kw('Next'), optional($._expression))),
 
   while_statement: ($) =>
     seq(kw('While'), field('condition', $._expression), $._terminator, body($), end_kw($, 'While')),

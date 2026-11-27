@@ -1,7 +1,12 @@
 ; Indentation. A construct that closes with its own line indents everything
 ; after its first line, so the closing keyword is what identifies it: a
 ; single-line `If`, a single-line lambda, or an auto-implemented property has
-; none.
+; none. `For` loops are captured whole, because the outer of two loops closed
+; by one `Next j, i` has no `Next` of its own.
+;
+; Known limit: that shared line has to close both loops, and a branch capture
+; takes back only one level per line, so it lands one level deeper than the
+; outer `For`.
 
 [
   (accessor_declaration "End")
@@ -26,8 +31,8 @@
   (while_statement "End")
   (with_statement "End")
   (do_statement "Loop")
-  (for_each_statement "Next")
-  (for_statement "Next")
+  (for_each_statement)
+  (for_statement)
 ] @indent.begin
 
 ; A `Case` line sits one level inside its `Select`, and its statements one
