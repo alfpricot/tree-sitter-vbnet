@@ -37,5 +37,5 @@
 ; A single-line `If` holds an `else_clause` too, which divides no block.
 (if_statement (else_clause) @fold)
 
-; The later branches of an `#If`, which are not parsed.
+; The branches of an `#If` that are not parsed.
 (inactive_preprocessor_branch) @fold

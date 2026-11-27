@@ -51,31 +51,47 @@ enum TokenType {
 
 #define WORD_MAX 16
 
+// The branch of an `#If` that a `#` line opens and the parser does not see.
+typedef enum {
+  PARSED_BRANCH,
+  // Under a condition that is literally false: up to the next `#ElseIf`,
+  // `#Else`, or `#End If`.
+  FALSE_BRANCH,
+  // After the parsed branch: from an `#ElseIf` or `#Else` to the `#End If`.
+  LATER_BRANCH,
+} Branch;
+
 typedef struct {
   // Set by a token that ends with a line break when a `#` directive comes
   // next. `get_column` counts from the last `\n`, so it cannot tell that a
   // line started after any other line break.
   bool directive_follows;
-  // Set by an `#Else` or `#ElseIf` line whose branch holds code: the next
-  // token is that branch, up to its `#End If`.
-  bool inactive_branch_follows;
+  // The branch that holds code and is the next token.
+  Branch inactive_branch_follows;
+  // Set after a skipped false branch: the `#ElseIf` or `#Else` that ends it
+  // opens a branch that can be parsed. It lasts until that line.
+  bool false_so_far;
 } Scanner;
 
 void *tree_sitter_vbnet_external_scanner_create(void) { return ts_calloc(1, sizeof(Scanner)); }
 void tree_sitter_vbnet_external_scanner_destroy(void *payload) { ts_free(payload); }
 unsigned tree_sitter_vbnet_external_scanner_serialize(void *payload, char *buffer) {
   Scanner *scanner = payload;
-  if (!scanner->directive_follows && !scanner->inactive_branch_follows) {
+  unsigned state = scanner->directive_follows | scanner->false_so_far << 1 |
+                   (unsigned)scanner->inactive_branch_follows << 2;
+  if (state == 0) {
     return 0;
   }
-  buffer[0] = (char)(scanner->directive_follows | scanner->inactive_branch_follows << 1);
+  buffer[0] = (char)state;
   return 1;
 }
 void tree_sitter_vbnet_external_scanner_deserialize(void *payload, const char *buffer,
                                                      unsigned length) {
   Scanner *scanner = payload;
-  scanner->directive_follows = length > 0 && (buffer[0] & 1);
-  scanner->inactive_branch_follows = length > 0 && (buffer[0] & 2);
+  unsigned state = length > 0 ? (unsigned char)buffer[0] : 0;
+  scanner->directive_follows = state & 1;
+  scanner->false_so_far = state & 2;
+  scanner->inactive_branch_follows = (Branch)(state >> 2);
 }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
@@ -200,15 +216,6 @@ static bool read_directive_word(TSLexer *lexer, char word[WORD_MAX + 1]) {
   return length > 0;
 }
 
-// Reads the word after a `#` and its spaces into `word`, then the rest of the
-// line.
-static void read_directive_line(TSLexer *lexer, char word[WORD_MAX + 1]) {
-  consume(lexer);
-  skip_horizontal_space(lexer);
-  read_directive_word(lexer, word);
-  advance_to_line_end(lexer, false);
-}
-
 // What a line-break lookahead asks of the next line of code, given its first
 // word, with the lexer just past that word. It reads no further than the line,
 // and may reuse `word`.
@@ -225,6 +232,8 @@ typedef struct {
   // Set when the branch ran to the end of the file.
   bool unterminated;
   bool answer;
+  // The lookahead's own copy of the scanner's flag of the same name.
+  bool false_so_far;
 } Probe;
 
 // Tests the line at the lexer when it holds code: not a comment.
@@ -240,20 +249,104 @@ static void probe_line(TSLexer *lexer, Probe *probe) {
   probe->answer = probe->test(lexer, word);
 }
 
-static inline bool opens_inactive_branch(const char *word) {
+static inline bool opens_later_branch(const char *word) {
   return word_is(word, "else") || word_is(word, "elseif");
 }
 
-// Reads the lines of the branch an `#Else` or `#ElseIf` line opens, from the
-// start of the next line to its `#End If`, which it stops on, and returns
-// whether it found that `#End If` after lines holding more than whitespace.
-// A branch with no `#End If` is not one: while one is being typed, or after a
-// mistyped closer, the code after the `#Else` stays parsed. `#If` blocks nested
-// in the branch are read through. With `mark`, the end of the token is marked
-// after each character that is not whitespace. A `probe` is given the first line
-// of code that is parsed if the branch turns out to have no `#End If`, and is
-// told when that is so.
-static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
+// Whether nothing but a comment is left of a line: the lexer is at its end or at
+// `'`, a typographic quote, or `REM`. Reads no further than that.
+static bool at_line_end_or_comment(TSLexer *lexer) {
+  int32_t c = lexer->lookahead;
+  if (lexer->eof(lexer) || is_line_break(c) || is_comment_start(c)) {
+    return true;
+  }
+  char word[WORD_MAX + 1];
+  return read_word(lexer, word) && word_is(word, "rem");
+}
+
+// Whether the rest of an `#If` or `#ElseIf` line is a condition that is
+// literally false: `False` or `0`, then an optional `Then` and comment. No
+// other condition is evaluated.
+static bool read_false_condition(TSLexer *lexer) {
+  char word[WORD_MAX + 1];
+  skip_horizontal_space(lexer);
+  if (lexer->lookahead == '0') {
+    consume(lexer);
+    // A typographic quote counts as an identifier character, but starts a
+    // comment here.
+    if (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead)) {
+      return false;
+    }
+  } else {
+    // Not `read_word`, which would run on into a typographic quote.
+    if (!read_directive_word(lexer, word) || !word_is(word, "false") ||
+        (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead))) {
+      return false;
+    }
+  }
+  skip_horizontal_space(lexer);
+  if ((lexer->lookahead | 0x20) != 't') {
+    return at_line_end_or_comment(lexer);
+  }
+  if (!read_directive_word(lexer, word) || !word_is(word, "then") ||
+      (is_identifier_char(lexer->lookahead) && !is_comment_start(lexer->lookahead))) {
+    return false;
+  }
+  skip_horizontal_space(lexer);
+  return at_line_end_or_comment(lexer);
+}
+
+// Reads the rest of a `#` line whose keyword is `word` and returns the branch
+// it opens. `false_so_far` says whether every branch before an `#ElseIf` or
+// `#Else` was false, and is brought up to date.
+static Branch read_directive_rest(TSLexer *lexer, const char *word, bool *false_so_far) {
+  Branch branch = PARSED_BRANCH;
+  if (word_is(word, "if")) {
+    *false_so_far = false;
+    if (read_false_condition(lexer)) {
+      branch = FALSE_BRANCH;
+    }
+  } else if (opens_later_branch(word)) {
+    if (!*false_so_far) {
+      branch = LATER_BRANCH;
+    } else {
+      *false_so_far = false;
+      bool conditional = word_is(word, "elseif");
+      if (!conditional) {
+        // `#Else If` is `#ElseIf`.
+        char next[WORD_MAX + 1];
+        skip_horizontal_space(lexer);
+        conditional = read_directive_word(lexer, next) && word_is(next, "if");
+      }
+      if (conditional && read_false_condition(lexer)) {
+        branch = FALSE_BRANCH;
+      }
+    }
+  }
+  advance_to_line_end(lexer, false);
+  return branch;
+}
+
+// How the reading of a branch that is not parsed ended.
+typedef struct {
+  // Set when the directive line that ends the branch was found.
+  bool closed;
+  // Set when the branch holds more than whitespace.
+  bool content;
+  // The keyword of that line when it is an `#ElseIf` or `#Else` ending a false
+  // branch, with the lexer just past it; otherwise null.
+  const char *later;
+} BranchEnd;
+
+// Reads the lines of a branch that is not parsed, from the start of its first
+// line to the directive that ends it, which it stops on: `#End If`, or for a
+// false branch also an `#ElseIf` or `#Else`. A branch with no such line is not
+// skipped: while one is being typed, or after a mistyped closer, the code stays
+// parsed. `#If` blocks nested in the branch are read through. With `mark`, the
+// end of the token is marked after each character that is not whitespace. A
+// `probe` is given the first line of code that is parsed if the branch turns out
+// to have no end, and is told when that is so.
+static BranchEnd read_inactive_branch(TSLexer *lexer, Branch branch, bool mark, Probe *probe) {
   unsigned depth = 0;
   bool content = false;
   // The depth of the outermost nested `#If` that is in a later branch, or zero,
@@ -276,7 +369,7 @@ static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
           skip_horizontal_space(lexer);
           if (read_directive_word(lexer, word) && word_is(word, "if")) {
             if (depth == 0) {
-              return content;
+              return (BranchEnd){.closed = true, .content = content};
             }
             // That later branch is closed, so it is not parsed: what was tested
             // in it does not count.
@@ -286,7 +379,11 @@ static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
             }
             depth--;
           }
-        } else if (probe && depth > 0 && later == 0 && opens_inactive_branch(word)) {
+        } else if (depth == 0 && branch == FALSE_BRANCH && opens_later_branch(word)) {
+          return (BranchEnd){.closed = true,
+                             .content = content,
+                             .later = word_is(word, "else") ? "else" : "elseif"};
+        } else if (probe && depth > 0 && later == 0 && opens_later_branch(word)) {
           later = depth;
           tested_before = probe->tested;
         }
@@ -316,30 +413,45 @@ static bool read_inactive_branch(TSLexer *lexer, bool mark, Probe *probe) {
   if (probe) {
     probe->unterminated = true;
   }
-  return false;
+  return (BranchEnd){.content = content};
 }
 
-// Passes the branch an `#Else` or `#ElseIf` line opens, when `word` is the
-// word after its `#` and the rest of that line has been read, and the line of
-// its `#End If`. A branch with no `#End If` is read to the end of the file,
-// although it is parsed: lookahead cannot go back, so `probe` holds the answer
-// for it.
-static void pass_inactive_branch(TSLexer *lexer, const char *word, Probe *probe) {
-  if (opens_inactive_branch(word) && is_line_break(lexer->lookahead)) {
+// Passes the branches that are not parsed after a directive line that has been
+// read and opens `branch`, and the directive lines that end them. A branch with
+// no end is read to the end of the file, although it is parsed: lookahead
+// cannot go back, so `probe` holds the answer for it.
+static void pass_inactive_branches(TSLexer *lexer, Branch branch, bool *false_so_far,
+                                   Probe *probe) {
+  while (branch != PARSED_BRANCH && is_line_break(lexer->lookahead)) {
     advance_line_break(lexer, false);
     if (probe) {
       probe->tested = false;
     }
-    read_inactive_branch(lexer, false, probe);
-    advance_to_line_end(lexer, false);
+    BranchEnd end = read_inactive_branch(lexer, branch, false, probe);
+    if (end.later) {
+      *false_so_far = true;
+      branch = read_directive_rest(lexer, end.later, false_so_far);
+    } else {
+      advance_to_line_end(lexer, false);
+      branch = PARSED_BRANCH;
+    }
   }
+}
+
+// Reads the keyword and the rest of a directive line, after its `#` and spaces,
+// and passes what it opens.
+static void pass_directive(TSLexer *lexer, bool *false_so_far, Probe *probe) {
+  char word[WORD_MAX + 1];
+  read_directive_word(lexer, word);
+  Branch branch = read_directive_rest(lexer, word, false_so_far);
+  pass_inactive_branches(lexer, branch, false_so_far, probe);
 }
 
 // Looks past a token that ended with a line break for a directive at the start
 // of the new line. Used only for lookahead, so everything it reads is
-// discarded; it leaves a directive line consumed, with any branch an `#Else`
-// line opens, as `skip_to_next_word` would.
-static void note_directive(TSLexer *lexer, Scanner *scanner, Probe *probe) {
+// discarded; it leaves a directive line consumed, with any branches it opens
+// that are not parsed, as `skip_to_next_word` would.
+static void note_directive(TSLexer *lexer, Scanner *scanner, bool *false_so_far, Probe *probe) {
   skip_horizontal_space(lexer);
   if (lexer->lookahead != '#') {
     return;
@@ -347,10 +459,7 @@ static void note_directive(TSLexer *lexer, Scanner *scanner, Probe *probe) {
   consume(lexer);
   skip_horizontal_space(lexer);
   scanner->directive_follows = is_ascii_letter(lexer->lookahead);
-  char word[WORD_MAX + 1];
-  read_directive_word(lexer, word);
-  advance_to_line_end(lexer, false);
-  pass_inactive_branch(lexer, word, probe);
+  pass_directive(lexer, false_so_far, probe);
 }
 
 // Moves past blank lines, comment lines (`REM` ones too), and preprocessor
@@ -380,11 +489,11 @@ static bool skip_to_next_word(TSLexer *lexer, char word[WORD_MAX + 1], Probe *pr
       }
       advance_line_break(lexer, false);
     } else if (c == '#') {
-      // The branch an `#Else` line opens is passed with it: the next line of
-      // code is the one after its `#End If`.
+      // Branches that are not parsed are passed with the line that opens them.
       passed_extra = true;
-      read_directive_line(lexer, word);
-      pass_inactive_branch(lexer, word, probe);
+      consume(lexer);
+      skip_horizontal_space(lexer);
+      pass_directive(lexer, &probe->false_so_far, probe);
     } else if (is_comment_start(c)) {
       passed_extra = true;
       advance_to_line_end(lexer, false);
@@ -524,8 +633,9 @@ static bool scan_line_break(TSLexer *lexer, Scanner *scanner, const bool *valid_
   advance_line_break(lexer, false);
   lexer->mark_end(lexer);
   bool accessor = valid_symbols[ACCESSOR_NEWLINE];
-  Probe probe = {.test = accessor ? line_starts_accessor : line_continues_query};
-  note_directive(lexer, scanner, &probe);
+  Probe probe = {.test = accessor ? line_starts_accessor : line_continues_query,
+                 .false_so_far = scanner->false_so_far};
+  note_directive(lexer, scanner, &probe.false_so_far, &probe);
   if (error_recovery) {
     lexer->result_symbol = NEWLINE;
     return true;
@@ -912,7 +1022,8 @@ static bool scan_line_continuation(TSLexer *lexer, Scanner *scanner) {
   }
   advance_line_break(lexer, false);
   lexer->mark_end(lexer);
-  note_directive(lexer, scanner, NULL);
+  bool false_so_far = scanner->false_so_far;
+  note_directive(lexer, scanner, &false_so_far, NULL);
   lexer->result_symbol = LINE_CONTINUATION;
   return true;
 }
@@ -955,9 +1066,9 @@ static bool scan_block_end(TSLexer *lexer) {
   return false;
 }
 
-// A `#` line. After `#Else` or `#ElseIf`, the lines of its branch are read
-// ahead, and when they hold code and end at an `#End If` the next token is
-// that branch.
+// A `#` line. When it opens a branch that is not parsed, the lines of that
+// branch are read ahead, and when they hold code and have an end the next token
+// is that branch.
 static bool scan_directive(TSLexer *lexer, Scanner *scanner) {
   consume(lexer);
   skip_horizontal_space(lexer);
@@ -966,26 +1077,33 @@ static bool scan_directive(TSLexer *lexer, Scanner *scanner) {
   }
   char word[WORD_MAX + 1];
   read_directive_word(lexer, word);
-  advance_to_line_end(lexer, false);
+  Branch branch = read_directive_rest(lexer, word, &scanner->false_so_far);
   lexer->mark_end(lexer);
   lexer->result_symbol = PREPROCESSOR_DIRECTIVE;
-  if (opens_inactive_branch(word) && is_line_break(lexer->lookahead)) {
+  if (branch != PARSED_BRANCH && is_line_break(lexer->lookahead)) {
     advance_line_break(lexer, false);
-    scanner->inactive_branch_follows = read_inactive_branch(lexer, false, NULL);
+    BranchEnd end = read_inactive_branch(lexer, branch, false, NULL);
+    if (end.closed && end.content) {
+      scanner->inactive_branch_follows = branch;
+    }
+    if (end.later) {
+      scanner->false_so_far = true;
+    }
   }
   return true;
 }
 
-// The branch after an `#Else` or `#ElseIf` line, from the first line of it
-// that holds more than whitespace to the last one before its `#End If`. The
-// first branch of an `#If` is parsed and the later ones are not, so code that
-// repeats a declaration's opening line in each branch parses as one
-// declaration.
-static bool scan_inactive_branch(TSLexer *lexer) {
+// A branch that is not parsed, from the first line of it that holds more than
+// whitespace to the last one before the directive that ends it. A condition is
+// not evaluated unless it is literally false, so otherwise the first branch of
+// an `#If` is parsed and the later ones are not, and code that repeats a
+// declaration's opening line in each branch parses as one declaration.
+static bool scan_inactive_branch(TSLexer *lexer, Branch branch) {
   while (is_horizontal_space(lexer->lookahead) || is_line_break(lexer->lookahead)) {
     skip(lexer);
   }
-  if (!read_inactive_branch(lexer, true, NULL)) {
+  BranchEnd end = read_inactive_branch(lexer, branch, true, NULL);
+  if (!end.closed || !end.content) {
     return false;
   }
   lexer->result_symbol = INACTIVE_PREPROCESSOR_BRANCH;
@@ -999,11 +1117,11 @@ bool tree_sitter_vbnet_external_scanner_scan(void *payload, TSLexer *lexer,
   // Applies to this token only; the state is saved only when one is found.
   bool directive_follows = scanner->directive_follows;
   scanner->directive_follows = false;
-  bool inactive_branch_follows = scanner->inactive_branch_follows;
-  scanner->inactive_branch_follows = false;
+  Branch inactive_branch_follows = scanner->inactive_branch_follows;
+  scanner->inactive_branch_follows = PARSED_BRANCH;
 
-  if (inactive_branch_follows && valid_symbols[INACTIVE_PREPROCESSOR_BRANCH]) {
-    return scan_inactive_branch(lexer);
+  if (inactive_branch_follows != PARSED_BRANCH && valid_symbols[INACTIVE_PREPROCESSOR_BRANCH]) {
+    return scan_inactive_branch(lexer, inactive_branch_follows);
   }
 
   // Inside `$"..."` every character is text, so nothing is skipped first.

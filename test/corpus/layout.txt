@@ -825,3 +825,281 @@ End Class
         body: (block
           (return_statement
             (integer_literal)))))))
+
+========================================================================
+A branch under #If False is not parsed
+========================================================================
+
+Module M
+#If False Then
+  Sub A(
+#Else
+  Sub B()
+#End If
+  End Sub
+End Module
+
+------------------------------------------------------------------------
+
+(source_file
+  (module_block
+    name: (identifier)
+    (preprocessor_directive)
+    (inactive_preprocessor_branch)
+    (preprocessor_directive)
+    (method_declaration
+      name: (identifier)
+      parameters: (parameter_list)
+      (preprocessor_directive))))
+
+========================================================================
+A chain of false conditions parses the first branch that is not false
+========================================================================
+
+#If 0 ' never
+bad (
+#ElseIf False
+worse (
+#ElseIf DEBUG Then
+Imports A
+#Else
+Imports B
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive))
+
+========================================================================
+An empty false branch parses the branch after it
+========================================================================
+
+#If False Then
+#Else
+Imports A
+#End If
+#If False Then
+
+#ElseIf X Then
+Imports B
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive))
+
+========================================================================
+#Else If after a false branch is #ElseIf
+========================================================================
+
+#If False Then
+bad (
+#Else If False Then
+worse (
+#Else
+#If DEBUG Then
+Imports A
+#Else
+Imports B
+#End If
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (preprocessor_directive))
+
+========================================================================
+An #If False with no end is parsed
+========================================================================
+
+#If False Then
+Imports A
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier))))
+
+========================================================================
+Only a literally false condition skips a branch
+========================================================================
+
+#If False AndAlso X Then
+Imports A
+#Else
+Imports B
+#End If
+#If Falsehood Then
+Imports C
+#End If
+#if FALSE then REM x
+ bad (
+#end if
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive))
+
+========================================================================
+A nested #If inside a false branch is skipped with it
+========================================================================
+
+#If False Then
+#If X Then
+ bad (
+#Else
+ worse (
+#End If
+#Else
+Imports A
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive))
+
+========================================================================
+A false #ElseIf after a parsed branch is a later branch
+========================================================================
+
+#If X Then
+Imports A
+#ElseIf False Then
+ bad (
+#Else
+ bad2 (
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive))
+
+========================================================================
+Property accessors after a false branch
+========================================================================
+
+Class C
+  Property P As Integer
+#If False Then
+    Dim bad (
+#Else
+    Get
+      Return 1
+    End Get
+#End If
+  End Property
+End Class
+
+------------------------------------------------------------------------
+
+(source_file
+  (class_block
+    name: (identifier)
+    (property_declaration
+      name: (identifier)
+      type: (primitive_type)
+      (preprocessor_directive)
+      (inactive_preprocessor_branch)
+      (preprocessor_directive)
+      (accessor_declaration
+        body: (block
+          (return_statement
+            (integer_literal))))
+      (preprocessor_directive))))
+
+========================================================================
+A typographic-quote comment after a false condition
+========================================================================
+
+#If False‘ off
+bad (
+#ElseIf 0’off
+worse (
+#ElseIf False Then ‘ off
+worst (
+#Else
+Imports A
+#End If
+
+------------------------------------------------------------------------
+
+(source_file
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (inactive_preprocessor_branch)
+  (preprocessor_directive)
+  (imports_statement
+    (imports_clause
+      name: (identifier)))
+  (preprocessor_directive))

@@ -81,9 +81,34 @@ defer tree.Close()
 - **Expressions**: VB's operator precedence, `TypeOf ... Is`, `Is`/`IsNot`/`Like`, `CType`/`DirectCast`/`TryCast` and the `CInt`-style conversions, `If(...)` with two or three arguments, `GetType`, `NameOf`, `AddressOf`, `Await`, object, array, anonymous-type, and collection creation, `?.` and `?(...)`, `!` dictionary access, the `.Name` form inside `With`, named and omitted arguments, tuples and tuple types, single-line and multi-line lambdas, interpolated strings with alignment and format, and every literal form (hex, octal, and binary integers with type suffixes, floating point, characters, dates, and doubled quotes).
 - **XML**: XML literals with attributes in either quote style, nested elements, text, `<%= ... %>` embedded expressions (including computed element and attribute names), comments, CDATA sections, processing instructions, and `</>`; document literals that open with `<?xml ...?>`; a comment, CDATA section, or processing instruction as an expression of its own; `Imports <xmlns:...>`; and the axis properties `x.<child>`, `x...<descendant>`, `x.@attribute`, and `x.@<attribute>`.
 - **Queries**: `From`, `Where`, `Select`, `Order By`, `Group ... By ... Into`, `Join ... On ... Equals`, `Group Join`, `Let`, `Distinct`, `Skip`/`Take` (with `While`), and `Aggregate`, on one line or split across lines.
-- **Comments and preprocessor lines**: `'`, typographic quotes, and `REM` comments wherever they occur, and every `#` directive (`#If`, `#Region`, `#Const`, ...) as a `preprocessor_directive` node, including outside a method. The lines after the first `#ElseIf` or `#Else` of an `#If`, up to its `#End If`, are one `inactive_preprocessor_branch` node, which holds any later `#ElseIf` or `#Else` line of that `#If` and the directives nested in it.
+- **Comments and preprocessor lines**: `'`, typographic quotes, and `REM` comments wherever they occur, and every `#` directive (`#If`, `#Region`, `#Const`, ...) as a `preprocessor_directive` node, including outside a method. A branch under a condition that is literally `False` or `0` is skipped, as an `inactive_preprocessor_branch` node when it is not empty, and the first branch after it that is not literally false is parsed instead. Once a branch is parsed, the lines after the next `#ElseIf` or `#Else`, up to the `#End If`, are one `inactive_preprocessor_branch` node, which holds any later `#ElseIf` or `#Else` line of that `#If` and the directives nested in it. See [Choosing a branch](#choosing-a-branch) to parse another one.
 
-Not covered yet: a comment or processing instruction after a document literal's root element, which on a later line in a method body parses as a statement of its own and elsewhere is an error, and an embedded expression whose last name or number touches `%>` (`<%= x%>`), which reads as the `%` type character. The first branch of an `#If` is parsed and its later branches are one `inactive_preprocessor_branch` node, so code that repeats a declaration's opening line in each branch parses, while code in a later branch has no tree of its own. An `#Else` with no `#End If` after it opens no inactive branch. A line of a multi-line interpolated string that reads as the end of a member or a type (`End Sub`, with nothing but a comment or a `:` after it) is taken as that closing line, so a string left open does not take the members after it.
+Not covered yet: a comment or processing instruction after a document literal's root element, which on a later line in a method body parses as a statement of its own and elsewhere is an error, and an embedded expression whose last name or number touches `%>` (`<%= x%>`), which reads as the `%` type character. No condition is evaluated apart from a literal `False` or `0`, so otherwise the first branch of an `#If` is parsed, even one such as `#If UNDONE` that your build never defines. Code that repeats a declaration's opening line in each branch parses, while code in a branch that is not parsed has no tree of its own. A branch is parsed when the directive line that would end it is missing. A line of a multi-line interpolated string that reads as the end of a member or a type (`End Sub`, with nothing but a comment or a `:` after it) is taken as that closing line, so a string left open does not take the members after it.
+
+### Choosing a branch
+
+The parser does not know which symbols your build defines. To parse a particular branch, give tree-sitter the ranges to read, leaving out the other branches and the `#If`, `#ElseIf`, `#Else`, and `#End If` lines around them:
+
+```js
+// Keep every line except the ones listed, counted from zero.
+function without(source, skipped) {
+  const ranges = [];
+  let startIndex = 0;
+  for (const [row, line] of source.split(/(?<=\n)/).entries()) {
+    const endIndex = startIndex + line.length;
+    if (!skipped.has(row)) {
+      const startPosition = { row, column: 0 };
+      const endPosition = { row: row + 1, column: 0 };
+      ranges.push({ startIndex, endIndex, startPosition, endPosition });
+    }
+    startIndex = endIndex;
+  }
+  return ranges;
+}
+
+const source = '#If A Then\nImports X\n#Else\nImports Y\n#End If\n';
+const tree = parser.parse(source, null, { includedRanges: without(source, new Set([0, 1, 2, 4])) });
+```
 
 ### Example
 

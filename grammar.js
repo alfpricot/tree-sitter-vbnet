@@ -73,8 +73,9 @@ export default grammar({
     $.xml_processing_instruction,
     // The `<?xml ...?>` that opens an XML document literal.
     $.xml_declaration,
-    // The lines of an `#Else` or `#ElseIf` branch up to its `#End If`, which
-    // are not parsed: the first branch of an `#If` is.
+    // The lines of a branch that is not parsed: one under a literally false
+    // condition, up to the next `#ElseIf`, `#Else`, or `#End If`, or those
+    // after the parsed branch, up to `#End If`.
     $.inactive_preprocessor_branch,
     // Never used by a rule: it is only valid while the parser is recovering
     // from an error, which is how the scanner detects that.

@@ -38,3 +38,23 @@ test('parses a module with implicit line continuation without error', async () =
   );
   assert.equal(tree.rootNode.hasError, false);
 });
+
+test('included ranges parse a chosen #If branch', async () => {
+  const { default: language } = await import('./index.js');
+  const parser = new Parser();
+  parser.setLanguage(language);
+  const source = '#If A Then\nImports X\n#Else\nImports Y\n#End If\n';
+  const kept = source.indexOf('Imports Y');
+  const range = {
+    startIndex: kept,
+    endIndex: kept + 'Imports Y\n'.length,
+    startPosition: { row: 3, column: 0 },
+    endPosition: { row: 4, column: 0 },
+  };
+  const tree = parser.parse(source, null, { includedRanges: [range] });
+  assert.equal(
+    tree.rootNode.toString(),
+    '(source_file (imports_statement (imports_clause name: (identifier))))',
+  );
+  assert.equal(tree.rootNode.descendantsOfType('identifier')[0].text, 'Y');
+});
