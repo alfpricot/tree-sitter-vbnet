@@ -244,7 +244,7 @@ export default {
       prec.right(
         PREC.lambda,
         seq(
-          lambda_modifiers(),
+          lambda_modifiers($),
           kw('Function'),
           field('parameters', $.parameter_list),
           field('body', $._expression),
@@ -253,14 +253,14 @@ export default {
       prec.right(
         PREC.lambda,
         seq(
-          lambda_modifiers(),
+          lambda_modifiers($),
           kw('Sub'),
           field('parameters', $.parameter_list),
           field('body', $._lambda_statement),
         ),
       ),
       seq(
-        lambda_modifiers(),
+        lambda_modifiers($),
         kws('Function', 'Sub'),
         field('parameters', $.parameter_list),
         optional(seq(kw('As'), field('return_type', $._type))),
@@ -269,6 +269,10 @@ export default {
         end_kw($, 'Function', 'Sub'),
       ),
     ),
+
+  _lambda_modifiers: ($) => repeat1(alias($._lambda_modifier, $.modifier)),
+
+  _lambda_modifier: (_) => kws('Async', 'Iterator'),
 
   // The statements a single-line `Sub` lambda body takes. A narrower set
   // than a full line: every statement allowed here is repeated in each
@@ -373,8 +377,8 @@ export default {
     seq(field('kind', kws('Skip', 'Take')), optional(kw('While')), $._expression),
 };
 
-function lambda_modifiers() {
-  return repeat(field('modifier', kws('Async', 'Iterator')));
+function lambda_modifiers($) {
+  return optional(field('modifiers', alias($._lambda_modifiers, $.modifiers)));
 }
 
 // The clauses that may follow a query's first one.

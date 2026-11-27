@@ -12,6 +12,14 @@ function prefix($) {
   return [repeat(field('attributes', $.attribute_list)), optional(field('modifiers', $.modifiers))];
 }
 
+// The attributes and modifiers of a `MustOverride` signature.
+function signature_prefix($) {
+  return [
+    repeat(field('attributes', $.attribute_list)),
+    field('modifiers', alias($._signature_modifiers, $.modifiers)),
+  ];
+}
+
 // The `As` clause and the `Handles`/`Implements` tails of a method header.
 function method_tail($) {
   return [
@@ -169,6 +177,12 @@ export default {
       'Const',
     ),
 
+  // The modifiers of a signature, one of which is `MustOverride`.
+  _signature_modifiers: ($) =>
+    seq(repeat($.modifier), alias($._must_override, $.modifier), repeat($.modifier)),
+
+  _must_override: (_) => kw('MustOverride'),
+
   field_declaration: ($) =>
     seq(
       repeat(field('attributes', $.attribute_list)),
@@ -190,9 +204,7 @@ export default {
   // A `MustOverride` method, which has no body.
   method_signature: ($) =>
     seq(
-      ...prefix($),
-      kw('MustOverride'),
-      optional(field('modifiers', $.modifiers)),
+      ...signature_prefix($),
       kws('Sub', 'Function'),
       field('name', $.identifier),
       ...method_tail($),
@@ -251,13 +263,7 @@ export default {
     ),
 
   // A `MustOverride` property, which has no accessors.
-  property_signature: ($) =>
-    seq(
-      ...prefix($),
-      kw('MustOverride'),
-      optional(field('modifiers', $.modifiers)),
-      ...property_header_rest($),
-    ),
+  property_signature: ($) => seq(...signature_prefix($), ...property_header_rest($)),
 
   interface_property: ($) => seq(...property_header($)),
 
@@ -346,10 +352,14 @@ export default {
 
   parameter_list: ($) => seq('(', optional(comma_sep1($.parameter)), ')'),
 
+  _parameter_modifiers: ($) => repeat1(alias($._parameter_modifier, $.modifier)),
+
+  _parameter_modifier: (_) => kws('Optional', 'ByVal', 'ByRef', 'ParamArray'),
+
   parameter: ($) =>
     seq(
       repeat(field('attributes', $.attribute_list)),
-      repeat(field('modifier', kws('Optional', 'ByVal', 'ByRef', 'ParamArray'))),
+      optional(field('modifiers', alias($._parameter_modifiers, $.modifiers))),
       field('name', $.identifier),
       repeat($.array_rank_specifier),
       optional('?'),

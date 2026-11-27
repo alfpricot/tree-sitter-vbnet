@@ -77,12 +77,12 @@ defer tree.Close()
 - **Files**: `Option`, `Imports` (including aliases), assembly and module attributes, namespaces, a BOM, CRLF or LF line endings, and no line break at the end of the file.
 - **Types**: classes, modules, structures, interfaces, and enums, nested in each other; `Inherits` and `Implements` on their own lines or after `:`; generic type parameters with variance and constraints; delegates.
 - **Members**: fields (including `WithEvents`, `Const`, and array bounds), methods with `Handles` and `Implements` clauses, constructors, operators, auto-implemented and full properties with accessor modifiers, `MustOverride` members, events and `Custom Event` with its three accessors, and `Declare` statements.
-- **Statements**: local declarations (`As New`, `With {...}`, `From {...}`, array bounds, nullable names), assignments and compound assignments, calls with or without `Call`, multi-line and single-line `If`, `Select Case` (`Case Is`, ranges, `Case Else`), `For`, `For Each`, `While`, `Do ... Loop`, `Try`/`Catch ... When`/`Finally`, `Using`, `With`, `SyncLock`, `Exit`, `Continue`, `Return`, `Throw`, `GoTo` and labels, `On Error`, `Resume`, `End`, `Stop`, `Erase`, `ReDim Preserve`, `AddHandler`, `RemoveHandler`, `RaiseEvent`, and `Yield`.
+- **Statements**: local declarations (`As New`, `With {...}`, `From {...}`, array bounds, nullable names), assignments and compound assignments, calls with or without `Call`, multi-line and single-line `If`, `Select Case` (`Case Is`, ranges, `Case Else`), `For`, `For Each` (including one `Next k, j, i` closing nested loops), `While`, `Do ... Loop`, `Try`/`Catch ... When`/`Finally`, `Using`, `With`, `SyncLock`, `Exit`, `Continue`, `Return`, `Throw`, `GoTo` and labels, `On Error`, `Resume`, `End`, `Stop`, `Erase`, `ReDim Preserve`, `AddHandler`, `RemoveHandler`, `RaiseEvent`, and `Yield`.
 - **Expressions**: VB's operator precedence, `TypeOf ... Is`, `Is`/`IsNot`/`Like`, `CType`/`DirectCast`/`TryCast` and the `CInt`-style conversions, `If(...)` with two or three arguments, `GetType`, `NameOf`, `AddressOf`, `Await`, object, array, anonymous-type, and collection creation, `?.` and `?(...)`, `!` dictionary access, the `.Name` form inside `With`, named and omitted arguments, tuples and tuple types, single-line and multi-line lambdas, interpolated strings with alignment and format, and every literal form (hex, octal, and binary integers with type suffixes, floating point, characters, dates, and doubled quotes).
 - **Queries**: `From`, `Where`, `Select`, `Order By`, `Group ... By ... Into`, `Join ... On ... Equals`, `Group Join`, `Let`, `Distinct`, `Skip`/`Take` (with `While`), and `Aggregate`, on one line or split across lines.
 - **Comments and preprocessor lines**: `'`, typographic quotes, and `REM` comments wherever they occur, and every `#` directive (`#If`, `#Region`, `#Const`, ...) as a `preprocessor_directive` node, including outside a method.
 
-Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`), `Imports <xmlns:...>`, and one `Next` closing three or more loops (`Next k, j, i`). `Next j, i` closing two nested loops parses. The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
+Not covered yet: XML literals and XML axis properties (`<root/>`, `x.<child>`) and `Imports <xmlns:...>`. The grammar parses both branches of `#If`/`#Else`, so code that repeats a declaration's opening line in each branch produces an error.
 
 ### Example
 
@@ -112,7 +112,7 @@ End Class
       body: (block
         (single_line_if_statement
           condition: (binary_expression left: (identifier) right: (integer_literal))
-          consequence: (single_line_block (return_statement (boolean_literal))))
+          body: (block (return_statement (boolean_literal))))
         (assignment_statement left: (identifier) right: (identifier))
         (return_statement (boolean_literal))))))
 ```
@@ -121,7 +121,7 @@ End Class
 
 `queries/highlights.scm` covers keywords, types, declarations, calls, literals, comments, and preprocessor lines. `queries/tags.scm` lists namespaces, types, members, calls, and object creation for symbol navigation. `queries/locals.scm` marks scopes, definitions, and references for local names; it matches text exactly, so a name written in a different letter case than its declaration does not resolve. `queries/folds.scm` marks foldable constructs with `@fold`. The Node and Python bindings and the Rust crate expose these four as `HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `LOCALS_QUERY`, and `FOLDS_QUERY`; the Go binding exposes the language only.
 
-`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures; a `Next j, i` line that closes two loops is indented one level deeper than the outer `For`, because those captures take back only one level per line. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
+`queries/indents.scm` marks what indents and outdents for editors that use tree-sitter indentation, with `@indent.begin` and `@indent.branch` captures; a `Next j, i` line that closes several loops is indented at the level of the innermost `For`, deeper than the outer one, because those captures take back only one level per line. `queries/injections.scm` marks the pattern of `New Regex(...)` and `Regex.IsMatch(input, ...)` as `regex`; the range includes the surrounding quotes. Both ship in the npm package and the crate as files.
 
 ## How to contribute
 

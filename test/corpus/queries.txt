@@ -18,6 +18,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -61,6 +63,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -116,6 +120,8 @@ End Module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -160,6 +166,8 @@ End Module
                       function: (identifier)
                       arguments: (argument_list))))))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression
@@ -176,6 +184,8 @@ End Module
                           object: (identifier)
                           member: (identifier))))))))))
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             value: (query_expression

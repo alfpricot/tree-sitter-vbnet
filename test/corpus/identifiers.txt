@@ -141,6 +141,8 @@ End Module
       name: (identifier)
       parameters: (parameter_list
         (parameter
+          modifiers: (modifiers
+            (modifier))
           name: (identifier)
           type: (primitive_type)))
       body: (block
@@ -153,7 +155,7 @@ End Module
             left: (member_access_expression
               member: (identifier))
             right: (integer_literal))
-          consequence: (single_line_block
+          body: (block
             (return_statement)))))))
 
 ========================================================================
@@ -176,6 +178,8 @@ end module
       parameters: (parameter_list)
       body: (block
         (local_declaration
+          modifiers: (modifiers
+            (modifier))
           declarator: (variable_declarator
             name: (identifier)
             type: (primitive_type)

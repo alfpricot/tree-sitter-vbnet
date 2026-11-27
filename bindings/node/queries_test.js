@@ -109,21 +109,23 @@ test('the indent query reproduces the layout of nested blocks', () => {
   );
 });
 
-test('a Next closing two loops keeps the bodies indented, one level deep itself', () => {
+test('a Next closing several loops keeps the bodies indented, at the innermost loop level', () => {
   const lines = [
     'Module M',
     '    Sub Run()',
     '        For i = 0 To 1',
     '            For j = 0 To 1',
-    '                x = 1',
-    '        Next j, i',
+    '                For k = 0 To 1',
+    '                    x = 1',
+    '        Next k, j, i',
     '        y = 2',
     '    End Sub',
     'End Module',
   ];
   const written = lines.map((line) => (line.length - line.trimStart().length) / 4);
-  // The shared line has two loops to close and one branch capture to do it.
-  const expected = written.map((level, row) => (row === 5 ? level + 1 : level));
+  // The shared line has every loop to close and one branch capture to do it, so
+  // it lands at the level of the innermost `For`.
+  const expected = written.map((level, row) => (row === 6 ? level + 2 : level));
   assert.deepEqual(indentLevels(lines.join('\n')), expected);
 });
 

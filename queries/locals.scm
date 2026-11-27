@@ -22,11 +22,10 @@
   (event_accessor_declaration)
   (lambda_expression)
   (block)
-  (single_line_block)
   (for_statement)
   (for_each_statement)
   (using_statement)
-  (catch_block)
+  (catch_clause)
   (query_expression)
 ] @local.scope
 
@@ -46,7 +45,7 @@
   variable: (identifier) @local.definition
   type: (_))
 
-(catch_block name: (identifier) @local.definition)
+(catch_clause name: (identifier) @local.definition)
 (range_variable name: (identifier) @local.definition)
 (let_clause name: (identifier) @local.definition)
 (aggregation name: (identifier) @local.definition)
@@ -111,7 +110,7 @@
 (case_clause value: (identifier) @local.reference)
 (case_clause low: (identifier) @local.reference)
 (case_clause high: (identifier) @local.reference)
-(catch_block filter: (identifier) @local.reference)
+(catch_clause filter: (identifier) @local.reference)
 (let_clause value: (identifier) @local.reference)
 (ordering (identifier) @local.reference)
 (group_by_clause items: (identifier) @local.reference)
