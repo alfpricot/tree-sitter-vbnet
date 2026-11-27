@@ -22,9 +22,10 @@
 #                      inside the npm and GitHub Packages tarballs, so an
 #                      install on those platforms needs no C toolchain;
 #                      node-gyp-build prefers a matching prebuild over a
-#                      source build. Neither npm publish runs unless every
-#                      prebuild succeeded and the package lists a binary for
-#                      each platform. A WASM build is attached to the GitHub
+#                      source build. No registry publish runs unless every
+#                      prebuild succeeded, and each npm publish also requires
+#                      the package to list a binary for each platform. A
+#                      WASM build is attached to the GitHub
 #                      Release for web-tree-sitter consumers, along with
 #                      test/node-kinds.txt as the node-kind stability
 #                      surface (only if the checkout has it — an older tag
@@ -199,7 +200,9 @@ jobs:
 
   publish-crate:
     name: Publish to crates.io
-    needs: verify
+    # The crate needs no prebuild, but publishing it alone would use up the
+    # version on one registry while the npm publishes are blocked.
+    needs: [verify, prebuild]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
